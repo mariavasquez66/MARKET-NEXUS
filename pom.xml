@@ -11,21 +11,8 @@
 	<groupId>cons2</groupId>
 	<artifactId>nexusmarket</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+	<name>nexusmarket</name>
+	<description>NexusMarket marketplace platform built with DDD and hexagonal architecture</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
