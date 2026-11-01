@@ -29,7 +29,7 @@ public class UserRole extends DomainCatalog {
         if (code == null || code.isBlank()) {
             throw new InvalidDataException("UserRole code cannot be null or blank");
         }
-        UserRole role = VALUES.get(code.toUpperCase());
+        UserRole role = VALUES.get(code.trim().toUpperCase());
         if (role == null) {
             throw new InvalidDataException("Invalid UserRole code: " + code);
         }

@@ -23,10 +23,14 @@ public class ProductType extends DomainCatalog {
         if (code == null || code.isBlank()) {
             throw new InvalidDataException("ProductType code cannot be null or blank");
         }
-        ProductType type = VALUES.get(code.toUpperCase());
+        ProductType type = VALUES.get(code.trim().toUpperCase());
         if (type == null) {
             throw new InvalidDataException("Invalid ProductType code: " + code);
         }
         return type;
+    }
+
+    public static ProductType[] values() {
+        return new ProductType[]{PHYSICAL, DIGITAL};
     }
 }

@@ -27,10 +27,14 @@ public class PaymentStatus extends DomainCatalog {
         if (code == null || code.isBlank()) {
             throw new InvalidDataException("PaymentStatus code cannot be null or blank");
         }
-        PaymentStatus status = VALUES.get(code.toUpperCase());
+        PaymentStatus status = VALUES.get(code.trim().toUpperCase());
         if (status == null) {
             throw new InvalidDataException("Invalid PaymentStatus code: " + code);
         }
         return status;
+    }
+
+    public static PaymentStatus[] values() {
+        return new PaymentStatus[]{PENDING, CONFIRMED, FAILED, REFUNDED};
     }
 }

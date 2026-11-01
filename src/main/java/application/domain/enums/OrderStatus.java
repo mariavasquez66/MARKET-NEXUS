@@ -33,10 +33,14 @@ public class OrderStatus extends DomainCatalog {
         if (code == null || code.isBlank()) {
             throw new InvalidDataException("OrderStatus code cannot be null or blank");
         }
-        OrderStatus status = VALUES.get(code.toUpperCase());
+        OrderStatus status = VALUES.get(code.trim().toUpperCase());
         if (status == null) {
             throw new InvalidDataException("Invalid OrderStatus code: " + code);
         }
         return status;
+    }
+
+    public static OrderStatus[] values() {
+        return new OrderStatus[]{CART, PENDING_PAYMENT, PAID, DISPATCHED, DELIVERED, FINALIZED, CANCELLED};
     }
 }

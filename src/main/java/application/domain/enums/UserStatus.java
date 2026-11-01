@@ -25,10 +25,14 @@ public class UserStatus extends DomainCatalog {
         if (code == null || code.isBlank()) {
             throw new InvalidDataException("UserStatus code cannot be null or blank");
         }
-        UserStatus status = VALUES.get(code.toUpperCase());
+        UserStatus status = VALUES.get(code.trim().toUpperCase());
         if (status == null) {
             throw new InvalidDataException("Invalid UserStatus code: " + code);
         }
         return status;
+    }
+
+    public static UserStatus[] values() {
+        return new UserStatus[]{ACTIVE, BLOCKED, INACTIVE};
     }
 }

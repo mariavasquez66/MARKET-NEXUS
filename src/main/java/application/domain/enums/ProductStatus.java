@@ -25,10 +25,14 @@ public class ProductStatus extends DomainCatalog {
         if (code == null || code.isBlank()) {
             throw new InvalidDataException("ProductStatus code cannot be null or blank");
         }
-        ProductStatus status = VALUES.get(code.toUpperCase());
+        ProductStatus status = VALUES.get(code.trim().toUpperCase());
         if (status == null) {
             throw new InvalidDataException("Invalid ProductStatus code: " + code);
         }
         return status;
+    }
+
+    public static ProductStatus[] values() {
+        return new ProductStatus[]{PUBLISHED, SUSPENDED, DISCONTINUED};
     }
 }

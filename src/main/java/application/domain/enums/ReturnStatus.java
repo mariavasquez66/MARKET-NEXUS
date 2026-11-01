@@ -27,10 +27,14 @@ public class ReturnStatus extends DomainCatalog {
         if (code == null || code.isBlank()) {
             throw new InvalidDataException("ReturnStatus code cannot be null or blank");
         }
-        ReturnStatus status = VALUES.get(code.toUpperCase());
+        ReturnStatus status = VALUES.get(code.trim().toUpperCase());
         if (status == null) {
             throw new InvalidDataException("Invalid ReturnStatus code: " + code);
         }
         return status;
+    }
+
+    public static ReturnStatus[] values() {
+        return new ReturnStatus[]{REQUESTED, APPROVED, REJECTED, COMPLETED};
     }
 }

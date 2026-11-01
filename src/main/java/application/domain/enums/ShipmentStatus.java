@@ -25,10 +25,14 @@ public class ShipmentStatus extends DomainCatalog {
         if (code == null || code.isBlank()) {
             throw new InvalidDataException("ShipmentStatus code cannot be null or blank");
         }
-        ShipmentStatus status = VALUES.get(code.toUpperCase());
+        ShipmentStatus status = VALUES.get(code.trim().toUpperCase());
         if (status == null) {
             throw new InvalidDataException("Invalid ShipmentStatus code: " + code);
         }
         return status;
+    }
+
+    public static ShipmentStatus[] values() {
+        return new ShipmentStatus[]{PENDING, IN_TRANSIT, DELIVERED};
     }
 }
