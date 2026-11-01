@@ -1,4 +1,4 @@
-﻿package application.domain.enums;
+package application.domain.enums;
 
 import application.domain.exceptions.common.InvalidDataException;
 import java.util.HashMap;
