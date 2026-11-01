@@ -67,6 +67,9 @@
 ## Historial real de commits
 
 ```
+9269ad9 docs(sdd): add source specification and master prompt
+6392639 docs(sdd): add repository diagnosis
+e41b27a docs(progress): reset PROGRESS.md to verified state
 1123956 chore(editor): save files as UTF-8 without BOM
 f0c74b1 chore(git): ignore local env files and log output
 df547ed build(pom): fill project metadata and remove empty sections
