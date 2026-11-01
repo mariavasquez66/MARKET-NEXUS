@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: Fase 1 cerrada (rama `develop`).
+> Última actualización: Fase 2 cerrada (rama `develop`).
 
 ## Entorno verificado
 
@@ -18,23 +18,33 @@
 
 ### Existe y compila
 
-- `src/main/java/application/domain/enums/` — 10 catálogos `DomainCatalog`:
+- `src/main/java/application/domain/enums/` — 18 catálogos `DomainCatalog`:
   `DomainCatalog`, `UserRole`, `UserStatus`, `CommercialStatus`, `ProductType`,
-  `ProductStatus`, `OrderStatus`, `PaymentStatus`, `ShipmentStatus`, `ReturnStatus`.
-- `src/main/java/application/domain/exceptions/common/` — `DomainException` (abstracta,
-  `RuntimeException`) e `InvalidDataException`.
-- Esqueleto de paquetes vacíos: `adapters/{persistence/{jpa,mongodb},rest,useCases}`,
-  `domain/{exceptions,models,ports/{in,out},services,valueobjects}`,
-  `infrastructure/{config,exception,security}`.
+  `ProductStatus`, `OrderStatus`, `PaymentStatus`, `ShipmentStatus`, `ReturnStatus`,
+  `InvoiceStatus`, `RefundStatus`, `WarehouseType`, `MovementType`,
+  `InventoryCondition`, `VariantType`, `AuditAction`, `AuditEntityType`.
+- `src/main/java/application/domain/exceptions/` — `DomainException` (abstracta,
+  `RuntimeException`), `InvalidDataException` y 51 excepciones concretas agrupadas
+  por contexto (`user`, `buyer`, `seller`, `warehouse`, `product`, `inventory`,
+  `cart`, `order`, `invoice`, `logistics`, `returns`, `refund`).
+- `src/main/java/application/domain/valueobjects/` — 9 VOs inmutables:
+  `Money`, `Address`, `Email`, `FullName`, `IdentityDocument`, `TaxId`,
+  `ProductVariant`, `PasswordHash`, `StockAllocation`.
+- `src/main/java/application/domain/models/` — 16 agregados/entidades y 5 reportes:
+  `User`, `Buyer`, `Seller`, `Warehouse`, `Product`, `Inventory`,
+  `InventoryMovement`, `Cart`, `CartItem`, `Order`, `Invoice`, `Shipment`,
+  `Return`, `Refund`, `AuditLog`, `AuthResult`; reportes `SalesReport`,
+  `OrderSummary`, `InventorySummary`, `ReturnSummary`, `UserSummary`.
+- `src/main/java/application/domain/ports/out/` — 18 puertos de salida.
+- `src/test/java/application/domain/` — 51 pruebas: VOs e invariantes de agregados.
+- Verificación de pureza: `application.domain` no importa Spring, JPA, Mongo,
+  Jackson ni HTTP.
 
 ### No existe todavía
 
-- `domain/models`, `domain/valueobjects`, `domain/services`, puertos, adaptadores,
-  DTOs, controladores, configuración, seguridad y pruebas automatizadas.
-- `src/test/java/application/domain` está vacío: **no hay tests** (el antiguo
-  `PROGRESS.md` afirmaba 7 tests y 13 servicios; no era cierto).
-- Código de las Fases 2–7: agregados, VOs, servicios, puertos, adaptadores,
-  DTOs, controladores, seguridad y pruebas.
+- `domain/services` (Fase 3A), puertos de entrada (Fase 3B), adaptadores JPA/Mongo,
+  DTOs, controladores, seguridad, configuración e integración (Fases 4–6).
+- Pruebas de servicios, casos de uso, adaptadores y API (Fases 3–7).
 
 ### SDD completo (Fase 1)
 
@@ -60,7 +70,7 @@
 | H-04 archivos vacíos | No se encontraron archivos de 0 bytes en `src/` |
 | H-05 `SDD/` incompleta | Resuelto en Fase 1 (documentos de dominio y adaptadores) |
 | H-06 inconsistencias entre fuentes | Resuelto documentalmente (D-03/D-04/D-06/D-10) |
-| H-07 `DomainCatalog` sin `values()` | Confirmado (solo `UserRole` lo tiene); se corrige en Fase 2 |
+| H-07 `DomainCatalog` sin `values()` | Resuelto: los 18 catálogos exponen `fromCode` y `values` |
 | H-08 `pom.xml` incompleto | Metadatos corregidos; faltan validation/JWT (Fase 4) |
 | H-09 PDF no legible | Transcrito como Anexo A en la especificación funcional |
 | H-10 matriz de responsabilidades | Pendiente de confirmación (D-09) |
@@ -71,7 +81,7 @@
 |---|---|---|
 | 0 — Diagnóstico y línea base | COMPLETA | `SDD/Diagnosis.md`, compilación OK |
 | 1 — SDD completo | COMPLETA | `SDD/**`, `SDD/Traceability-Matrix.md` |
-| 2 — Dominio core | PENDIENTE | — |
+| 2 — Dominio core | COMPLETA | enums, excepciones, VOs, modelos, 18 puertos y 51 tests |
 | 3 — Servicios y casos de uso | PENDIENTE | — |
 | 4 — Persistencia JPA/Mongo | PENDIENTE | — |
 | 5 — REST | PENDIENTE | — |
@@ -82,6 +92,12 @@
 ## Historial real de commits
 
 ```
+cac4443 test(domain): cover value objects and aggregate invariants
+2e00789 feat(domain): add output ports
+20e6e1a feat(domain): add rich aggregates and report models
+939917f feat(domain): add immutable value objects
+d6ecd2d feat(domain): add exception hierarchy for all bounded contexts
+9751f19 feat(domain): complete and align catalog enums
 c1453c0 docs(sdd): add traceability matrix
 5bcd1f2 docs(sdd): adapt orchestrator prompt to NexusMarket
 ad365e7 docs(sdd): add adapter contracts
@@ -110,5 +126,5 @@ f40fdbe Initial commit
 $env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot'
 $env:Path="$env:JAVA_HOME\bin;$env:Path"
 .\mvnw.cmd -q -DskipTests compile   # OK
-.\mvnw.cmd -q test                  # sin tests todavía
+.\mvnw.cmd -q test                  # 51 tests OK
 ```
