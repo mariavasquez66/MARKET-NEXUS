@@ -1,8 +1,8 @@
 # NexusMarket — Estado de implementación verificado
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
-> No es fuente de verdad del diseño: el SDD lo será a partir de la Fase 1.
-> Última actualización: Fase 0 (rama `develop`).
+> No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
+> Última actualización: Fase 1 cerrada (rama `develop`).
 
 ## Entorno verificado
 
@@ -33,7 +33,22 @@
   DTOs, controladores, configuración, seguridad y pruebas automatizadas.
 - `src/test/java/application/domain` está vacío: **no hay tests** (el antiguo
   `PROGRESS.md` afirmaba 7 tests y 13 servicios; no era cierto).
-- Documentación de dominio en `SDD/` (solo hay prompts y el PDF).
+- Código de las Fases 2–7: agregados, VOs, servicios, puertos, adaptadores,
+  DTOs, controladores, seguridad y pruebas.
+
+### SDD completo (Fase 1)
+
+- `SDD/especificacion_funcional_nexusmarket.md` — OBJ-01…12, dominios,
+  RG-01…03, glosario.
+- `SDD/Decisiones-y-supuestos.md` — D-01…D-17, A-01…A-16 (D-09 ⚠).
+- `SDD/Domain/Domain-Model.md`, `Enums-and-Value-Objects.md`,
+  `Domain-Services.md`, `Exceptions.md`, `Input-ports.md`, `Output-ports.md`.
+- `SDD/Domain/services/` — 14 contratos de servicio.
+- `SDD/Adapters/Persistence-adapters.md`, `Use-cases-adapters.md`,
+  `Api-rest-endpoints.md`, `Rest-validation.md`,
+  `Global-exception-handler.md`, `Rest-security-cors.md`.
+- `SDD/Orchestrator-prompt.md` — adaptado de la plantilla bancaria.
+- `SDD/Traceability-Matrix.md` — requisito → artefacto → prueba.
 
 ### Verificaciones de la Fase 0
 
@@ -43,11 +58,11 @@
 | H-02 `PROGRESS.md` inflado | Confirmado; este documento lo sustituye |
 | H-03 enums con BOM y sin `InvalidDataException` | Corregido; `compile` pasa |
 | H-04 archivos vacíos | No se encontraron archivos de 0 bytes en `src/` |
-| H-05 `SDD/` incompleta | Confirmado; se completará en Fase 1 |
-| H-06 inconsistencias entre fuentes | Pendiente de resolver documentalmente en Fase 1 |
-| H-07 `DomainCatalog` sin `values()` | Confirmado (solo `UserRole` lo tiene) |
+| H-05 `SDD/` incompleta | Resuelto en Fase 1 (documentos de dominio y adaptadores) |
+| H-06 inconsistencias entre fuentes | Resuelto documentalmente (D-03/D-04/D-06/D-10) |
+| H-07 `DomainCatalog` sin `values()` | Confirmado (solo `UserRole` lo tiene); se corrige en Fase 2 |
 | H-08 `pom.xml` incompleto | Metadatos corregidos; faltan validation/JWT (Fase 4) |
-| H-09 PDF no legible | Se transcribirá como Anexo A en Fase 1 |
+| H-09 PDF no legible | Transcrito como Anexo A en la especificación funcional |
 | H-10 matriz de responsabilidades | Pendiente de confirmación (D-09) |
 
 ## Fases
@@ -55,7 +70,7 @@
 | Fase | Estado | Evidencia |
 |---|---|---|
 | 0 — Diagnóstico y línea base | COMPLETA | `SDD/Diagnosis.md`, compilación OK |
-| 1 — SDD completo | PENDIENTE | — |
+| 1 — SDD completo | COMPLETA | `SDD/**`, `SDD/Traceability-Matrix.md` |
 | 2 — Dominio core | PENDIENTE | — |
 | 3 — Servicios y casos de uso | PENDIENTE | — |
 | 4 — Persistencia JPA/Mongo | PENDIENTE | — |
@@ -67,6 +82,14 @@
 ## Historial real de commits
 
 ```
+c1453c0 docs(sdd): add traceability matrix
+5bcd1f2 docs(sdd): adapt orchestrator prompt to NexusMarket
+ad365e7 docs(sdd): add adapter contracts
+2f9d901 docs(sdd): add input and output ports
+de0246f docs(sdd): add domain services and exceptions
+b0476dd docs(sdd): add domain model and value objects
+557120c docs(sdd): add design decisions and assumptions
+3de2c17 docs(sdd): add functional specification in markdown
 9269ad9 docs(sdd): add source specification and master prompt
 6392639 docs(sdd): add repository diagnosis
 e41b27a docs(progress): reset PROGRESS.md to verified state
