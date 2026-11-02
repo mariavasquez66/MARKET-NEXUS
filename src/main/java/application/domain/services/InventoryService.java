@@ -75,7 +75,7 @@ public class InventoryService {
         return inventory;
     }
 
-    public Inventory addStock(User actor, String productId, String warehouseId, int quantity) {
+    public InventoryMovement addStock(User actor, String productId, String warehouseId, int quantity) {
         ServiceSupport.requireAnyRole(actor, UserRole.LOGISTIC_OPERATOR, UserRole.SELLER);
         if (quantity <= 0) {
             throw new application.domain.exceptions.cart.InvalidQuantityException("Quantity must be greater than zero");
@@ -86,8 +86,7 @@ public class InventoryService {
         }
         inventory.adjust(quantity);
         Inventory saved = inventoryRepository.save(inventory);
-        recordMovement(saved, MovementType.INFLOW, quantity, actor);
-        return saved;
+        return recordMovement(saved, MovementType.INFLOW, quantity, actor);
     }
 
     public StockAllocation reserve(User actor, String productId, String warehouseId, int quantity) {
@@ -115,13 +114,12 @@ public class InventoryService {
         recordMovement(inventory, MovementType.SALE, quantity, actor);
     }
 
-    public Inventory adjust(User actor, String productId, String warehouseId, int delta) {
+    public InventoryMovement adjust(User actor, String productId, String warehouseId, int delta) {
         ServiceSupport.requireRole(actor, UserRole.LOGISTIC_OPERATOR);
         Inventory inventory = requireInventory(productId, warehouseId);
         inventory.adjust(delta);
         Inventory saved = inventoryRepository.save(inventory);
-        recordMovement(saved, MovementType.ADJUSTMENT, delta, actor);
-        return saved;
+        return recordMovement(saved, MovementType.ADJUSTMENT, delta, actor);
     }
 
     public void registerReturn(User actor, String productId, String warehouseId, int quantity) {
@@ -174,12 +172,21 @@ public class InventoryService {
         return inventories;
     }
 
-    private void recordMovement(Inventory inventory, MovementType type, int quantity, User actor) {
+    public List<Inventory> listMyInventory(User actor) {
+        ServiceSupport.requireRole(actor, UserRole.SELLER);
+        return inventoryRepository.findAll().stream()
+                .filter(inventory -> inventory.getProduct().getSeller().getUser().getId()
+                        .equals(actor.getId()))
+                .toList();
+    }
+
+    private InventoryMovement recordMovement(Inventory inventory, MovementType type, int quantity, User actor) {
         InventoryMovement movement = InventoryMovement.create(inventory, type, quantity, actor, clockPort.now());
         movementRepository.save(movement);
         ServiceSupport.audit(auditPort, clockPort, AuditAction.INVENTORY_MOVEMENT,
                 AuditEntityType.INVENTORY, inventory.getId(), actor,
                 type.getCode() + " " + quantity);
+        return movement;
     }
 
     private Inventory requireInventory(String productId, String warehouseId) {

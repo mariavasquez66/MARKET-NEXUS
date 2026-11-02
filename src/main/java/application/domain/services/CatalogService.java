@@ -122,6 +122,13 @@ public class CatalogService {
         return product;
     }
 
+    public List<Product> listMyProducts(User actor) {
+        ServiceSupport.requireRole(actor, UserRole.SELLER);
+        Seller seller = sellerRepository.findByUserId(actor.getId())
+                .orElseThrow(() -> new SellerNotFoundException("Seller not found for current user"));
+        return productRepository.findBySellerId(seller.getId());
+    }
+
     public List<Product> listBySeller(User actor, String sellerId) {
         ServiceSupport.requireAnyRole(actor, UserRole.SELLER, UserRole.ADMIN);
         Seller seller = sellerRepository.findById(sellerId)

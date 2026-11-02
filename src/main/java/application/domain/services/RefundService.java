@@ -76,6 +76,14 @@ public class RefundService {
         return refunds;
     }
 
+    public List<Refund> listMyRefunds(User actor) {
+        ServiceSupport.requireRole(actor, UserRole.BUYER);
+        return refundRepository.findAll().stream()
+                .filter(refund -> refund.getReturnRequest().getOrder().getBuyer().getUser().getId()
+                        .equals(actor.getId()))
+                .toList();
+    }
+
     public Refund getRefund(User actor, String refundId) {
         ServiceSupport.requireAnyRole(actor, UserRole.BUYER, UserRole.ADMIN, UserRole.SUPERVISOR);
         Refund refund = requireRefund(refundId);
