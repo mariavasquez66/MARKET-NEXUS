@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: Fase 4 en progreso (rama `develop`).
+> Última actualización: Fase 4 cerrada (rama `develop`).
 
 ## Entorno verificado
 
@@ -55,14 +55,18 @@
   de fechas.
 - `src/test/java/application/domain/` — 124 pruebas: VOs, agregados y los 14
   servicios de dominio.
+- `src/test/java/application/adapters/persistence/` — 69 pruebas de persistencia:
+  round-trip de los 13 mappers JPA, los 17 converters de catálogo, restricciones
+  de mapeo/unicidad, mapper y adaptador Mongo, y delegación de los 13 adaptadores
+  JPA con repositorios mockeados.
 - Verificación de pureza: `application.domain` no importa Spring, JPA, Mongo,
   Jackson ni HTTP.
 
 ### No existe todavía
 
-- Adaptadores JPA/Mongo, DTOs, controladores, seguridad, configuración e
-  integración (Fases 4–6).
-- Pruebas de casos de uso, adaptadores y API (Fases 4–7).
+- DTOs, controladores, `GlobalExceptionHandler`, seguridad JWT, configuración de
+  beans e integración (Fases 5–6).
+- Pruebas de casos de uso, REST y seguridad (Fases 5–7).
 
 ### SDD completo (Fase 1)
 
@@ -101,7 +105,7 @@
 | 1 — SDD completo | COMPLETA | `SDD/**`, `SDD/Traceability-Matrix.md` |
 | 2 — Dominio core | COMPLETA | enums, excepciones, VOs, modelos, 18 puertos y 51 tests |
 | 3 — Servicios y casos de uso | COMPLETA | 14 servicios, 6 puertos de entrada, 6 casos de uso y 124 tests |
-| 4 — Persistencia JPA/Mongo | EN PROGRESO | JPA entidades/converters/repos/mappers/adaptadores + Mongo audit |
+| 4 — Persistencia JPA/Mongo | COMPLETA | JPA entidades/converters/repos/mappers/adaptadores, Mongo audit, 69 tests de persistencia y JJWT/validation en `pom.xml` |
 | 5 — REST | PENDIENTE | — |
 | 6 — Seguridad e infraestructura | PENDIENTE | — |
 | 7 — Cobertura y calidad | PENDIENTE | — |
@@ -110,6 +114,14 @@
 ## Historial real de commits
 
 ```
+a41ef14 build(pom): add validation and JJWT dependencies
+2e9c86a test(persistence): cover JPA adapters
+f9ddc4e test(persistence): cover MongoDB audit adapter
+73ef97a test(persistence): verify JPA mapping constraints
+2d0b011 test(persistence): cover catalog converters
+1c7336d test(persistence): cover JPA mapper round trips
+f8923c1 chore(editor): enable interactive build configuration updates
+4ca8f8a docs(progress): record persistence adapters
 01217bd feat(persistence): add JPA entities, converters, repos, mappers and adapters
 0a36306 docs(progress): close phase 3
 7c38da6 feat(adapters): add use case adapters
@@ -151,5 +163,5 @@ f40fdbe Initial commit
 $env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot'
 $env:Path="$env:JAVA_HOME\bin;$env:Path"
 .\mvnw.cmd -q -DskipTests compile   # OK
-.\mvnw.cmd -q test                  # 124 tests OK
+.\mvnw.cmd -q test                  # 193 tests OK
 ```
