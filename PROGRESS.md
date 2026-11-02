@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: Fase 2 cerrada (rama `develop`).
+> Última actualización: Fase 3 cerrada (rama `develop`).
 
 ## Entorno verificado
 
@@ -36,15 +36,26 @@
   `Return`, `Refund`, `AuditLog`, `AuthResult`; reportes `SalesReport`,
   `OrderSummary`, `InventorySummary`, `ReturnSummary`, `UserSummary`.
 - `src/main/java/application/domain/ports/out/` — 18 puertos de salida.
-- `src/test/java/application/domain/` — 51 pruebas: VOs e invariantes de agregados.
+- `src/main/java/application/domain/ports/in/` — 6 puertos de entrada por rol:
+  `PublicAccessPort`, `NaturalCustomerPort`, `BusinessCustomerPort`,
+  `BusinessOperatorPort`, `BusinessSupervisorPort`, `TellerEmployeePort`.
+- `src/main/java/application/domain/services/` — 14 servicios de dominio y
+  `ServiceSupport` (roles, auditoría). Desviaciones del SDD justificadas:
+  `OrderService` recibe `InventoryMovementRepositoryPort`, `RefundService` recibe
+  `OrderRepositoryPort`; `InventoryService.addStock`/`adjust` devuelven
+  `InventoryMovement` para satisfacer `BusinessOperatorPort`.
+- `src/main/java/application/adapters/useCases/` — 6 casos de uso que implementan
+  los puertos de entrada y delegan 1:1 en los servicios.
+- `src/test/java/application/domain/` — 124 pruebas: VOs, agregados y los 14
+  servicios de dominio.
 - Verificación de pureza: `application.domain` no importa Spring, JPA, Mongo,
   Jackson ni HTTP.
 
 ### No existe todavía
 
-- `domain/services` (Fase 3A), puertos de entrada (Fase 3B), adaptadores JPA/Mongo,
-  DTOs, controladores, seguridad, configuración e integración (Fases 4–6).
-- Pruebas de servicios, casos de uso, adaptadores y API (Fases 3–7).
+- Adaptadores JPA/Mongo, DTOs, controladores, seguridad, configuración e
+  integración (Fases 4–6).
+- Pruebas de casos de uso, adaptadores y API (Fases 4–7).
 
 ### SDD completo (Fase 1)
 
@@ -82,7 +93,7 @@
 | 0 — Diagnóstico y línea base | COMPLETA | `SDD/Diagnosis.md`, compilación OK |
 | 1 — SDD completo | COMPLETA | `SDD/**`, `SDD/Traceability-Matrix.md` |
 | 2 — Dominio core | COMPLETA | enums, excepciones, VOs, modelos, 18 puertos y 51 tests |
-| 3 — Servicios y casos de uso | PENDIENTE | — |
+| 3 — Servicios y casos de uso | COMPLETA | 14 servicios, 6 puertos de entrada, 6 casos de uso y 124 tests |
 | 4 — Persistencia JPA/Mongo | PENDIENTE | — |
 | 5 — REST | PENDIENTE | — |
 | 6 — Seguridad e infraestructura | PENDIENTE | — |
@@ -92,6 +103,11 @@
 ## Historial real de commits
 
 ```
+7c38da6 feat(adapters): add use case adapters
+683c343 feat(domain): expose seller-scoped service queries
+ad35218 feat(domain): add input ports
+267392f test(domain): cover domain service rules
+8f9563f feat(domain): add domain services
 cac4443 test(domain): cover value objects and aggregate invariants
 2e00789 feat(domain): add output ports
 20e6e1a feat(domain): add rich aggregates and report models
@@ -126,5 +142,5 @@ f40fdbe Initial commit
 $env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot'
 $env:Path="$env:JAVA_HOME\bin;$env:Path"
 .\mvnw.cmd -q -DskipTests compile   # OK
-.\mvnw.cmd -q test                  # 51 tests OK
+.\mvnw.cmd -q test                  # 124 tests OK
 ```
