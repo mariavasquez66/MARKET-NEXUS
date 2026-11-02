@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: Fase 3 cerrada (rama `develop`).
+> Última actualización: Fase 4 en progreso (rama `develop`).
 
 ## Entorno verificado
 
@@ -46,6 +46,13 @@
   `InventoryMovement` para satisfacer `BusinessOperatorPort`.
 - `src/main/java/application/adapters/useCases/` — 6 casos de uso que implementan
   los puertos de entrada y delegan 1:1 en los servicios.
+- `src/main/java/application/adapters/persistence/jpa/` — entidades, conversores
+  `AttributeConverter` por catálogo, repositorios Spring Data, mappers y adaptadores
+  que implementan los 13 puertos JPA; estrategia de columnas planas FK, filas hijas
+  y resolución sin ciclos.
+- `src/main/java/application/adapters/persistence/mongodb/` — adaptador de auditoría
+  (`AuditLogMongoAdapter`) implementando `AuditPort` con consultas por acción/rango
+  de fechas.
 - `src/test/java/application/domain/` — 124 pruebas: VOs, agregados y los 14
   servicios de dominio.
 - Verificación de pureza: `application.domain` no importa Spring, JPA, Mongo,
@@ -94,7 +101,7 @@
 | 1 — SDD completo | COMPLETA | `SDD/**`, `SDD/Traceability-Matrix.md` |
 | 2 — Dominio core | COMPLETA | enums, excepciones, VOs, modelos, 18 puertos y 51 tests |
 | 3 — Servicios y casos de uso | COMPLETA | 14 servicios, 6 puertos de entrada, 6 casos de uso y 124 tests |
-| 4 — Persistencia JPA/Mongo | PENDIENTE | — |
+| 4 — Persistencia JPA/Mongo | EN PROGRESO | JPA entidades/converters/repos/mappers/adaptadores + Mongo audit |
 | 5 — REST | PENDIENTE | — |
 | 6 — Seguridad e infraestructura | PENDIENTE | — |
 | 7 — Cobertura y calidad | PENDIENTE | — |
@@ -103,6 +110,8 @@
 ## Historial real de commits
 
 ```
+01217bd feat(persistence): add JPA entities, converters, repos, mappers and adapters
+0a36306 docs(progress): close phase 3
 7c38da6 feat(adapters): add use case adapters
 683c343 feat(domain): expose seller-scoped service queries
 ad35218 feat(domain): add input ports
