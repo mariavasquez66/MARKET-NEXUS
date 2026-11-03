@@ -75,8 +75,8 @@
   `TaxPolicyAdapter` (`nexusmarket.tax.rate`).
 - `src/main/resources/application*.properties` — perfiles `local` y `docker`;
   `docker-compose.yml` (MySQL 8.0 + MongoDB 4.4 con credenciales por entorno) y
-  `.env.example`. MongoDB se fija en 4.4 porque el host de verificación no
-  soporta AVX y las imágenes 5.0+ terminan con exit code 132.
+  `.env.example`. MongoDB se fija en 4.4 (D-17) porque el host de verificación
+  no soporta AVX y las imágenes 5.0+ terminan con exit code 132.
 - `src/test/java/application/domain/` — 124 pruebas: VOs, agregados y los 14
   servicios de dominio.
 - `src/test/java/application/adapters/persistence/` — 71 pruebas de persistencia:

@@ -19,6 +19,7 @@ services:
       retries: 10
 
   mongo-db:
+    # MongoDB 4.4 is pinned because the verification host lacks AVX; 5.0+ exits with code 132.
     image: mongo:4.4
     container_name: nexusmarket-mongo
     restart: unless-stopped
