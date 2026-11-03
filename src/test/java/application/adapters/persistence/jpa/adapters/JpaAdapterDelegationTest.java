@@ -211,6 +211,16 @@ class JpaAdapterDelegationTest {
     }
 
     @Test
+    void existsUserByRoleDelegatesWithCatalogType() {
+        when(userRepository.existsByRoleCode(UserRole.ADMIN)).thenReturn(true);
+
+        boolean result = userAdapter.existsByRole(UserRole.ADMIN);
+
+        assertThat(result).isTrue();
+        verify(userRepository).existsByRoleCode(UserRole.ADMIN);
+    }
+
+    @Test
     void saveBuyerBuildsEntityAndResolvesOwningUser() {
         Buyer buyer = buyer("buyer-1");
         when(buyerRepository.save(any(BuyerJpaEntity.class)))

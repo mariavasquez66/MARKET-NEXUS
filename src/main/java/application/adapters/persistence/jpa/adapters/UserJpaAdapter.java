@@ -55,6 +55,6 @@ public class UserJpaAdapter implements UserRepositoryPort {
 
     @Override
     public boolean existsByRole(UserRole role) {
-        return repository.existsByRoleCode(role.getCode());
+        return repository.existsByRoleCode(role);
     }
 }
