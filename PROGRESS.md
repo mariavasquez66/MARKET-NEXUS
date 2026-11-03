@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: Fase 4 cerrada (rama `develop`).
+> Última actualización: Fase 5 cerrada (rama `develop`).
 
 ## Entorno verificado
 
@@ -53,20 +53,32 @@
 - `src/main/java/application/adapters/persistence/mongodb/` — adaptador de auditoría
   (`AuditLogMongoAdapter`) implementando `AuditPort` con consultas por acción/rango
   de fechas.
+- `src/main/java/application/adapters/rest/` — 22 DTOs de request con Jakarta
+  Validation, 27 DTOs de response, 15 mappers REST y 6 controladores por rol:
+  `PublicController`, `BuyerController`, `SellerController`,
+  `LogisticsController`, `AdminController`, `SupervisorController`.
+- `src/main/java/application/infrastructure/exception/` — `GlobalExceptionHandler`
+  con `ErrorResponse` (`timestamp`, `status`, `code`, `message`, `path`,
+  `requestId`) y mapeo de validación, catálogos inválidos, dominio y error 500.
 - `src/test/java/application/domain/` — 124 pruebas: VOs, agregados y los 14
   servicios de dominio.
 - `src/test/java/application/adapters/persistence/` — 69 pruebas de persistencia:
   round-trip de los 13 mappers JPA, los 17 converters de catálogo, restricciones
   de mapeo/unicidad, mapper y adaptador Mongo, y delegación de los 13 adaptadores
   JPA con repositorios mockeados.
+- `src/test/java/application/adapters/rest/` y
+  `src/test/java/application/infrastructure/` — 118 pruebas REST: round-trip de
+  los 15 mappers, 7 pruebas del `GlobalExceptionHandler`, resolver de actor para
+  MockMvc y 97 pruebas de controladores (200/201/204, 400, 401, 403, 404, 409).
+- Total verificado: 311 pruebas (`124` dominio + `69` persistencia + `118` REST),
+  0 fallos, 0 errores, 0 omitidas.
 - Verificación de pureza: `application.domain` no importa Spring, JPA, Mongo,
   Jackson ni HTTP.
 
 ### No existe todavía
 
-- DTOs, controladores, `GlobalExceptionHandler`, seguridad JWT, configuración de
-  beans e integración (Fases 5–6).
-- Pruebas de casos de uso, REST y seguridad (Fases 5–7).
+- Seguridad JWT, filtros, configuración de beans e integración (Fase 6).
+- Pruebas de casos de uso y seguridad (Fases 6–7).
 
 ### SDD completo (Fase 1)
 
@@ -106,7 +118,7 @@
 | 2 — Dominio core | COMPLETA | enums, excepciones, VOs, modelos, 18 puertos y 51 tests |
 | 3 — Servicios y casos de uso | COMPLETA | 14 servicios, 6 puertos de entrada, 6 casos de uso y 124 tests |
 | 4 — Persistencia JPA/Mongo | COMPLETA | JPA entidades/converters/repos/mappers/adaptadores, Mongo audit, 69 tests de persistencia y JJWT/validation en `pom.xml` |
-| 5 — REST | PENDIENTE | — |
+| 5 — REST | COMPLETA | DTOs, mappers, 6 controladores, `GlobalExceptionHandler` y 118 pruebas REST; 311 pruebas totales |
 | 6 — Seguridad e infraestructura | PENDIENTE | — |
 | 7 — Cobertura y calidad | PENDIENTE | — |
 | 8 — Cierre | PENDIENTE | — |
@@ -114,6 +126,11 @@
 ## Historial real de commits
 
 ```
+26e1ff4 feat(rest): add supervisor endpoints
+60093b2 feat(rest): add admin endpoints
+70c2579 feat(rest): add seller and logistics endpoints
+8d003ae feat(rest): add public and buyer endpoints
+a2c5699 feat(rest): add DTOs, mappers and global exception handler
 a41ef14 build(pom): add validation and JJWT dependencies
 2e9c86a test(persistence): cover JPA adapters
 f9ddc4e test(persistence): cover MongoDB audit adapter
