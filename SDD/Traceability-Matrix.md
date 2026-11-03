@@ -1,8 +1,9 @@
 # Matriz de trazabilidad — NexusMarket
 
-> Estado: **diseño completo (Fase 1)**. Ningún artefacto de código de las fases
-> 2–7 existe todavía; la columna «Estado» indica `Diseñado` o
-> `Implementado (Fase 0)`.
+> Estado: **diseño completo (Fase 1)**; fases 2–5 y 6 implementadas. Las fases
+> 7–8 están pendientes. La columna «Estado» conserva la foto del diseño y la
+> evidencia de implementación se centraliza en `PROGRESS.md` y en las pruebas
+> de cada fase.
 >
 > Fuentes: `SDD/especificacion_funcional_nexusmarket.md`,
 > `SDD/Decisiones-y-supuestos.md`, `SDD/Domain/**`, `SDD/Adapters/**`.
@@ -139,9 +140,9 @@
 | `ReturnRepositoryPort` | `ReturnJpaAdapter` | `§1` |
 | `RefundRepositoryPort` | `RefundJpaAdapter` | `§1` |
 | `AuditPort` | `AuditLogMongoAdapter` | `§2` |
-| `PasswordServicePort` | `BCryptPasswordServiceAdapter` | `§2` |
+| `PasswordServicePort` | `PasswordServiceAdapter` (BCrypt) | `§2` |
 | `JwtServicePort` | `JwtProvider` | `§2` |
-| `TaxPolicyPort` | `PropertiesTaxPolicyAdapter` | `§2` |
+| `TaxPolicyPort` | `TaxPolicyAdapter` | `§2` |
 | `ClockPort` | `SystemClockAdapter` | `§2` |
 
 ## 8. Excepciones → HTTP
@@ -198,7 +199,9 @@ Detalle en `SDD/Adapters/Api-rest-endpoints.md`.
 | D-13 publicación | `Product.publish` | `CatalogServiceTest` |
 | D-14 auditoría | `AuditPort.record` en servicios | tests con `AuditPort` mockeado |
 | D-15 reembolso | `Refund` + `RefundService` | `RefundTest`, `RefundServiceTest` |
-| D-16 admin inicial | `BootstrapAdminRunner` | test de configuración (Fase 6) |
+| D-16 admin inicial | `BootstrapAdminRunner` + `UserService.createBootstrapAdmin` | `BootstrapAdminRunnerTest`, `UserServiceBootstrapTest` |
+| Seguridad REST | `SecurityConfig`, `JwtAuthenticationFilter`, `SecurityErrorWriter` | `SecurityConfigTest`, `JwtAuthenticationFilterTest`, `JwtProviderTest` |
+| CORS / `X-Request-Id` | `SecurityConfig.corsConfigurationSource`, `RequestIdFilter` | `SecurityConfigTest` |
 
 ## 11. Verificación de exhaustividad
 

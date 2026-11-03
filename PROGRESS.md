@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: Fase 5 cerrada (rama `develop`).
+> Última actualización: Fase 6 cerrada (rama `develop`).
 
 ## Entorno verificado
 
@@ -60,6 +60,20 @@
 - `src/main/java/application/infrastructure/exception/` — `GlobalExceptionHandler`
   con `ErrorResponse` (`timestamp`, `status`, `code`, `message`, `path`,
   `requestId`) y mapeo de validación, catálogos inválidos, dominio y error 500.
+- `src/main/java/application/NexusmarketApplication.java` — punto de entrada
+  `@SpringBootApplication` (no existía en fases previas).
+- `src/main/java/application/infrastructure/security/` — `JwtProvider`
+  (claims `sub/jti/ver/iat/exp/role`, sin PII), `JwtAuthenticationFilter`
+  (valida firma, expiración, usuario activo, versión de token y rol actual),
+  `AuthenticatedUserPrincipal`, `SecurityConfig` (stateless, reglas por prefijo,
+  `SUPERVISOR` solo `GET`, CORS, BCrypt), `RequestIdFilter`,
+  `SecurityErrorWriter`, entry point 401 y access denied 403 en JSON.
+- `src/main/java/application/infrastructure/config/` — `DomainServicesConfig`
+  (14 servicios), `BootstrapAdminRunner` (D-16, `@Profile("!test")`) y
+  `TaxPolicyAdapter` (`nexusmarket.tax.rate`).
+- `src/main/resources/application*.properties` — perfiles `local` y `docker`;
+  `docker-compose.yml` (MySQL 8.0 + MongoDB 6.0 con credenciales por entorno) y
+  `.env.example`.
 - `src/test/java/application/domain/` — 124 pruebas: VOs, agregados y los 14
   servicios de dominio.
 - `src/test/java/application/adapters/persistence/` — 69 pruebas de persistencia:
@@ -70,15 +84,29 @@
   `src/test/java/application/infrastructure/` — 118 pruebas REST: round-trip de
   los 15 mappers, 7 pruebas del `GlobalExceptionHandler`, resolver de actor para
   MockMvc y 97 pruebas de controladores (200/201/204, 400, 401, 403, 404, 409).
-- Total verificado: 311 pruebas (`124` dominio + `69` persistencia + `118` REST),
-  0 fallos, 0 errores, 0 omitidas.
+- `src/test/java/application/infrastructure/security/` y
+  `src/test/java/application/infrastructure/config/` — 40 pruebas nuevas:
+  JWT (claims, expiración, firma, secreto inválido), filtro (401 por token
+  inválido/obsoleto/rol alterado/usuario inactivo), reglas por prefijo y
+  preflight CORS, `X-Request-Id`, BCrypt, bootstrap de administrador y tasa de
+  impuestos.
+- Total verificado: 351 pruebas (`124` dominio + `69` persistencia + `118` REST
+  + `40` seguridad/configuración), 0 fallos, 0 errores, 0 omitidas.
 - Verificación de pureza: `application.domain` no importa Spring, JPA, Mongo,
   Jackson ni HTTP.
 
 ### No existe todavía
 
-- Seguridad JWT, filtros, configuración de beans e integración (Fase 6).
-- Pruebas de casos de uso y seguridad (Fases 6–7).
+- Pruebas de casos de uso y medición de cobertura (Fase 7).
+- Verificación con Docker: el binario `docker` no está disponible en el
+  entorno; por D-17 la comprobación de conectividad de contenedores se reporta
+  como **omitida**.
+
+### Limitaciones de verificación
+
+- La compilación y las 351 pruebas se ejecutaron con Java 17 y Maven Wrapper.
+- `docker-compose.yml` y los perfiles se validaron por inspección y por arranque
+  de tests; no se levantaron contenedores por ausencia de Docker.
 
 ### SDD completo (Fase 1)
 
@@ -119,13 +147,20 @@
 | 3 — Servicios y casos de uso | COMPLETA | 14 servicios, 6 puertos de entrada, 6 casos de uso y 124 tests |
 | 4 — Persistencia JPA/Mongo | COMPLETA | JPA entidades/converters/repos/mappers/adaptadores, Mongo audit, 69 tests de persistencia y JJWT/validation en `pom.xml` |
 | 5 — REST | COMPLETA | DTOs, mappers, 6 controladores, `GlobalExceptionHandler` y 118 pruebas REST; 311 pruebas totales |
-| 6 — Seguridad e infraestructura | PENDIENTE | — |
+| 6 — Seguridad e infraestructura | COMPLETA | JWT/filtro, `SecurityFilterChain`, CORS + `X-Request-Id`, `BootstrapAdminRunner`, docker-compose, properties y 40 pruebas; 351 pruebas totales |
 | 7 — Cobertura y calidad | PENDIENTE | — |
 | 8 — Cierre | PENDIENTE | — |
 
 ## Historial real de commits
 
 ```
+df1a31a test(security): cover jwt, authorization, cors and bootstrap
+9370dae fix(security): run request id filter before security context
+c2b44e6 build(infra): add docker compose and profile configuration
+8d6aeef fix(rest): resolve authenticated domain user from principal
+1feb18e feat(config): wire domain services and bootstrap administrator
+3fd9238 feat(security): add JWT filter, role rules, CORS and request id
+016b386 feat(security): add JWT, password and clock adapters
 26e1ff4 feat(rest): add supervisor endpoints
 60093b2 feat(rest): add admin endpoints
 70c2579 feat(rest): add seller and logistics endpoints
@@ -180,5 +215,5 @@ f40fdbe Initial commit
 $env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot'
 $env:Path="$env:JAVA_HOME\bin;$env:Path"
 .\mvnw.cmd -q -DskipTests compile   # OK
-.\mvnw.cmd -q test                  # 193 tests OK
+.\mvnw.cmd -q test                  # 351 tests OK
 ```
