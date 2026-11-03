@@ -63,7 +63,7 @@ public class LogisticsController {
 
     @GetMapping("/orders")
     public List<OrderResponse> listOrders(@RequestParam(name = "status", required = false) String status,
-                                          @AuthenticationPrincipal User actor) {
+                                          @AuthenticationPrincipal(expression = "user") User actor) {
         OrderStatus orderStatus = (status == null || status.isBlank())
                 ? null
                 : OrderStatus.fromCode(status);
@@ -75,7 +75,7 @@ public class LogisticsController {
     @PostMapping("/shipments")
     public ResponseEntity<ShipmentResponse> createShipment(
             @Valid @RequestBody CreateShipmentRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Shipment shipment = operatorPort.createShipment(
                 actor,
                 request.orderId(),
@@ -87,14 +87,14 @@ public class LogisticsController {
     @PostMapping("/shipments/{id}/start")
     public ShipmentResponse startShipment(@PathVariable String id,
                                           @Valid @RequestBody StartShipmentRequest request,
-                                          @AuthenticationPrincipal User actor) {
+                                          @AuthenticationPrincipal(expression = "user") User actor) {
         Shipment shipment = operatorPort.startShipping(actor, id, request.trackingNumber());
         return shipmentRestMapper.toResponse(shipment);
     }
 
     @PostMapping("/shipments/{id}/deliver")
     public ShipmentResponse deliverShipment(@PathVariable String id,
-                                            @AuthenticationPrincipal User actor) {
+                                            @AuthenticationPrincipal(expression = "user") User actor) {
         return shipmentRestMapper.toResponse(operatorPort.confirmDelivery(actor, id));
     }
 
@@ -103,7 +103,7 @@ public class LogisticsController {
             @PathVariable String productId,
             @PathVariable String warehouseId,
             @Valid @RequestBody InventoryAdjustmentRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         if (request.quantity() == null) {
             throw new InvalidDataException("quantity is required");
         }
@@ -120,7 +120,7 @@ public class LogisticsController {
             @PathVariable String productId,
             @PathVariable String warehouseId,
             @Valid @RequestBody InventoryAdjustmentRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         if (request.delta() == null) {
             throw new InvalidDataException("delta is required");
         }
@@ -135,7 +135,7 @@ public class LogisticsController {
     @PostMapping("/inventory/{productId}/{warehouseId}/damaged")
     public InventoryResponse markDamaged(@PathVariable String productId,
                                          @PathVariable String warehouseId,
-                                         @AuthenticationPrincipal User actor) {
+                                         @AuthenticationPrincipal(expression = "user") User actor) {
         Inventory inventory = operatorPort.markDamaged(actor, productId, warehouseId);
         return inventoryRestMapper.toResponse(inventory);
     }
@@ -143,13 +143,13 @@ public class LogisticsController {
     @PostMapping("/inventory/{productId}/{warehouseId}/repaired")
     public InventoryResponse markRepaired(@PathVariable String productId,
                                           @PathVariable String warehouseId,
-                                          @AuthenticationPrincipal User actor) {
+                                          @AuthenticationPrincipal(expression = "user") User actor) {
         Inventory inventory = operatorPort.markRepaired(actor, productId, warehouseId);
         return inventoryRestMapper.toResponse(inventory);
     }
 
     @GetMapping("/returns")
-    public List<ReturnResponse> listReturns(@AuthenticationPrincipal User actor) {
+    public List<ReturnResponse> listReturns(@AuthenticationPrincipal(expression = "user") User actor) {
         return operatorPort.listReturns(actor).stream()
                 .map(returnRestMapper::toResponse)
                 .toList();
@@ -157,7 +157,7 @@ public class LogisticsController {
 
     @PostMapping("/returns/{id}/receive")
     public ReturnResponse receiveReturn(@PathVariable String id,
-                                        @AuthenticationPrincipal User actor) {
+                                        @AuthenticationPrincipal(expression = "user") User actor) {
         return returnRestMapper.toResponse(operatorPort.receiveReturn(actor, id));
     }
 }

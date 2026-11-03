@@ -50,7 +50,7 @@ public class SupervisorController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(value = "to", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         if (from == null || to == null) {
             throw new InvalidDataException("Both from and to are required");
         }
@@ -58,27 +58,27 @@ public class SupervisorController {
     }
 
     @GetMapping("/reports/orders")
-    public OrderSummaryResponse orderSummary(@AuthenticationPrincipal User actor) {
+    public OrderSummaryResponse orderSummary(@AuthenticationPrincipal(expression = "user") User actor) {
         return reportRestMapper.toResponse(supervisorPort.orderSummary(actor));
     }
 
     @GetMapping("/reports/inventory")
-    public InventorySummaryResponse inventorySummary(@AuthenticationPrincipal User actor) {
+    public InventorySummaryResponse inventorySummary(@AuthenticationPrincipal(expression = "user") User actor) {
         return reportRestMapper.toResponse(supervisorPort.inventorySummary(actor));
     }
 
     @GetMapping("/reports/returns")
-    public ReturnSummaryResponse returnSummary(@AuthenticationPrincipal User actor) {
+    public ReturnSummaryResponse returnSummary(@AuthenticationPrincipal(expression = "user") User actor) {
         return reportRestMapper.toResponse(supervisorPort.returnSummary(actor));
     }
 
     @GetMapping("/reports/users")
-    public UserSummaryResponse userSummary(@AuthenticationPrincipal User actor) {
+    public UserSummaryResponse userSummary(@AuthenticationPrincipal(expression = "user") User actor) {
         return reportRestMapper.toResponse(supervisorPort.userSummary(actor));
     }
 
     @GetMapping("/orders")
-    public List<OrderResponse> listOrders(@AuthenticationPrincipal User actor) {
+    public List<OrderResponse> listOrders(@AuthenticationPrincipal(expression = "user") User actor) {
         return supervisorPort.listOrders(actor).stream()
                 .map(orderRestMapper::toResponse)
                 .toList();
@@ -91,7 +91,7 @@ public class SupervisorController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(value = "to", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         AuditAction parsedAction = (action == null || action.isBlank())
                 ? null
                 : AuditAction.fromCode(action);

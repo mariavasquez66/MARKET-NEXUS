@@ -73,7 +73,7 @@ public class AdminController {
     @PostMapping("/sellers")
     public ResponseEntity<SellerResponse> registerSeller(
             @Valid @RequestBody RegisterSellerRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Seller seller = tellerEmployeePort.registerSeller(
                 actor, request.userId(), TaxId.of(request.taxId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(sellerRestMapper.toResponse(seller));
@@ -81,7 +81,7 @@ public class AdminController {
 
     @GetMapping("/sellers")
     public ResponseEntity<List<SellerResponse>> listSellers(
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         List<SellerResponse> response = tellerEmployeePort.listSellers(actor).stream()
                 .map(sellerRestMapper::toResponse)
                 .toList();
@@ -92,7 +92,7 @@ public class AdminController {
     public ResponseEntity<SellerResponse> updateSeller(
             @PathVariable("id") String id,
             @Valid @RequestBody UpdateSellerRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Seller seller = tellerEmployeePort.updateSellerTaxId(actor, id, TaxId.of(request.taxId()));
         return ResponseEntity.ok(sellerRestMapper.toResponse(seller));
     }
@@ -100,7 +100,7 @@ public class AdminController {
     @PostMapping("/warehouses")
     public ResponseEntity<WarehouseResponse> createWarehouse(
             @Valid @RequestBody CreateWarehouseRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Address location = Address.of(
                 request.location().street(),
                 request.location().city(),
@@ -120,7 +120,7 @@ public class AdminController {
 
     @GetMapping("/warehouses")
     public ResponseEntity<List<WarehouseResponse>> listWarehouses(
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         List<WarehouseResponse> response = tellerEmployeePort.listWarehouses(actor).stream()
                 .map(warehouseRestMapper::toResponse)
                 .toList();
@@ -131,7 +131,7 @@ public class AdminController {
     public ResponseEntity<WarehouseResponse> updateWarehouse(
             @PathVariable("id") String id,
             @Valid @RequestBody UpdateWarehouseRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Address location = Address.of(
                 request.location().street(),
                 request.location().city(),
@@ -147,14 +147,14 @@ public class AdminController {
     public ResponseEntity<SellerResponse> assignWarehouse(
             @PathVariable("id") String id,
             @PathVariable("warehouseId") String warehouseId,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Seller seller = tellerEmployeePort.assignWarehouse(actor, id, warehouseId);
         return ResponseEntity.ok(sellerRestMapper.toResponse(seller));
     }
 
     @GetMapping("/users")
     public ResponseEntity<List<UserResponse>> listUsers(
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         List<UserResponse> response = tellerEmployeePort.listUsers(actor).stream()
                 .map(userRestMapper::toResponse)
                 .toList();
@@ -164,7 +164,7 @@ public class AdminController {
     @PostMapping("/users")
     public ResponseEntity<UserResponse> createUser(
             @Valid @RequestBody CreateUserRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         User user = tellerEmployeePort.createUser(
                 actor,
                 FullName.of(request.fullName()),
@@ -178,27 +178,27 @@ public class AdminController {
     @PostMapping("/users/{id}/block")
     public ResponseEntity<UserResponse> blockUser(
             @PathVariable("id") String id,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         return ResponseEntity.ok(userRestMapper.toResponse(tellerEmployeePort.blockUser(actor, id)));
     }
 
     @PostMapping("/users/{id}/activate")
     public ResponseEntity<UserResponse> activateUser(
             @PathVariable("id") String id,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         return ResponseEntity.ok(userRestMapper.toResponse(tellerEmployeePort.activateUser(actor, id)));
     }
 
     @PostMapping("/users/{id}/deactivate")
     public ResponseEntity<UserResponse> deactivateUser(
             @PathVariable("id") String id,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         return ResponseEntity.ok(userRestMapper.toResponse(tellerEmployeePort.deactivateUser(actor, id)));
     }
 
     @GetMapping("/returns")
     public ResponseEntity<List<ReturnResponse>> listReturns(
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         List<ReturnResponse> response = tellerEmployeePort.listReturns(actor).stream()
                 .map(returnRestMapper::toResponse)
                 .toList();
@@ -208,7 +208,7 @@ public class AdminController {
     @PostMapping("/returns/{id}/approve")
     public ResponseEntity<ReturnResponse> approveReturn(
             @PathVariable("id") String id,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Return returnRequest = tellerEmployeePort.approveReturn(actor, id);
         return ResponseEntity.ok(returnRestMapper.toResponse(returnRequest));
     }
@@ -216,7 +216,7 @@ public class AdminController {
     @PostMapping("/returns/{id}/reject")
     public ResponseEntity<ReturnResponse> rejectReturn(
             @PathVariable("id") String id,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Return returnRequest = tellerEmployeePort.rejectReturn(actor, id);
         return ResponseEntity.ok(returnRestMapper.toResponse(returnRequest));
     }
@@ -225,7 +225,7 @@ public class AdminController {
     public ResponseEntity<RefundResponse> generateRefund(
             @PathVariable("id") String id,
             @Valid @RequestBody GenerateRefundRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Refund refund = tellerEmployeePort.generateRefund(actor, id, Money.of(request.amount()));
         return ResponseEntity.status(HttpStatus.CREATED).body(refundRestMapper.toResponse(refund));
     }
@@ -233,7 +233,7 @@ public class AdminController {
     @PostMapping("/refunds/{id}/process")
     public ResponseEntity<RefundResponse> processRefund(
             @PathVariable("id") String id,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Refund refund = tellerEmployeePort.processRefund(actor, id);
         return ResponseEntity.ok(refundRestMapper.toResponse(refund));
     }

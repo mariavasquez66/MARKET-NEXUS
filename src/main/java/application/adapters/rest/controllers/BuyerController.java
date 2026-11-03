@@ -76,13 +76,13 @@ public class BuyerController {
     }
 
     @GetMapping("/cart")
-    public CartResponse getCart(@AuthenticationPrincipal User actor) {
+    public CartResponse getCart(@AuthenticationPrincipal(expression = "user") User actor) {
         return cartRestMapper.toResponse(naturalCustomerPort.getCart(actor));
     }
 
     @PostMapping("/cart/items")
     public CartResponse addCartItem(@Valid @RequestBody AddCartItemRequest request,
-                                    @AuthenticationPrincipal User actor) {
+                                    @AuthenticationPrincipal(expression = "user") User actor) {
         Cart cart = naturalCustomerPort.addCartItem(actor, request.productId(), request.quantity());
         return cartRestMapper.toResponse(cart);
     }
@@ -90,7 +90,7 @@ public class BuyerController {
     @PutMapping("/cart/items/{productId}")
     public CartResponse updateCartItem(@PathVariable String productId,
                                        @Valid @RequestBody UpdateCartItemRequest request,
-                                       @AuthenticationPrincipal User actor) {
+                                       @AuthenticationPrincipal(expression = "user") User actor) {
         Cart cart = naturalCustomerPort.updateCartItemQuantity(
                 actor, productId, request.quantity());
         return cartRestMapper.toResponse(cart);
@@ -98,20 +98,20 @@ public class BuyerController {
 
     @DeleteMapping("/cart/items/{productId}")
     public ResponseEntity<Void> removeCartItem(@PathVariable String productId,
-                                               @AuthenticationPrincipal User actor) {
+                                               @AuthenticationPrincipal(expression = "user") User actor) {
         naturalCustomerPort.removeCartItem(actor, productId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/cart")
-    public ResponseEntity<Void> clearCart(@AuthenticationPrincipal User actor) {
+    public ResponseEntity<Void> clearCart(@AuthenticationPrincipal(expression = "user") User actor) {
         naturalCustomerPort.clearCart(actor);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/orders")
     public ResponseEntity<OrderResponse> checkout(@Valid @RequestBody CheckoutRequest request,
-                                                  @AuthenticationPrincipal User actor) {
+                                                  @AuthenticationPrincipal(expression = "user") User actor) {
         Order order = naturalCustomerPort.checkout(actor, toAddress(request.deliveryAddress()));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderRestMapper.toResponse(order));
@@ -120,7 +120,7 @@ public class BuyerController {
     @GetMapping("/orders")
     public List<OrderResponse> listOrders(
             @RequestParam(name = "status", required = false) String status,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         List<Order> orders = (status == null || status.isBlank())
                 ? naturalCustomerPort.listOrders(actor)
                 : naturalCustomerPort.listOrdersByStatus(actor, OrderStatus.fromCode(status));
@@ -131,25 +131,25 @@ public class BuyerController {
 
     @GetMapping("/orders/{id}")
     public OrderResponse getOrder(@PathVariable String id,
-                                  @AuthenticationPrincipal User actor) {
+                                  @AuthenticationPrincipal(expression = "user") User actor) {
         return orderRestMapper.toResponse(naturalCustomerPort.getOrder(actor, id));
     }
 
     @PostMapping("/orders/{id}/pay")
     public OrderResponse payOrder(@PathVariable String id,
-                                  @AuthenticationPrincipal User actor) {
+                                  @AuthenticationPrincipal(expression = "user") User actor) {
         return orderRestMapper.toResponse(naturalCustomerPort.payOrder(actor, id));
     }
 
     @PostMapping("/orders/{id}/cancel")
     public OrderResponse cancelOrder(@PathVariable String id,
-                                     @AuthenticationPrincipal User actor) {
+                                     @AuthenticationPrincipal(expression = "user") User actor) {
         return orderRestMapper.toResponse(naturalCustomerPort.cancelOrder(actor, id));
     }
 
     @GetMapping("/orders/{id}/invoice")
     public InvoiceResponse getInvoice(@PathVariable String id,
-                                      @AuthenticationPrincipal User actor) {
+                                      @AuthenticationPrincipal(expression = "user") User actor) {
         Invoice invoice = naturalCustomerPort.getInvoice(actor, id);
         return invoiceRestMapper.toResponse(invoice);
     }
@@ -158,21 +158,21 @@ public class BuyerController {
     public ResponseEntity<ReturnResponse> requestReturn(
             @PathVariable String id,
             @Valid @RequestBody RequestReturnRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Return returnRequest = naturalCustomerPort.requestReturn(actor, id, request.reason());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(returnRestMapper.toResponse(returnRequest));
     }
 
     @GetMapping("/returns")
-    public List<ReturnResponse> listReturns(@AuthenticationPrincipal User actor) {
+    public List<ReturnResponse> listReturns(@AuthenticationPrincipal(expression = "user") User actor) {
         return naturalCustomerPort.listReturns(actor).stream()
                 .map(returnRestMapper::toResponse)
                 .toList();
     }
 
     @GetMapping("/refunds")
-    public List<RefundResponse> listRefunds(@AuthenticationPrincipal User actor) {
+    public List<RefundResponse> listRefunds(@AuthenticationPrincipal(expression = "user") User actor) {
         return naturalCustomerPort.listRefunds(actor).stream()
                 .map(refundRestMapper::toResponse)
                 .toList();
@@ -180,7 +180,7 @@ public class BuyerController {
 
     @PostMapping("/addresses")
     public BuyerResponse addAddress(@Valid @RequestBody AddAddressRequest request,
-                                    @AuthenticationPrincipal User actor) {
+                                    @AuthenticationPrincipal(expression = "user") User actor) {
         Buyer buyer = naturalCustomerPort.addAddress(actor, toAddress(request.address()));
         return buyerRestMapper.toResponse(buyer);
     }
@@ -188,7 +188,7 @@ public class BuyerController {
     @PutMapping("/addresses/main")
     public BuyerResponse changeMainAddress(
             @Valid @RequestBody ChangeMainAddressRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Buyer buyer = naturalCustomerPort.changeMainAddress(actor, toAddress(request.address()));
         return buyerRestMapper.toResponse(buyer);
     }

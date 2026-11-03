@@ -55,7 +55,7 @@ public class SellerController {
     @PostMapping("/products")
     public ResponseEntity<ProductResponse> createProduct(
             @Valid @RequestBody CreateProductRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Product product = customerPort.registerProduct(
                 actor,
                 request.name(),
@@ -66,7 +66,7 @@ public class SellerController {
     }
 
     @GetMapping("/products")
-    public List<ProductResponse> listProducts(@AuthenticationPrincipal User actor) {
+    public List<ProductResponse> listProducts(@AuthenticationPrincipal(expression = "user") User actor) {
         return customerPort.listProducts(actor).stream()
                 .map(productRestMapper::toResponse)
                 .toList();
@@ -75,7 +75,7 @@ public class SellerController {
     @PutMapping("/products/{id}")
     public ProductResponse updateProduct(@PathVariable String id,
                                          @Valid @RequestBody UpdateProductRequest request,
-                                         @AuthenticationPrincipal User actor) {
+                                         @AuthenticationPrincipal(expression = "user") User actor) {
         Product product = customerPort.updateProduct(
                 actor,
                 id,
@@ -88,7 +88,7 @@ public class SellerController {
     @PostMapping("/products/{id}/variants")
     public ProductResponse addVariant(@PathVariable String id,
                                       @Valid @RequestBody AddVariantRequest request,
-                                      @AuthenticationPrincipal User actor) {
+                                      @AuthenticationPrincipal(expression = "user") User actor) {
         Product product = customerPort.addVariant(
                 actor,
                 id,
@@ -99,26 +99,26 @@ public class SellerController {
 
     @PostMapping("/products/{id}/publish")
     public ProductResponse publishProduct(@PathVariable String id,
-                                          @AuthenticationPrincipal User actor) {
+                                          @AuthenticationPrincipal(expression = "user") User actor) {
         return productRestMapper.toResponse(customerPort.publishProduct(actor, id));
     }
 
     @PostMapping("/products/{id}/suspend")
     public ProductResponse suspendProduct(@PathVariable String id,
-                                          @AuthenticationPrincipal User actor) {
+                                          @AuthenticationPrincipal(expression = "user") User actor) {
         return productRestMapper.toResponse(customerPort.suspendProduct(actor, id));
     }
 
     @PostMapping("/products/{id}/discontinue")
     public ProductResponse discontinueProduct(@PathVariable String id,
-                                              @AuthenticationPrincipal User actor) {
+                                              @AuthenticationPrincipal(expression = "user") User actor) {
         return productRestMapper.toResponse(customerPort.discontinueProduct(actor, id));
     }
 
     @PostMapping("/inventory")
     public ResponseEntity<InventoryResponse> registerInventory(
             @Valid @RequestBody RegisterInventoryRequest request,
-            @AuthenticationPrincipal User actor) {
+            @AuthenticationPrincipal(expression = "user") User actor) {
         Inventory inventory = customerPort.registerInventory(
                 actor,
                 request.productId(),
@@ -129,14 +129,14 @@ public class SellerController {
     }
 
     @GetMapping("/inventory")
-    public List<InventoryResponse> listInventory(@AuthenticationPrincipal User actor) {
+    public List<InventoryResponse> listInventory(@AuthenticationPrincipal(expression = "user") User actor) {
         return customerPort.listInventory(actor).stream()
                 .map(inventoryRestMapper::toResponse)
                 .toList();
     }
 
     @GetMapping("/orders")
-    public List<OrderResponse> listOrders(@AuthenticationPrincipal User actor) {
+    public List<OrderResponse> listOrders(@AuthenticationPrincipal(expression = "user") User actor) {
         return customerPort.listOrders(actor).stream()
                 .map(orderRestMapper::toResponse)
                 .toList();
