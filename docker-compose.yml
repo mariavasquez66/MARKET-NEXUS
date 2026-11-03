@@ -19,7 +19,7 @@ services:
       retries: 10
 
   mongo-db:
-    image: mongo:6.0
+    image: mongo:4.4
     container_name: nexusmarket-mongo
     restart: unless-stopped
     ports:
@@ -31,7 +31,7 @@ services:
     volumes:
       - mongo-data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping').ok"]
       interval: 10s
       timeout: 5s
       retries: 10
