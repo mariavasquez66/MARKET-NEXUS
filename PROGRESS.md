@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: Fase 6 cerrada (rama `develop`).
+> Última actualización: Fase 6 cerrada y arranque local verificado (rama `develop`).
 
 ## Entorno verificado
 
@@ -13,6 +13,8 @@
 | Spring Boot (parent) | 4.1.1 — resuelve correctamente |
 | Rama de integración | `develop` |
 | Remoto | `origin = https://github.com/mariavasquez66/MARKET-NEXUS.git` |
+| Docker | MySQL 8.0 y MongoDB 4.4 en contenedores saludables (puertos 3306/27017) |
+| Arranque local | `Started NexusmarketApplication` y `GET /api/v1/public/auth/login` OK con admin bootstrap |
 
 ## Estado real del código
 
@@ -72,11 +74,12 @@
   (14 servicios), `BootstrapAdminRunner` (D-16, `@Profile("!test")`) y
   `TaxPolicyAdapter` (`nexusmarket.tax.rate`).
 - `src/main/resources/application*.properties` — perfiles `local` y `docker`;
-  `docker-compose.yml` (MySQL 8.0 + MongoDB 6.0 con credenciales por entorno) y
-  `.env.example`.
+  `docker-compose.yml` (MySQL 8.0 + MongoDB 4.4 con credenciales por entorno) y
+  `.env.example`. MongoDB se fija en 4.4 porque el host de verificación no
+  soporta AVX y las imágenes 5.0+ terminan con exit code 132.
 - `src/test/java/application/domain/` — 124 pruebas: VOs, agregados y los 14
   servicios de dominio.
-- `src/test/java/application/adapters/persistence/` — 69 pruebas de persistencia:
+- `src/test/java/application/adapters/persistence/` — 71 pruebas de persistencia:
   round-trip de los 13 mappers JPA, los 17 converters de catálogo, restricciones
   de mapeo/unicidad, mapper y adaptador Mongo, y delegación de los 13 adaptadores
   JPA con repositorios mockeados.
@@ -90,7 +93,7 @@
   inválido/obsoleto/rol alterado/usuario inactivo), reglas por prefijo y
   preflight CORS, `X-Request-Id`, BCrypt, bootstrap de administrador y tasa de
   impuestos.
-- Total verificado: 351 pruebas (`124` dominio + `69` persistencia + `118` REST
+- Total verificado: 353 pruebas (`124` dominio + `71` persistencia + `118` REST
   + `40` seguridad/configuración), 0 fallos, 0 errores, 0 omitidas.
 - Verificación de pureza: `application.domain` no importa Spring, JPA, Mongo,
   Jackson ni HTTP.
@@ -98,15 +101,16 @@
 ### No existe todavía
 
 - Pruebas de casos de uso y medición de cobertura (Fase 7).
-- Verificación con Docker: el binario `docker` no está disponible en el
-  entorno; por D-17 la comprobación de conectividad de contenedores se reporta
-  como **omitida**.
+- Pruebas automatizadas de integración con contenedores; la conectividad se
+  verificó manualmente contra MySQL y MongoDB locales.
 
 ### Limitaciones de verificación
 
-- La compilación y las 351 pruebas se ejecutaron con Java 17 y Maven Wrapper.
-- `docker-compose.yml` y los perfiles se validaron por inspección y por arranque
-  de tests; no se levantaron contenedores por ausencia de Docker.
+- La compilación y las 353 pruebas se ejecutaron con Java 17 y Maven Wrapper.
+- El arranque local se verificó con MySQL 8.0 y MongoDB 4.4; se confirmaron 18
+  tablas en `nexusmarket_db`, la columna `condition_code` y el admin
+  `admin@nexusmarket.local` con rol `ADMIN` y estado `ACTIVE`.
+- El login de bootstrap devolvió token y usuario sin exponer credenciales.
 
 ### SDD completo (Fase 1)
 
@@ -147,13 +151,17 @@
 | 3 — Servicios y casos de uso | COMPLETA | 14 servicios, 6 puertos de entrada, 6 casos de uso y 124 tests |
 | 4 — Persistencia JPA/Mongo | COMPLETA | JPA entidades/converters/repos/mappers/adaptadores, Mongo audit, 69 tests de persistencia y JJWT/validation en `pom.xml` |
 | 5 — REST | COMPLETA | DTOs, mappers, 6 controladores, `GlobalExceptionHandler` y 118 pruebas REST; 311 pruebas totales |
-| 6 — Seguridad e infraestructura | COMPLETA | JWT/filtro, `SecurityFilterChain`, CORS + `X-Request-Id`, `BootstrapAdminRunner`, docker-compose, properties y 40 pruebas; 351 pruebas totales |
+| 6 — Seguridad e infraestructura | COMPLETA | JWT/filtro, `SecurityFilterChain`, CORS + `X-Request-Id`, `BootstrapAdminRunner`, docker-compose, properties y 40 pruebas; 353 pruebas totales y arranque local verificado |
 | 7 — Cobertura y calidad | PENDIENTE | — |
 | 8 — Cierre | PENDIENTE | — |
 
 ## Historial real de commits
 
 ```
+73fb39d fix(config): use spring boot 4 mongodb property prefix
+a90c6ef fix(docker): use mongodb 4.4 for non-avx hosts
+fa895fa fix(persistence): avoid mysql reserved condition column
+2429a88 fix(persistence): bind user role query with catalog type
 df1a31a test(security): cover jwt, authorization, cors and bootstrap
 9370dae fix(security): run request id filter before security context
 c2b44e6 build(infra): add docker compose and profile configuration

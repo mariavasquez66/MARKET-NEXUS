@@ -363,7 +363,7 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=false
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 
-spring.data.mongodb.uri=${MONGODB_URI:mongodb://localhost:27017/nexus_audit_db}
+spring.mongodb.uri=${MONGODB_URI:mongodb://localhost:27017/nexus_audit_db}
 
 jwt.secret=${JWT_SECRET}
 jwt.expiration-ms=${JWT_EXPIRATION_MS:3600000}
