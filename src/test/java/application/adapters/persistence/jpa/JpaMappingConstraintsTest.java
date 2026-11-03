@@ -84,6 +84,15 @@ class JpaMappingConstraintsTest {
     }
 
     @Test
+    void inventoryConditionColumnAvoidsMysqlReservedWord() {
+        Column column = field(InventoryJpaEntity.class, "conditionCode")
+                .getAnnotation(Column.class);
+
+        assertThat(column).isNotNull();
+        assertThat(column.name()).isEqualTo("condition_code");
+    }
+
+    @Test
     void moneyAmountColumnsUsePrecision19AndScale2() {
         assertMoneyColumn(ProductJpaEntity.class, "priceAmount");
         assertMoneyColumn(CartItemJpaEntity.class, "unitPriceAmount");
