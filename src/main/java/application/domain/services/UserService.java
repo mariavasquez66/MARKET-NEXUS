@@ -3,6 +3,7 @@ package application.domain.services;
 import application.domain.enums.AuditAction;
 import application.domain.enums.AuditEntityType;
 import application.domain.enums.UserRole;
+import application.domain.exceptions.common.InvalidDataException;
 import application.domain.exceptions.common.UnauthorizedOperationException;
 import application.domain.exceptions.user.DuplicateEmailException;
 import application.domain.exceptions.user.DuplicateIdentificationException;
@@ -55,6 +56,33 @@ public class UserService {
         User saved = userRepository.save(user);
         ServiceSupport.audit(auditPort, clockPort, AuditAction.USER_CREATED,
                 AuditEntityType.USER, saved.getId(), actor, "User created by admin");
+        return saved;
+    }
+
+    public User createBootstrapAdmin(FullName fullName,
+                                     Email email,
+                                     IdentityDocument identityDocument,
+                                     String rawPassword) {
+        Objects.requireNonNull(fullName, "fullName cannot be null");
+        Objects.requireNonNull(email, "email cannot be null");
+        Objects.requireNonNull(identityDocument, "identityDocument cannot be null");
+        if (userRepository.existsByRole(UserRole.ADMIN)) {
+            throw new InvalidDataException("An administrator already exists");
+        }
+        if (rawPassword == null || rawPassword.isBlank()) {
+            throw new InvalidDataException("Password is required");
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new DuplicateEmailException("Email is already registered");
+        }
+        if (userRepository.existsByIdentityDocument(identityDocument)) {
+            throw new DuplicateIdentificationException("Identity document is already registered");
+        }
+        User user = User.create(fullName, email, identityDocument, UserRole.ADMIN,
+                passwordService.encode(rawPassword));
+        User saved = userRepository.save(user);
+        ServiceSupport.audit(auditPort, clockPort, AuditAction.USER_CREATED,
+                AuditEntityType.USER, saved.getId(), saved, "Bootstrap administrator creation");
         return saved;
     }
 
