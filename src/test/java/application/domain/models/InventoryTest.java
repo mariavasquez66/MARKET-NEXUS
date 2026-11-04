@@ -59,4 +59,25 @@ class InventoryTest {
         assertThat(inventory.getCondition()).isEqualTo(InventoryCondition.DAMAGED);
         assertThatThrownBy(() -> inventory.reserve(1)).isInstanceOf(DamagedInventoryException.class);
     }
+
+    @Test
+    void damagedInventoryCannotBeSold() {
+        Product product = publishedPhysicalProduct(seller(admin()), operator());
+        Inventory inventory = Inventory.create(product, product.getSeller().getWarehouses().get(0), 5);
+        inventory.markDamaged();
+        assertThatThrownBy(() -> inventory.confirmSale(1))
+                .isInstanceOf(DamagedInventoryException.class);
+    }
+
+    @Test
+    void reconstituteRejectsNegativeQuantities() {
+        Product product = publishedPhysicalProduct(seller(admin()), operator());
+        Warehouse warehouse = product.getSeller().getWarehouses().get(0);
+        assertThatThrownBy(() -> Inventory.reconstitute(
+                "inventory", product, warehouse, -1, 0, InventoryCondition.GOOD))
+                .isInstanceOf(NegativeStockException.class);
+        assertThatThrownBy(() -> Inventory.reconstitute(
+                "inventory", product, warehouse, 0, -1, InventoryCondition.GOOD))
+                .isInstanceOf(NegativeStockException.class);
+    }
 }

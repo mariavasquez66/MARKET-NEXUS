@@ -80,6 +80,33 @@ class OrderTest {
     }
 
     @Test
+    void deliveredOrdersAreNotModifiable() {
+        Order delivered = paidPhysicalOrder();
+        delivered.markDispatched();
+        delivered.markDelivered();
+        assertThatThrownBy(delivered::assertModifiable)
+                .isInstanceOf(FinalizedOrderException.class);
+    }
+
+    @Test
+    void invalidStateTransitionsAreRejected() {
+        Product product = publishedPhysicalProduct(seller(admin()), operator());
+        Order pending = Order.fromCart(cartWith(buyer(), product, 1), address(), NOW);
+        assertThatThrownBy(pending::markDispatched)
+                .isInstanceOf(InvalidStateTransitionException.class);
+        assertThatThrownBy(pending::markDelivered)
+                .isInstanceOf(InvalidStateTransitionException.class);
+        assertThatThrownBy(pending::finalizeOrder)
+                .isInstanceOf(InvalidStateTransitionException.class);
+
+        Order paid = paidPhysicalOrder();
+        assertThatThrownBy(paid::markDelivered)
+                .isInstanceOf(InvalidStateTransitionException.class);
+        assertThatThrownBy(paid::finalizeOrder)
+                .isInstanceOf(InvalidStateTransitionException.class);
+    }
+
+    @Test
     void paymentCanOnlyBeConfirmedOnce() {
         Order order = paidPhysicalOrder();
         assertThatThrownBy(() -> order.confirmPayment(NOW))

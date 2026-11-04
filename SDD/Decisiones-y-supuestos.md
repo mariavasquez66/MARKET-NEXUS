@@ -24,7 +24,7 @@
 | D-14 | Auditoría MongoDB `AuditLog(id, action, entityType, entityId, performedBy, role, occurredAt, details)` en alta de vendedor, bloqueo/activación de usuario, transiciones de pedido, movimientos de inventario, devoluciones y reembolsos. | `AuditPort.record(...)`; `AuditAction` y `AuditEntityType` acotados. |
 | D-15 | Reembolso: monto > 0 y ≤ total del pedido; solo sobre devolución `APPROVED`/`COMPLETED`; suma de reembolsos de una devolución ≤ total del pedido. | `RefundService.generateRefund` valida el acumulado con `RefundRepositoryPort.findByReturnId`. |
 | D-16 | Administrador inicial vía `CommandLineRunner` si no existe ningún `ADMIN`, usando `NEXUS_BOOTSTRAP_ADMIN_EMAIL` / `NEXUS_BOOTSTRAP_ADMIN_PASSWORD`. | Si faltan variables, no crea nada y registra un aviso. |
-| D-17 | MySQL `nexusmarket_db` (usuario `nexus_app`) con JPA; MongoDB `nexus_audit_db` (colección `audit_logs`); perfiles `local` y `docker`. | Los tests unitarios no dependen de bases de datos. |
+| D-17 | MySQL `nexusmarket_db` (usuario `nexus_app`) con JPA; MongoDB 4.4 `nexus_audit_db` (colección `audit_logs`); perfiles `local` y `docker`. | Los tests unitarios no dependen de bases de datos. MongoDB se fija en 4.4 porque el host de verificación no soporta AVX; las imágenes 5.0+ terminan con exit code 132. |
 
 ## Supuestos nuevos (A-01…A-16)
 

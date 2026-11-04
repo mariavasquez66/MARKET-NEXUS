@@ -39,6 +39,6 @@ public class InventoryJpaEntity {
     private int reservedQuantity;
 
     @Convert(converter = InventoryConditionConverter.class)
-    @Column(name = "condition", length = 40, nullable = false)
+    @Column(name = "condition_code", length = 40, nullable = false)
     private InventoryCondition conditionCode;
 }
