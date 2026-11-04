@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: Fase 6 cerrada y arranque local verificado (rama `develop`).
+> Última actualización: Fase 8 cerrada, 359 pruebas en verde y documentación completa (rama `develop`).
 
 ## Entorno verificado
 
@@ -77,8 +77,8 @@
   `docker-compose.yml` (MySQL 8.0 + MongoDB 4.4 con credenciales por entorno) y
   `.env.example`. MongoDB se fija en 4.4 (D-17) porque el host de verificación
   no soporta AVX y las imágenes 5.0+ terminan con exit code 132.
-- `src/test/java/application/domain/` — 124 pruebas: VOs, agregados y los 14
-  servicios de dominio.
+- `src/test/java/application/domain/` — 133 pruebas: VOs, agregados, validaciones
+  críticas, inmutabilidad de colecciones y los 14 servicios de dominio.
 - `src/test/java/application/adapters/persistence/` — 71 pruebas de persistencia:
   round-trip de los 13 mappers JPA, los 17 converters de catálogo, restricciones
   de mapeo/unicidad, mapper y adaptador Mongo, y delegación de los 13 adaptadores
@@ -88,29 +88,50 @@
   los 15 mappers, 7 pruebas del `GlobalExceptionHandler`, resolver de actor para
   MockMvc y 97 pruebas de controladores (200/201/204, 400, 401, 403, 404, 409).
 - `src/test/java/application/infrastructure/security/` y
-  `src/test/java/application/infrastructure/config/` — 40 pruebas nuevas:
+  `src/test/java/application/infrastructure/config/` — 37 pruebas:
   JWT (claims, expiración, firma, secreto inválido), filtro (401 por token
   inválido/obsoleto/rol alterado/usuario inactivo), reglas por prefijo y
   preflight CORS, `X-Request-Id`, BCrypt, bootstrap de administrador y tasa de
   impuestos.
-- Total verificado: 353 pruebas (`124` dominio + `71` persistencia + `118` REST
-  + `40` seguridad/configuración), 0 fallos, 0 errores, 0 omitidas.
+- Total verificado: 359 pruebas (`133` dominio + `71` persistencia + `118` REST
+  + `37` seguridad/configuración), 0 fallos, 0 errores, 0 omitidas.
 - Verificación de pureza: `application.domain` no importa Spring, JPA, Mongo,
   Jackson ni HTTP.
+- Fase 7 agregó 6 pruebas de reglas críticas: inmutabilidad de pedidos
+  `DELIVERED`, transiciones inválidas, venta de inventario dañado, cantidades
+  negativas en reconstitución y ausencia de setters/colecciones mutables en
+  entidades ricas.
 
-### No existe todavía
+### Pendientes no bloqueantes
 
-- Pruebas de casos de uso y medición de cobertura (Fase 7).
-- Pruebas automatizadas de integración con contenedores; la conectividad se
-  verificó manualmente contra MySQL y MongoDB locales.
+- No hay pruebas dedicadas a las clases de `adapters/useCases`; su delegación
+  es trivial y está cubierta indirectamente por las pruebas de controladores y
+  servicios.
+- No se mide cobertura formal con JaCoCo.
+- No hay pruebas automatizadas de integración con contenedores; la conectividad
+  se verificó manualmente contra MySQL y MongoDB locales.
 
 ### Limitaciones de verificación
 
-- La compilación y las 353 pruebas se ejecutaron con Java 17 y Maven Wrapper.
+- La compilación y las 359 pruebas se ejecutaron con Java 17 y Maven Wrapper;
+  la suite no necesita MySQL ni MongoDB.
 - El arranque local se verificó con MySQL 8.0 y MongoDB 4.4; se confirmaron 18
   tablas en `nexusmarket_db`, la columna `condition_code` y el admin
   `admin@nexusmarket.local` con rol `ADMIN` y estado `ACTIVE`.
 - El login de bootstrap devolvió token y usuario sin exponer credenciales.
+
+### Evidencia de cierre de Fase 6
+
+- Se registró un vendedor vía `POST /api/v1/admin/sellers`; el usuario se creó
+  con rol `SELLER` y en `nexus_audit_db.audit_logs` apareció el evento
+  `SELLER_REGISTERED` con `entityTypeCode: SELLER` y `roleCode: ADMIN`.
+- Autorización verificada: un token `ADMIN` sobre una ruta `BUYER` devolvió
+  `403`; una petición sin token devolvió `401`.
+- Pureza verificada con
+  `grep -RInE 'org\.springframework|jakarta\.persistence|com\.fasterxml' src/main/java/application/domain`
+  sin coincidencias (exit code 1).
+- Secretos: `.env` existe pero está ignorado; `git ls-files` solo incluye
+  `.env.example`. No hay `arranque.log` versionado.
 
 ### SDD completo (Fase 1)
 
@@ -125,6 +146,10 @@
   `Global-exception-handler.md`, `Rest-security-cors.md`.
 - `SDD/Orchestrator-prompt.md` — adaptado de la plantilla bancaria.
 - `SDD/Traceability-Matrix.md` — requisito → artefacto → prueba.
+- `SDD/Self-check-rubric.md` — autoevaluación contra los 5 criterios, con
+  rutas y clases como evidencia.
+- `README.md` — descripción, arquitectura, variables de entorno, puesta en
+  marcha, pruebas, roles y tabla de los 64 endpoints.
 
 ### Verificaciones de la Fase 0
 
@@ -137,7 +162,7 @@
 | H-05 `SDD/` incompleta | Resuelto en Fase 1 (documentos de dominio y adaptadores) |
 | H-06 inconsistencias entre fuentes | Resuelto documentalmente (D-03/D-04/D-06/D-10) |
 | H-07 `DomainCatalog` sin `values()` | Resuelto: los 18 catálogos exponen `fromCode` y `values` |
-| H-08 `pom.xml` incompleto | Metadatos corregidos; faltan validation/JWT (Fase 4) |
+| H-08 `pom.xml` incompleto | Resuelto: metadatos, validation y JJWT incorporados en Fase 4 |
 | H-09 PDF no legible | Transcrito como Anexo A en la especificación funcional |
 | H-10 matriz de responsabilidades | Pendiente de confirmación (D-09) |
 
@@ -147,17 +172,24 @@
 |---|---|---|
 | 0 — Diagnóstico y línea base | COMPLETA | `SDD/Diagnosis.md`, compilación OK |
 | 1 — SDD completo | COMPLETA | `SDD/**`, `SDD/Traceability-Matrix.md` |
-| 2 — Dominio core | COMPLETA | enums, excepciones, VOs, modelos, 18 puertos y 51 tests |
-| 3 — Servicios y casos de uso | COMPLETA | 14 servicios, 6 puertos de entrada, 6 casos de uso y 124 tests |
-| 4 — Persistencia JPA/Mongo | COMPLETA | JPA entidades/converters/repos/mappers/adaptadores, Mongo audit, 69 tests de persistencia y JJWT/validation en `pom.xml` |
-| 5 — REST | COMPLETA | DTOs, mappers, 6 controladores, `GlobalExceptionHandler` y 118 pruebas REST; 311 pruebas totales |
-| 6 — Seguridad e infraestructura | COMPLETA | JWT/filtro, `SecurityFilterChain`, CORS + `X-Request-Id`, `BootstrapAdminRunner`, docker-compose, properties y 40 pruebas; 353 pruebas totales y arranque local verificado |
-| 7 — Cobertura y calidad | PENDIENTE | — |
-| 8 — Cierre | PENDIENTE | — |
+| 2 — Dominio core | COMPLETA | enums, excepciones, VOs, modelos, 18 puertos y pruebas de dominio |
+| 3 — Servicios y casos de uso | COMPLETA | 14 servicios, 6 puertos de entrada y 6 casos de uso |
+| 4 — Persistencia JPA/Mongo | COMPLETA | JPA entidades/converters/repos/mappers/adaptadores, Mongo audit, 71 pruebas de persistencia y JJWT/validation en `pom.xml` |
+| 5 — REST | COMPLETA | DTOs, mappers, 6 controladores, `GlobalExceptionHandler` y 118 pruebas REST |
+| 6 — Seguridad e infraestructura | COMPLETA | JWT/filtro, `SecurityFilterChain`, CORS + `X-Request-Id`, `BootstrapAdminRunner`, docker-compose, properties y 37 pruebas; 353 pruebas totales y arranque local verificado |
+| 7 — Cobertura y calidad | COMPLETA | 6 pruebas nuevas de R-03 a R-09 y validaciones críticas; 359 pruebas totales |
+| 8 — Cierre | COMPLETA | `README.md`, `SDD/Self-check-rubric.md`, matriz completa, verificaciones finales y este registro |
 
 ## Historial real de commits
 
 ```
+093e9d2 docs(sdd): complete traceability and add self-check rubric
+0ff7fd5 docs(readme): document architecture setup and endpoints
+331f602 test(domain): enforce rich model encapsulation
+88aef9d test(domain): cover damaged inventory sale and negative reconstitution
+c2138fc test(domain): cover order immutability and invalid transitions
+75d1509 docs(sdd): document mongodb 4.4 non-avx constraint
+d293be0 docs(progress): record runtime fixes and local verification
 73fb39d fix(config): use spring boot 4 mongodb property prefix
 a90c6ef fix(docker): use mongodb 4.4 for non-avx hosts
 fa895fa fix(persistence): avoid mysql reserved condition column
@@ -222,6 +254,19 @@ f40fdbe Initial commit
 ```powershell
 $env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot'
 $env:Path="$env:JAVA_HOME\bin;$env:Path"
-.\mvnw.cmd -q -DskipTests compile   # OK
-.\mvnw.cmd -q test                  # 351 tests OK
+.\mvnw.cmd clean test               # 359 tests OK, 0 fallos
 ```
+
+## Verificaciones finales de Fase 8
+
+| Verificación | Comando | Resultado |
+|---|---|---|
+| Pureza del dominio | `grep -RInE 'org\.springframework\|jakarta\.persistence\|com\.fasterxml' src/main/java/application/domain` | Sin coincidencias (exit 1) |
+| Strings acotados | `grep -RInE 'private\s+String\s+(status\|type\|role\|condition\|movement)' src/main/java/application/domain/models` | Sin coincidencias (exit 1) |
+| Dinero flotante | `grep -RInE 'private\s+(Double\|double\|Float\|float)\s+' src/main/java/application/domain src/main/java/application/adapters` | Sin coincidencias (exit 1) |
+| Identificadores en español | `grep -RInE 'comprador\|vendedor\|bodega\|pedido\|factura\|envio\|devolucion\|reembolso' src` | Sin coincidencias (exit 1) |
+| Trazabilidad | Elementos de `SDD/Traceability-Matrix.md` contra clases en `src/main/java` | Sin clases faltantes; solo quedan valores de catálogo, tipos Java y los puertos descartados por D-10 |
+| Secretos | `.env`, `target/`, logs | `.env` ignorado; solo `.env.example` versionado |
+| Archivo descalificante | `evaluacion1.md` | No existe |
+
+El commit de cierre de esta fase se identifica con `git log -1`.
