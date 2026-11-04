@@ -1,9 +1,13 @@
 # Matriz de trazabilidad — NexusMarket
 
-> Estado: **diseño completo (Fase 1)**; fases 2–5 y 6 implementadas. Las fases
-> 7–8 están pendientes. La columna «Estado» conserva la foto del diseño y la
-> evidencia de implementación se centraliza en `PROGRESS.md` y en las pruebas
-> de cada fase.
+> Estado: **implementación completa (Fases 0–8)**. La columna «Estado» refleja
+> los artefactos implementados; la evidencia de ejecución se centraliza en
+> `PROGRESS.md` y en las pruebas de cada fase.
+>
+> Rutas base de los artefactos: `src/main/java/application/domain/`,
+> `src/main/java/application/adapters/` y
+> `src/main/java/application/infrastructure/`. Las pruebas están en
+> `src/test/java/application/`.
 >
 > Fuentes: `SDD/especificacion_funcional_nexusmarket.md`,
 > `SDD/Decisiones-y-supuestos.md`, `SDD/Domain/**`, `SDD/Adapters/**`.
@@ -31,27 +35,27 @@
 
 | Artefacto | Paquete | Agregado / raíz | Reglas | Documento | Estado |
 |---|---|---|---|---|---|
-| `User` | `domain.models` | raíz | RG-01, RG-02, R-09; `block/activate/deactivate`, `invalidateTokens` | `Domain-Model.md §2` | Diseñado |
-| `Buyer` | `domain.models` | raíz | rol BUYER; direcciones; `CommercialStatus`; `assertCanPurchase` | `§3` | Diseñado |
-| `Seller` | `domain.models` | raíz | R-08; `registerBy(admin,...)`; `assignWarehouse` | `§4` | Diseñado |
-| `Warehouse` | `domain.models` | raíz | tipo/dueño; responsable; `WarehouseAlreadyAssigned` | `§5` | Diseñado |
-| `Product` | `domain.models` | raíz | D-13; precio > 0; digital vs físico; variantes | `§6` | Diseñado |
-| `Inventory` | `domain.models` | raíz | D-07; nunca negativo; `DAMAGED` no reserva/venta | `§7` | Diseñado |
-| `InventoryMovement` | `domain.models` | entidad inmutable | trazabilidad de movimientos | `§7` | Diseñado |
-| `Cart` | `domain.models` | raíz | cantidades > 0; sin duplicados; solo `PUBLISHED` | `§8` | Diseñado |
-| `CartItem` | `domain.models` | parte de `Cart`/`Order` | producto, cantidad, precio unitario | `§8` | Diseñado |
-| `Order` | `domain.models` | raíz | D-03/D-08; R-07; `stockAllocations`; `invoice` | `§8` | Diseñado |
-| `Invoice` | `domain.models` | raíz | D-12; una por pedido; `voidInvoice` | `§8` | Diseñado |
-| `Shipment` | `domain.models` | raíz | solo físicos; `PENDING→IN_TRANSIT→DELIVERED` | `§8` | Diseñado |
-| `Return` | `domain.models` | raíz | solo pedidos entregados/finalizados; `approve/reject/complete` | `§8` | Diseñado |
-| `Refund` | `domain.models` | raíz | D-15; `process()` una vez | `§8` | Diseñado |
-| `AuditLog` | `domain.models` | inmutable | D-14; Mongo | `§9` | Diseñado |
-| `AuthResult` | `domain.models` | resultado | `token` + `user` | `§10` | Diseñado |
-| `SalesReport` | `domain.models.reports` | resultado | D-12/OBJ-12 | `§10` | Diseñado |
-| `OrderSummary` | `domain.models.reports` | resultado | OBJ-12 | `§10` | Diseñado |
-| `InventorySummary` | `domain.models.reports` | resultado | OBJ-12 | `§10` | Diseñado |
-| `ReturnSummary` | `domain.models.reports` | resultado | OBJ-12 | `§10` | Diseñado |
-| `UserSummary` | `domain.models.reports` | resultado | OBJ-12 | `§10` | Diseñado |
+| `User` | `domain.models` | raíz | RG-01, RG-02, R-09; `block/activate/deactivate`, `invalidateTokens` | `Domain-Model.md §2` | Implementado |
+| `Buyer` | `domain.models` | raíz | rol BUYER; direcciones; `CommercialStatus`; `assertCanPurchase` | `§3` | Implementado |
+| `Seller` | `domain.models` | raíz | R-08; `registerBy(admin,...)`; `assignWarehouse` | `§4` | Implementado |
+| `Warehouse` | `domain.models` | raíz | tipo/dueño; responsable; `WarehouseAlreadyAssignedException` | `§5` | Implementado |
+| `Product` | `domain.models` | raíz | D-13; precio > 0; digital vs físico; variantes | `§6` | Implementado |
+| `Inventory` | `domain.models` | raíz | D-07; nunca negativo; `DAMAGED` no reserva/venta | `§7` | Implementado |
+| `InventoryMovement` | `domain.models` | entidad inmutable | trazabilidad de movimientos | `§7` | Implementado |
+| `Cart` | `domain.models` | raíz | cantidades > 0; sin duplicados; solo `PUBLISHED` | `§8` | Implementado |
+| `CartItem` | `domain.models` | parte de `Cart`/`Order` | producto, cantidad, precio unitario | `§8` | Implementado |
+| `Order` | `domain.models` | raíz | D-03/D-08; R-07; `stockAllocations`; `invoice` | `§8` | Implementado |
+| `Invoice` | `domain.models` | raíz | D-12; una por pedido; `voidInvoice` | `§8` | Implementado |
+| `Shipment` | `domain.models` | raíz | solo físicos; `PENDING→IN_TRANSIT→DELIVERED` | `§8` | Implementado |
+| `Return` | `domain.models` | raíz | solo pedidos entregados/finalizados; `approve/reject/complete` | `§8` | Implementado |
+| `Refund` | `domain.models` | raíz | D-15; `process()` una vez | `§8` | Implementado |
+| `AuditLog` | `domain.models` | inmutable | D-14; Mongo | `§9` | Implementado |
+| `AuthResult` | `domain.models` | resultado | `token` + `user` | `§10` | Implementado |
+| `SalesReport` | `domain.models.reports` | resultado | D-12/OBJ-12 | `§10` | Implementado |
+| `OrderSummary` | `domain.models.reports` | resultado | OBJ-12 | `§10` | Implementado |
+| `InventorySummary` | `domain.models.reports` | resultado | OBJ-12 | `§10` | Implementado |
+| `ReturnSummary` | `domain.models.reports` | resultado | OBJ-12 | `§10` | Implementado |
+| `UserSummary` | `domain.models.reports` | resultado | OBJ-12 | `§10` | Implementado |
 
 ## 3. Catálogos (`domain.enums`)
 
@@ -67,28 +71,28 @@
 | `PaymentStatus` | `PENDING, CONFIRMED` | `§2` | Implementado |
 | `ShipmentStatus` | `PENDING, IN_TRANSIT, DELIVERED` | `§2` | Implementado |
 | `ReturnStatus` | `REQUESTED, APPROVED, REJECTED, COMPLETED` | `§2` | Implementado |
-| `WarehouseType` | `MARKETPLACE, SELLER` | `§3` (D-06) | Diseñado |
-| `MovementType` | `INFLOW, RESERVATION, SALE, ADJUSTMENT, RETURN` | `§3` | Diseñado |
-| `InventoryCondition` | `GOOD, DAMAGED` | `§3` | Diseñado |
-| `InvoiceStatus` | `ISSUED, VOIDED` | `§3` | Diseñado |
-| `RefundStatus` | `PENDING, PROCESSED` | `§3` | Diseñado |
-| `VariantType` | `COLOR, SIZE, MODEL, OTHER` | `§3` | Diseñado |
-| `AuditAction` | altas, bloqueos, transiciones, inventario, devoluciones, reembolsos | `§3` (D-14) | Diseñado |
-| `AuditEntityType` | `USER, SELLER, ORDER, INVENTORY, RETURN, REFUND` | `§3` | Diseñado |
+| `WarehouseType` | `MARKETPLACE, SELLER` | `§3` (D-06) | Implementado |
+| `MovementType` | `INFLOW, RESERVATION, SALE, ADJUSTMENT, RETURN` | `§3` | Implementado |
+| `InventoryCondition` | `GOOD, DAMAGED` | `§3` | Implementado |
+| `InvoiceStatus` | `ISSUED, VOIDED` | `§3` | Implementado |
+| `RefundStatus` | `PENDING, PROCESSED` | `§3` | Implementado |
+| `VariantType` | `COLOR, SIZE, MODEL, OTHER` | `§3` | Implementado |
+| `AuditAction` | altas, bloqueos, transiciones, inventario, devoluciones, reembolsos | `§3` (D-14) | Implementado |
+| `AuditEntityType` | `USER, SELLER, ORDER, INVENTORY, RETURN, REFUND` | `§3` | Implementado |
 
 ## 4. Value Objects (`domain.valueobjects`)
 
 | VO | Invariante | Usado por | Documento | Estado |
 |---|---|---|---|---|
-| `Money` | `BigDecimal` escala 2 `HALF_UP`; moneda `COP`; ≥ 0 | `Product`, `CartItem`, `Order`, `Invoice`, `Refund`, reportes | `Enums-and-Value-Objects.md §5` | Diseñado |
-| `Address` | campos no vacíos; `postalCode` opcional | `Buyer`, `Warehouse`, `Order`, `Shipment` | `§5` | Diseñado |
-| `Email` | formato válido; normalizado a minúsculas | `User` | `§5` | Diseñado |
-| `FullName` | no vacío | `User` | `§5` | Diseñado |
-| `IdentityDocument` | no vacío; formato simple | `User` | `§5` | Diseñado |
-| `TaxId` | formato fiscal simple documentado | `Seller` | `§5` | Diseñado |
-| `ProductVariant` | `type` + `value` no vacío | `Product` | `§5` | Diseñado |
-| `PasswordHash` | opaco, no vacío | `User` | `§5` | Diseñado |
-| `StockAllocation` | `productId`, `warehouseId`, `quantity > 0` | `Order` | `§5` | Diseñado |
+| `Money` | `BigDecimal` escala 2 `HALF_UP`; moneda `COP`; ≥ 0 | `Product`, `CartItem`, `Order`, `Invoice`, `Refund`, reportes | `Enums-and-Value-Objects.md §5` | Implementado |
+| `Address` | campos no vacíos; `postalCode` opcional | `Buyer`, `Warehouse`, `Order`, `Shipment` | `§5` | Implementado |
+| `Email` | formato válido; normalizado a minúsculas | `User` | `§5` | Implementado |
+| `FullName` | no vacío | `User` | `§5` | Implementado |
+| `IdentityDocument` | no vacío; formato simple | `User` | `§5` | Implementado |
+| `TaxId` | formato fiscal simple documentado | `Seller` | `§5` | Implementado |
+| `ProductVariant` | `type` + `value` no vacío | `Product` | `§5` | Implementado |
+| `PasswordHash` | opaco, no vacío | `User` | `§5` | Implementado |
+| `StockAllocation` | `productId`, `warehouseId`, `quantity > 0` | `Order` | `§5` | Implementado |
 
 ## 5. Servicios de dominio
 
@@ -185,14 +189,14 @@ Detalle en `SDD/Adapters/Api-rest-endpoints.md`.
 | RG-01 autenticación | `User.assertCanOperate`, filtro JWT, `UnauthenticatedUserException` | `JwtAuthenticationFilterTest`, `AuthServiceTest` |
 | RG-02 rol único | `User` sin `changeRole`; `SingleRoleException` | `UserTest`, `UserServiceTest` |
 | RG-03 autorización | `InsufficientPermissionException`, `UnauthorizedOperationException` | `*ServiceTest` por rol |
-| R-03 entidades ricas | constructores/factorías y métodos de intención | tests por agregado |
-| R-04 sin Strings acotados | catálogos + `fromCode` en el borde | `*RestMapperTest`, converters |
-| R-05 dinero | `Money` + `BigDecimal` | `MoneyTest` |
-| R-06 stock | `Inventory.reserve/confirmSale/adjust` | `InventoryTest`, `InventoryServiceTest` |
+| R-03 entidades ricas | constructores/factorías, métodos de intención y colecciones inmutables | `DomainRichnessTest` + tests por agregado |
+| R-04 sin Strings acotados | catálogos + `fromCode` en el borde | `RestMappersTest`, `CatalogConvertersTest` |
+| R-05 dinero | `Money` + `BigDecimal` | `ValueObjectsTest` |
+| R-06 stock | `Inventory.reserve/confirmSale/adjust`, stock nunca negativo y dañado no vendible | `InventoryTest`, `InventoryServiceTest` |
 | R-07 pedido no modificable | `Order.assertModifiable` | `OrderTest`, `OrderServiceTest` |
 | R-08 vendedor solo ADMIN | `Seller.registerBy` | `SellerTest`, `SellerServiceTest` |
-| R-09 unicidad | índices únicos + servicios | `UserServiceTest`, `SellerServiceTest` |
-| D-07 inventario | métodos y movimientos | `InventoryTest` |
+| R-09 unicidad | índices únicos + servicios | `UserServiceTest`, `SellerServiceTest`, `JpaMappingConstraintsTest` |
+| D-07 inventario | métodos y movimientos | `InventoryTest`, `InventoryServiceTest` |
 | D-08 flujo de pedido | máquina de estados | `OrderTest`, escenarios de `Domain-Services.md §4` |
 | D-11 JWT | claims `sub/jti/ver/iat/exp/role` | `JwtProviderTest`, `JwtAuthenticationFilterTest` |
 | D-12 impuestos | `TaxPolicyPort` + `InvoiceService` | `InvoiceServiceTest` |
@@ -213,16 +217,16 @@ Detalle en `SDD/Adapters/Api-rest-endpoints.md`.
 - [x] 14 servicios de dominio con documento propio.
 - [x] 6 puertos de entrada (sin los 2 bancarios descartados).
 - [x] 18 puertos de salida.
-- [x] 52 excepciones concretas + `DomainException` abstracta.
+- [x] 51 excepciones concretas + `DomainException` e `InvalidDataException` abstractas.
 - [x] 6 prefijos REST con 64 endpoints.
-- [x] Reglas R-01…R-12 y RG-01…RG-03 con evidencia/test previsto.
+- [x] Reglas R-01…R-12 y RG-01…RG-03 con evidencia y prueba.
 
-## 12. Riesgos y pendientes de Fase 1
+## 12. Riesgos residuales y supuestos vigentes
 
 | ID | Riesgo | Mitigación |
 |---|---|---|
 | D-09 | Matriz de responsabilidades no confirmada contra el PDF original | Marcada ⚠ en `Decisiones-y-supuestos.md`; validar con la persona dueña antes de Fase 5 |
 | A-16 | `AuthResult` como modelo de dominio (no VO) | Se mantiene en `domain.models`; el mapper REST lo convierte a `AuthResponse` |
 | — | `Return` es palabra reservada contextual en Java | El modelo se llama `Return`; los mapeadores/adaptadores lo usan con nombre completo cuando haga falta |
-| — | Enums actuales sin `values()`/BOM | Se corrigen en Fase 2 antes de usarlos |
+| — | Enums sin `values()`/BOM (H-03/H-07) | Resuelto: catálogos sin BOM, con `fromCode` y `values` |
 
