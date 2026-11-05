@@ -45,6 +45,10 @@ Los supuestos de IVA, cancelación, envíos por bodega, estados comerciales, rep
 | DEF-08 | La autorización de `listBySeller`/`listByProduct` valida solo el primer producto o ninguno; un vendedor puede leer inventario ajeno. | `InventoryService.java`, métodos `listBySeller` y `listByProduct`. | Validar que todos los inventarios devueltos pertenezcan al vendedor. | Tests de fuga con vendedor sin productos y con producto ajeno. |
 | DEF-09 | La suite no verificaba límites transaccionales ni el rollback/compensación de escrituras multiagregado. | Tests de servicios no cubrían fallo posterior a reserva ni anotaciones de casos de uso. | Añadir prueba de anotaciones y prueba de fallo al guardar pedido. | `UseCaseTransactionTest` y `checkoutReleasesReservationsWhenOrderSaveFails`. |
 
+Estado F3: **DEF-01…DEF-09 corregidos** en `28e6ee2`; cubiertos por
+`UseCaseTransactionTest`, `OrderServiceTest` e `InventoryServiceTest`. La suite
+completa queda en 364 pruebas verdes.
+
 ## 4. Brechas no cubiertas por el PDF
 
 | Brecha | Estado | Acción |
