@@ -18,8 +18,10 @@ import application.domain.services.ReturnService;
 import application.domain.valueobjects.Address;
 import java.util.List;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class NaturalCustomerUseCase implements NaturalCustomerPort {
 
     private final CartService cartService;

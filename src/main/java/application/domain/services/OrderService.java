@@ -102,10 +102,7 @@ public class OrderService {
                     AuditEntityType.ORDER, saved.getId(), actor, "Order created");
             return saved;
         } catch (RuntimeException exception) {
-            for (Inventory inventory : reserved) {
-                Inventory stale = inventoryRepository.findById(inventory.getId()).orElse(inventory);
-                inventoryRepository.save(stale);
-            }
+            releaseReservations(reserved, allocations);
             throw exception;
         }
     }
@@ -166,10 +163,10 @@ public class OrderService {
         for (StockAllocation allocation : order.getAllocations()) {
             List<Shipment> shipments = shipmentRepository
                     .findByOrderIdAndOriginWarehouseId(orderId, allocation.getWarehouseId());
-            boolean inTransit = shipments.stream().anyMatch(shipment ->
+            boolean allInTransit = !shipments.isEmpty() && shipments.stream().allMatch(shipment ->
                     shipment.getStatus().equals(ShipmentStatus.IN_TRANSIT)
                             || shipment.getStatus().equals(ShipmentStatus.DELIVERED));
-            if (!inTransit) {
+            if (!allInTransit) {
                 throw new InvalidStateTransitionException("Not all shipments are in transit");
             }
         }
@@ -189,9 +186,10 @@ public class OrderService {
         for (StockAllocation allocation : order.getAllocations()) {
             List<Shipment> shipments = shipmentRepository
                     .findByOrderIdAndOriginWarehouseId(orderId, allocation.getWarehouseId());
-            boolean delivered = shipments.stream()
-                    .anyMatch(shipment -> shipment.getStatus().equals(ShipmentStatus.DELIVERED));
-            if (!delivered) {
+            boolean allDelivered = !shipments.isEmpty()
+                    && shipments.stream().allMatch(shipment ->
+                            shipment.getStatus().equals(ShipmentStatus.DELIVERED));
+            if (!allDelivered) {
                 throw new InvalidStateTransitionException("Not all shipments are delivered");
             }
         }
@@ -274,19 +272,26 @@ public class OrderService {
             remaining -= take;
         }
         if (remaining > 0) {
-            for (Inventory inventory : reserved) {
-                inventory.releaseReservation(
-                        allocations.stream()
-                                .filter(allocation -> allocation.getWarehouseId()
-                                        .equals(inventory.getWarehouse().getId())
-                                        && allocation.getProductId().equals(inventory.getProduct().getId()))
-                                .mapToInt(StockAllocation::getQuantity)
-                                .sum());
-                inventoryRepository.save(inventory);
-            }
+            releaseReservations(reserved, allocations);
             reserved.clear();
             allocations.clear();
             throw new InsufficientStockException("Insufficient stock for product: " + product.getId());
+        }
+    }
+
+    private void releaseReservations(List<Inventory> reserved, List<StockAllocation> allocations) {
+        for (Inventory inventory : reserved) {
+            Inventory current = inventoryRepository.findById(inventory.getId()).orElse(inventory);
+            int quantity = allocations.stream()
+                    .filter(allocation -> allocation.getWarehouseId()
+                            .equals(inventory.getWarehouse().getId())
+                            && allocation.getProductId().equals(inventory.getProduct().getId()))
+                    .mapToInt(StockAllocation::getQuantity)
+                    .sum();
+            if (quantity > 0) {
+                current.releaseReservation(quantity);
+                inventoryRepository.save(current);
+            }
         }
     }
 

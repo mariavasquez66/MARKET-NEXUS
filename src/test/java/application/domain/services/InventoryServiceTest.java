@@ -120,4 +120,30 @@ class InventoryServiceTest {
         assertThatThrownBy(() -> service.adjust(buyer().getUser(), "p", "w", 1))
                 .isInstanceOf(InsufficientPermissionException.class);
     }
+
+    @Test
+    void sellerCannotListAnotherSellersInventoryEvenWhenSellerHasNoProducts() {
+        Seller owner = seller(admin());
+        Product product = publishedPhysicalProduct(owner, operator());
+        Warehouse warehouse = owner.getWarehouses().get(0);
+        Inventory inventory = Inventory.create(product, warehouse, 2);
+        Seller intruder = seller(admin());
+        when(inventoryRepository.findBySellerId(owner.getId())).thenReturn(List.of(inventory));
+
+        assertThatThrownBy(() -> service.listBySeller(intruder.getUser(), owner.getId()))
+                .isInstanceOf(application.domain.exceptions.common.UnauthorizedOperationException.class);
+    }
+
+    @Test
+    void sellerCannotListAnotherSellersInventoryByProduct() {
+        Seller owner = seller(admin());
+        Product product = publishedPhysicalProduct(owner, operator());
+        Warehouse warehouse = owner.getWarehouses().get(0);
+        Inventory inventory = Inventory.create(product, warehouse, 2);
+        Seller intruder = seller(admin());
+        when(inventoryRepository.findByProductId(product.getId())).thenReturn(List.of(inventory));
+
+        assertThatThrownBy(() -> service.listByProduct(intruder.getUser(), product.getId()))
+                .isInstanceOf(application.domain.exceptions.common.UnauthorizedOperationException.class);
+    }
 }

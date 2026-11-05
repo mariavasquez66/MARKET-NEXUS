@@ -89,7 +89,7 @@ public class InventoryService {
         return recordMovement(saved, MovementType.INFLOW, quantity, actor);
     }
 
-    public StockAllocation reserve(User actor, String productId, String warehouseId, int quantity) {
+    StockAllocation reserve(User actor, String productId, String warehouseId, int quantity) {
         ServiceSupport.requireAnyRole(actor, UserRole.BUYER, UserRole.ADMIN);
         Inventory inventory = requireInventory(productId, warehouseId);
         inventory.reserve(quantity);
@@ -98,7 +98,7 @@ public class InventoryService {
         return StockAllocation.of(productId, warehouseId, quantity);
     }
 
-    public void releaseReservation(User actor, String productId, String warehouseId, int quantity) {
+    void releaseReservation(User actor, String productId, String warehouseId, int quantity) {
         ServiceSupport.requireAnyRole(actor, UserRole.BUYER, UserRole.ADMIN);
         Inventory inventory = requireInventory(productId, warehouseId);
         inventory.releaseReservation(quantity);
@@ -106,7 +106,7 @@ public class InventoryService {
         recordMovement(inventory, MovementType.RESERVATION, quantity, actor);
     }
 
-    public void confirmSale(User actor, String productId, String warehouseId, int quantity) {
+    void confirmSale(User actor, String productId, String warehouseId, int quantity) {
         ServiceSupport.requireAnyRole(actor, UserRole.BUYER, UserRole.ADMIN);
         Inventory inventory = requireInventory(productId, warehouseId);
         inventory.confirmSale(quantity);
@@ -156,19 +156,15 @@ public class InventoryService {
 
     public List<Inventory> listBySeller(User actor, String sellerId) {
         ServiceSupport.requireAnyRole(actor, UserRole.SELLER, UserRole.ADMIN, UserRole.SUPERVISOR);
-        if (actor.hasRole(UserRole.SELLER)) {
-            productRepository.findBySellerId(sellerId).stream().findFirst()
-                    .ifPresent(product -> requireSellerOwns(actor, product));
-        }
-        return inventoryRepository.findBySellerId(sellerId);
+        List<Inventory> inventories = inventoryRepository.findBySellerId(sellerId);
+        requireSellerOwnsAll(actor, inventories);
+        return inventories;
     }
 
     public List<Inventory> listByProduct(User actor, String productId) {
         ServiceSupport.requireAnyRole(actor, UserRole.SELLER, UserRole.ADMIN, UserRole.SUPERVISOR);
         List<Inventory> inventories = inventoryRepository.findByProductId(productId);
-        if (actor.hasRole(UserRole.SELLER) && !inventories.isEmpty()) {
-            requireSellerOwns(actor, inventories.get(0).getProduct());
-        }
+        requireSellerOwnsAll(actor, inventories);
         return inventories;
     }
 
@@ -207,6 +203,14 @@ public class InventoryService {
     private void requireSellerOwns(User actor, Product product) {
         if (!product.getSeller().getUser().getId().equals(actor.getId())) {
             throw new UnauthorizedOperationException("Seller does not own this product");
+        }
+    }
+
+    private void requireSellerOwnsAll(User actor, List<Inventory> inventories) {
+        if (actor.hasRole(UserRole.SELLER)
+                && inventories.stream().anyMatch(inventory ->
+                        !inventory.getProduct().getSeller().getUser().getId().equals(actor.getId()))) {
+            throw new UnauthorizedOperationException("Seller does not own all requested inventory");
         }
     }
 }

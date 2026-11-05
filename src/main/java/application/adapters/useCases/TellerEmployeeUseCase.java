@@ -21,8 +21,10 @@ import application.domain.valueobjects.Money;
 import application.domain.valueobjects.TaxId;
 import java.util.List;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class TellerEmployeeUseCase implements TellerEmployeePort {
 
     private final SellerService sellerService;

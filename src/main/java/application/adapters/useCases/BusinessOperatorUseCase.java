@@ -14,8 +14,10 @@ import application.domain.services.OrderService;
 import application.domain.services.ReturnService;
 import java.util.List;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class BusinessOperatorUseCase implements BusinessOperatorPort {
 
     private final InventoryService inventoryService;
