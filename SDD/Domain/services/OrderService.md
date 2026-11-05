@@ -16,7 +16,7 @@
 | Elemento | Detalle |
 |---|---|
 | Precondiciones | `BUYER`; carrito existente y no vacío (`CartNotFoundException`, `EmptyCartException`); comprador `ELIGIBLE` (`RestrictedBuyerException`); todos los productos siguen `PUBLISHED` (`ProductNotAvailableException`) |
-| Flujo | 1) Carga carrito y comprador. 2) Agrupa ítems físicos. 3) Para cada producto físico, obtiene inventarios con `availableQuantity > 0` ordenados de mayor a menor y reserva en varias bodegas con `Inventory.reserve`, acumulando `StockAllocation`. Si no alcanza ⇒ libera las reservas ya hechas (`releaseReservation`) y lanza `InsufficientStockException`. 4) `Order.fromCart(cart, deliveryAddress, clock.now())` con las asignaciones. 5) Guarda pedido. 6) Vacía y guarda el carrito. |
+| Flujo | 1) Carga carrito y comprador. 2) Agrupa ítems físicos. 3) Para cada producto físico, obtiene inventarios con `availableQuantity > 0` ordenados de mayor a menor y reserva en varias bodegas con `Inventory.reserve`, acumulando `StockAllocation`. Si no alcanza ⇒ libera las reservas ya hechas (`releaseReservation`) y lanza `InsufficientStockException`. 4) `Order.fromCart(cart, deliveryAddress, clock.now())` con las asignaciones. 5) Guarda pedido. 6) Vacía y guarda el carrito. Cualquier fallo posterior a una reserva ejecuta la misma compensación antes de propagar la excepción. |
 | Excepciones | `CartNotFoundException`, `EmptyCartException`, `RestrictedBuyerException`, `ProductNotAvailableException`, `InsufficientStockException`, `DamagedInventoryException`, `InvalidQuantityException` |
 | Auditoría | `ORDER_CREATED` sobre `ORDER` |
 
@@ -40,10 +40,12 @@
 
 ### `Order markDispatched(User actor, String orderId)` / `markDelivered`
 
-- `LOGISTIC_OPERATOR` (invocado por `LogisticsService`). Verifica que **todas**
-  las asignaciones tengan un envío en `IN_TRANSIT` o `DELIVERED` para
-  `markDispatched`; para `markDelivered`, que todos los envíos estén
-  `DELIVERED`. Si no se cumple ⇒ `InvalidStateTransitionException`. Guarda.
+- `LOGISTIC_OPERATOR` (invocado por `LogisticsService`). Para `markDispatched`,
+  cada asignación debe tener al menos un envío y **todos** sus envíos deben
+  estar `IN_TRANSIT` o `DELIVERED`; para `markDelivered`, cada asignación debe
+  tener al menos un envío y **todos** deben estar `DELIVERED`. Una lista vacía
+  no autoriza la transición. Si no se cumple ⇒ `InvalidStateTransitionException`.
+  Guarda.
 - **Auditoría:** `ORDER_STATUS_CHANGED`.
 
 ### `Order finalize(User actor, String orderId)`
@@ -69,3 +71,5 @@
 - Un pedido `DELIVERED`/`FINALIZED`/`CANCELLED` no admite modificación de datos
   (R-07); solo transiciones válidas.
 - Los productos digitales no generan asignaciones ni envíos.
+- La transacción se delimita en el caso de uso; si falla cualquier escritura
+  posterior a una reserva, `checkout` libera las reservas antes de propagar.

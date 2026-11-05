@@ -225,8 +225,19 @@ Detalle en `SDD/Adapters/Api-rest-endpoints.md`.
 
 | ID | Riesgo | Mitigación |
 |---|---|---|
-| D-09 | Matriz de responsabilidades no confirmada contra el PDF original | Marcada ⚠ en `Decisiones-y-supuestos.md`; validar con la persona dueña antes de Fase 5 |
+| D-09 | Matriz de responsabilidades | **Confirmada** contra PDF p.8 §12: Admin, Vendedor + Op. Logístico, Comprador + Vendedor + Op. Logístico, Comprador + Admin; las 4 columnas existen. Solo filas/roles ausentes quedan como supuesto. |
 | A-16 | `AuthResult` como modelo de dominio (no VO) | Se mantiene en `domain.models`; el mapper REST lo convierte a `AuthResponse` |
 | — | `Return` es palabra reservada contextual en Java | El modelo se llama `Return`; los mapeadores/adaptadores lo usan con nombre completo cuando haga falta |
 | — | Enums sin `values()`/BOM (H-03/H-07) | Resuelto: catálogos sin BOM, con `fromCode` y `values` |
+
+## 13. Integridad transaccional y consistencia (F3)
+
+| Control | Implementación | Evidencia |
+|---|---|---|
+| Transacción por caso de uso | `@Transactional` de clase en los 6 `*UseCase` | `UseCaseTransactionTest` |
+| Compensación de checkout | `OrderService.releaseReservations` en `catch` y stock insuficiente | `checkoutReleasesReservationsWhenOrderSaveFails`, `checkoutReleasesReservationsWhenStockIsInsufficient` |
+| Despacho completo | `markDispatched` exige lista no vacía y `allMatch(IN_TRANSIT/DELIVERED)` por asignación | `dispatchRequiresAllAllocationsInTransit` |
+| Entrega completa | `markDelivered` exige lista no vacía y `allMatch(DELIVERED)` por asignación | `deliveryRequiresEveryShipmentForAllocationToBeDelivered` |
+| Autorización de inventario | `listBySeller`/`listByProduct` validan todos los registros del vendedor | `sellerCannotListAnotherSellersInventoryEvenWhenSellerHasNoProducts`, `sellerCannotListAnotherSellersInventoryByProduct` |
+| Defectos y decisión 28/90 | `SDD/Gap-Analysis.md` | DEF-01…DEF-09; F4/F5 N/A sin respaldo PDF |
 

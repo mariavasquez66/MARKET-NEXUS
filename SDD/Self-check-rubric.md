@@ -2,7 +2,7 @@
 
 **Proyecto:** NexusMarket  
 **Fecha de verificación:** 2026-11-03  
-**Rama verificada:** `develop`  
+**Rama verificada:** `feat/spec-coverage`
 **Nota final autoevaluada:** **5.0 / 5.0**
 
 Fórmula aplicada:
@@ -125,7 +125,7 @@ La evaluación se basa únicamente en archivos y clases observables del reposito
 
 | Verificación | Resultado |
 |---|---|
-| `.\mvnw.cmd clean test` | 359 pruebas, 0 fallos, 0 errores, 0 omitidas |
+| `.\mvnw.cmd clean test` | 364 pruebas, 0 fallos, 0 errores, 0 omitidas |
 | Imports de frameworks en `application.domain` | Sin coincidencias |
 | `String` abiertos para campos acotados en `domain/models` | Sin hallazgos |
 | `Double`/`double`/`float` monetarios | Sin hallazgos |
@@ -136,6 +136,7 @@ La evaluación se basa únicamente en archivos y clases observables del reposito
 
 ## Observaciones y riesgos residuales
 
-- D-09 (matriz de responsabilidades del PDF) sigue marcada para confirmación de la persona dueña; no afecta la implementación ni la trazabilidad actual.
+- D-09 quedó **confirmada** contra la matriz de PDF p.8 §12; las 4 columnas existen. Solo las filas/roles ausentes permanecen como supuesto.
+- `SDD/Gap-Analysis.md` registra que el PDF no respalda 28 servicios/90 endpoints; no se añadieron servicios vacíos ni endpoints artificiales.
 - Las pruebas son unitarias y de contexto Spring con dependencias mockeadas; no se ejecutan pruebas de integración con contenedores. La conectividad con MySQL y MongoDB se verificó manualmente.
 - MongoDB 4.4 está fijado por limitación de AVX del host de verificación (D-17); en un host compatible puede actualizarse la imagen.

@@ -29,7 +29,8 @@
 - Solo `LOGISTIC_OPERATOR`. `return.complete()` (`APPROVED → COMPLETED`). Para
   cada ítem físico del pedido, reingresa stock en la bodega de su asignación
   mediante `InventoryService.registerReturn(actor, productId, warehouseId, qty)`
-  (movimiento `RETURN`). Guarda la devolución.
+  (movimiento `RETURN`). Guarda la devolución. El reingreso y el cambio de
+  estado comparten la transacción del caso de uso; un fallo revierte ambos.
 - **Auditoría:** `RETURN_COMPLETED` sobre `RETURN`.
 
 ### `List<Return> listReturns(User actor)`
