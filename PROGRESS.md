@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: Fase 8 cerrada, 359 pruebas en verde y documentación completa (rama `develop`).
+> Última actualización: misión RVI en `feat/spec-coverage`, 364 pruebas en verde; Fase 8 histórica en `develop`.
 
 ## Entorno verificado
 
@@ -270,3 +270,19 @@ $env:Path="$env:JAVA_HOME\bin;$env:Path"
 | Archivo descalificante | `evaluacion1.md` | No existe |
 
 El commit de cierre de esta fase se identifica con `git log -1`.
+
+## Misión RVI — rama `feat/spec-coverage` (2026-11-05)
+
+- Base: `main` `b5e899a`; `origin/develop` `0ea554f`. No hay merge ni push de la rama.
+- PDF funcional extraído con PDFBox 2.0.31: 8 páginas, hash de texto
+  `1C994B68FE6A237F7C67AA1AB98D5A47373E4E24D1690EDE082DB9C1C13109F5`.
+- Ledger atómico: 84 requisitos `REQ-*` en `SDD/Spec-Ledger/ledger.md`;
+  supuestos `SUP-01`…`SUP-15` en `SDD/Supuestos-no-verificados.md`.
+- D-09 corregida y confirmada contra p.8 §12: las 4 columnas existen.
+- `SDD/Gap-Analysis.md` concluye que el PDF no respalda 28 servicios/90 endpoints;
+  F4 y F5 quedan N/A por falta de requisitos, sin inventar servicios.
+- F3 corrige 9 defectos: transacciones en los 6 casos de uso, compensación de
+  checkout, transiciones completas de despacho/entrega y autorización total de
+  inventario. Tests nuevos: `UseCaseTransactionTest` y casos de fallo en
+  `OrderServiceTest`/`InventoryServiceTest`.
+- Verificación actual: **364 pruebas, 0 fallos, 0 errores, 0 omitidas** (50 suites).

@@ -2,7 +2,7 @@
 
 > Fuente funcional exclusiva: `SDD/Especificación Funcional del Negocio - NexusMarket.pdf` (8 páginas).
 > Cada fila es atómica y lleva etiqueta RVI. `[SUPUESTO]` no se implementa como regla obligatoria.
-> Pasadas: `passes/pass-1.md` a `passes/pass-4.md`; la pasada 5 se registrará en F7.
+> Pasadas: `passes/pass-1.md` a `passes/pass-5.md`; la pasada 5 se ejecutó en F7.
 
 ## Cobertura RVI
 
@@ -73,7 +73,7 @@
 | REQ-056 | Documento de identidad y correo deben ser únicos en la plataforma. | p.8 §11 | Validación | Usuarios | OBJ-01 | [SPEC p.8 §11] | CUBIERTO: servicios + índices únicos |
 | REQ-057 | Matriz: Registro de Vendedores → Admin. | p.8 §12 | Responsabilidad | Vendedores | OBJ-02 | [SPEC p.8 §12] | CUBIERTO: `TellerEmployeePort` |
 | REQ-058 | Matriz: Registro de Productos → Vendedor. | p.8 §12 | Responsabilidad | Catálogo | OBJ-05 | [SPEC p.8 §12] | CUBIERTO: `SellerController` |
-| REQ-059 | Matriz: Administración de Inventario → Vendedor + Op. Logístico. | p.8 §12 | Responsabilidad | Inventario | OBJ-06 | [SPEC p.8 §12] | PARCIAL: inventario expuesto a otros roles; corregir en F3 |
+| REQ-059 | Matriz: Administración de Inventario → Vendedor + Op. Logístico. | p.8 §12 | Responsabilidad | Inventario | OBJ-06 | [SPEC p.8 §12] | CUBIERTO: endpoints por rol; lectura de vendedor validada sobre toda la colección en F3 |
 | REQ-060 | Matriz: Gestión de Pedidos → Comprador + Vendedor + Op. Logístico. | p.8 §12 | Responsabilidad | Pedidos | OBJ-08 | [SPEC p.8 §12] | CUBIERTO: endpoints por rol |
 | REQ-061 | Matriz: Gestión de Reembolsos → Comprador + Admin. | p.8 §12 | Responsabilidad | Reembolsos | OBJ-11 | [SPEC p.8 §12] | PARCIAL: comprador solo consulta; Admin genera/procesa |
 | REQ-062 | La facturación está incluida en el alcance, sin detalle funcional. | p.2 §3.1 | Alcance | Facturación | OBJ-09 | [SPEC p.2 §3.1] | PARCIAL: `InvoiceService` existe; reglas fiscales [SUPUESTO] |
