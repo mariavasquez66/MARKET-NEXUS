@@ -29,6 +29,7 @@ public class CatalogService {
     private final InventoryRepositoryPort inventoryRepository;
     private final AuditPort auditPort;
     private final ClockPort clockPort;
+    private final CatalogQueryService queryService;
 
     public CatalogService(ProductRepositoryPort productRepository,
                           SellerRepositoryPort sellerRepository,
@@ -40,6 +41,7 @@ public class CatalogService {
         this.inventoryRepository = Objects.requireNonNull(inventoryRepository);
         this.auditPort = Objects.requireNonNull(auditPort);
         this.clockPort = Objects.requireNonNull(clockPort);
+        this.queryService = new CatalogQueryService(productRepository, sellerRepository);
     }
 
     public Product registerProduct(User actor,
@@ -110,45 +112,23 @@ public class CatalogService {
     }
 
     public List<Product> listPublishedProducts() {
-        return productRepository.findPublished();
+        return queryService.listPublishedProducts();
     }
 
     public Product getPublishedProduct(String productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found: " + productId));
-        if (!product.isPurchasable()) {
-            throw new ProductNotPublishedException("Product is not published: " + productId);
-        }
-        return product;
+        return queryService.getPublishedProduct(productId);
     }
 
     public List<Product> listMyProducts(User actor) {
-        ServiceSupport.requireRole(actor, UserRole.SELLER);
-        Seller seller = sellerRepository.findByUserId(actor.getId())
-                .orElseThrow(() -> new SellerNotFoundException("Seller not found for current user"));
-        return productRepository.findBySellerId(seller.getId());
+        return queryService.listMyProducts(actor);
     }
 
     public List<Product> listBySeller(User actor, String sellerId) {
-        ServiceSupport.requireAnyRole(actor, UserRole.SELLER, UserRole.ADMIN);
-        Seller seller = sellerRepository.findById(sellerId)
-                .orElseThrow(() -> new SellerNotFoundException("Seller not found: " + sellerId));
-        if (!actor.hasRole(UserRole.ADMIN) && !seller.getUser().getId().equals(actor.getId())) {
-            throw new UnauthorizedOperationException("Cannot access another seller catalog");
-        }
-        return productRepository.findBySellerId(sellerId);
+        return queryService.listBySeller(actor, sellerId);
     }
 
     public Product getProductForSeller(User actor, String productId) {
-        ServiceSupport.requireAnyRole(actor, UserRole.SELLER, UserRole.ADMIN);
-        Product product = requireProduct(productId);
-        if (actor.hasRole(UserRole.ADMIN)) {
-            return product;
-        }
-        if (!product.getSeller().getUser().getId().equals(actor.getId())) {
-            throw new UnauthorizedOperationException("Cannot access another seller product");
-        }
-        return product;
+        return queryService.getProductForSeller(actor, productId);
     }
 
     private Product requireOwnedProduct(User actor, String productId) {

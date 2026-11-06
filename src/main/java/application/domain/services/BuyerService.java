@@ -17,6 +17,7 @@ public class BuyerService {
     private final BuyerRepositoryPort buyerRepository;
     private final AuditPort auditPort;
     private final ClockPort clockPort;
+    private final BuyerEligibilityService eligibilityService;
 
     public BuyerService(BuyerRepositoryPort buyerRepository,
                         AuditPort auditPort,
@@ -24,6 +25,7 @@ public class BuyerService {
         this.buyerRepository = Objects.requireNonNull(buyerRepository);
         this.auditPort = Objects.requireNonNull(auditPort);
         this.clockPort = Objects.requireNonNull(clockPort);
+        this.eligibilityService = new BuyerEligibilityService(buyerRepository);
     }
 
     public Buyer getBuyer(User actor, String buyerId) {
@@ -62,24 +64,15 @@ public class BuyerService {
     }
 
     public Buyer restrict(User actor, String buyerId) {
-        ServiceSupport.requireRole(actor, UserRole.ADMIN);
-        Buyer buyer = requireBuyer(buyerId);
-        buyer.restrict();
-        return buyerRepository.save(buyer);
+        return eligibilityService.restrict(actor, buyerId);
     }
 
     public Buyer suspend(User actor, String buyerId) {
-        ServiceSupport.requireRole(actor, UserRole.ADMIN);
-        Buyer buyer = requireBuyer(buyerId);
-        buyer.suspend();
-        return buyerRepository.save(buyer);
+        return eligibilityService.suspend(actor, buyerId);
     }
 
     public Buyer markEligible(User actor, String buyerId) {
-        ServiceSupport.requireRole(actor, UserRole.ADMIN);
-        Buyer buyer = requireBuyer(buyerId);
-        buyer.markEligible();
-        return buyerRepository.save(buyer);
+        return eligibilityService.markEligible(actor, buyerId);
     }
 
     private Buyer requireBuyer(String buyerId) {
