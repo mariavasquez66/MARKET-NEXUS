@@ -3,6 +3,9 @@
 **OBJ:** OBJ-06 · **Acceso:** `SELLER` (alta/consulta propia), `LOGISTIC_OPERATOR` (movimientos), `BUYER` (reserva/liberación vía checkout)
 **Paquete:** `application.domain.services.InventoryService`
 
+Las lecturas y su autorización se delegan en `InventoryQueryService`; las
+mutaciones de stock siguen en esta fachada.
+
 ## Dependencias (constructor)
 
 `InventoryRepositoryPort`, `InventoryMovementRepositoryPort`,
