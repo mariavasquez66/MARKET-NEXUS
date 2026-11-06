@@ -3,6 +3,9 @@
 **OBJ:** OBJ-05 · **Acceso:** `SELLER` (gestión propia), público (consulta)
 **Paquete:** `application.domain.services.CatalogService`
 
+Las consultas públicas y por vendedor se delegan en `CatalogQueryService`; la
+gestión de productos permanece en esta fachada.
+
 ## Dependencias (constructor)
 
 `ProductRepositoryPort`, `SellerRepositoryPort`, `InventoryRepositoryPort`,
