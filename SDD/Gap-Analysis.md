@@ -21,12 +21,12 @@
 
 ## 2. Decisión sobre la ampliación a 28 servicios / 90 endpoints
 
-**No se amplía artificialmente.** El PDF solo define 7 dominios funcionales, 12 objetivos y 13 procesos. Los 14 servicios y 64 endpoints actuales ya cubren todos los objetivos y procesos verificables. Llegar a 28 servicios y 90 endpoints exigiría inventar áreas, duplicar operaciones o exponer detalles internos sin respaldo funcional, lo que contradice RVI y la instrucción de no inflar con servicios vacíos.
+**Reevaluación F4/F5 (máximo defendible, sin requisitos nuevos).** El PDF solo define 7 dominios funcionales, 12 objetivos y 13 procesos. No respalda 28 servicios ni 90 endpoints, pero sí permite separar responsabilidades internas y completar lecturas necesarias para procesos ya especificados. Se pasa de 14 a 22 clases de servicio (14 beans fachada), sin servicios vacíos ni reglas nuevas, y de 64 a 72 endpoints trazables a `[SPEC]`/`[DERIVADO]`.
 
 | Meta | ¿Respaldo PDF? | Decisión |
 |---|---|---|
-| ≥28 servicios | No | Mantener 14 servicios cohesionados; dividir solo si una operación demuestra cohesión insuficiente, sin crear servicios vacíos. |
-| ≥90 endpoints | No | Mantener 64 endpoints; añadir solo los necesarios para corregir brechas verificadas. |
+| ≥28 servicios | No | 22 clases por responsabilidad: 8 divisiones internas (`Checkout`, pago, cumplimiento, ciclo de vida y consulta de pedido; consulta de inventario y catálogo; elegibilidad de comprador). No se llega a 28. |
+| ≥90 endpoints | No | 72 endpoints: los 8 nuevos cubren lectura de direcciones, finalización de pedido, producto propio, envíos y consultas admin; no se inventan rutas. |
 | Metas 96–110 | No | No aplican. |
 
 Los supuestos de IVA, cancelación, envíos por bodega, estados comerciales, reportes y aprobación de devoluciones quedan en `SDD/Supuestos-no-verificados.md`; no justifican expansión.
@@ -47,7 +47,7 @@ Los supuestos de IVA, cancelación, envíos por bodega, estados comerciales, rep
 
 Estado F3: **DEF-01…DEF-09 corregidos** en `28e6ee2`; cubiertos por
 `UseCaseTransactionTest`, `OrderServiceTest` e `InventoryServiceTest`. La suite
-completa queda en 364 pruebas verdes.
+completa queda en 393 pruebas verdes.
 
 ## 4. Brechas no cubiertas por el PDF
 
@@ -62,4 +62,4 @@ completa queda en 364 pruebas verdes.
 
 ## 5. Conclusión
 
-La implementación cubre el PDF. El trabajo pendiente es de **integridad transaccional, autorización y consistencia**, no de cantidad de servicios/endpoints. F4 y F5 quedan **N/A por falta de respaldo funcional**, salvo que la persona dueña confirme requisitos adicionales.
+La implementación cubre el PDF. F4 y F5 se ejecutaron hasta donde el texto permite: 22 clases de servicio por responsabilidad y 72 endpoints con trazabilidad RVI. No se alcanzan 28/90 porque el PDF no los respalda; ampliar más exigiría requisitos nuevos. El trabajo pendiente sigue siendo de **integridad transaccional, autorización y consistencia**.
