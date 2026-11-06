@@ -3,11 +3,18 @@
 **OBJ:** OBJ-08 · **Acceso:** `BUYER` (propio), `SELLER` (consulta), `LOGISTIC_OPERATOR`, `SUPERVISOR`/`ADMIN`
 **Paquete:** `application.domain.services.OrderService`
 
+`OrderService` es una fachada compatible que delega en `CheckoutService`,
+`OrderPaymentService`, `OrderFulfillmentService`, `OrderLifecycleService` y
+`OrderQueryService`. Las reglas siguientes describen el comportamiento observable
+de la fachada.
+
 ## Dependencias (constructor)
 
 `CartRepositoryPort`, `BuyerRepositoryPort`, `OrderRepositoryPort`,
-`ProductRepositoryPort`, `InventoryRepositoryPort`, `ShipmentRepositoryPort`,
-`InvoiceService`, `AuditPort`, `ClockPort`.
+`ProductRepositoryPort`, `InventoryRepositoryPort`,
+`InventoryMovementRepositoryPort`, `ShipmentRepositoryPort`, `InvoiceService`,
+`AuditPort`, `ClockPort`. La fachada construye con ellos los cinco servicios
+delegados.
 
 ## Métodos
 
