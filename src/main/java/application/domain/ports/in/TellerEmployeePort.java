@@ -21,6 +21,8 @@ public interface TellerEmployeePort {
 
     List<Seller> listSellers(User actor);
 
+    Seller getSeller(User actor, String sellerId);
+
     Seller updateSellerTaxId(User actor, String sellerId, TaxId taxId);
 
     Seller assignWarehouse(User actor, String sellerId, String warehouseId);
@@ -31,10 +33,14 @@ public interface TellerEmployeePort {
 
     List<Warehouse> listWarehouses(User actor);
 
+    Warehouse getWarehouse(User actor, String warehouseId);
+
     Warehouse updateWarehouse(User actor, String warehouseId, String name,
                               Address location, String responsibleUserId);
 
     List<User> listUsers(User actor);
+
+    User getUser(User actor, String userId);
 
     User createUser(User actor, FullName fullName, Email email,
                     IdentityDocument identityDocument, UserRole role,

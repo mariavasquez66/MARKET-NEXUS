@@ -56,6 +56,11 @@ public class TellerEmployeeUseCase implements TellerEmployeePort {
     }
 
     @Override
+    public Seller getSeller(User actor, String sellerId) {
+        return sellerService.getSeller(actor, sellerId);
+    }
+
+    @Override
     public Seller updateSellerTaxId(User actor, String sellerId, TaxId taxId) {
         return sellerService.updateTaxId(actor, sellerId, taxId);
     }
@@ -79,6 +84,11 @@ public class TellerEmployeeUseCase implements TellerEmployeePort {
     }
 
     @Override
+    public Warehouse getWarehouse(User actor, String warehouseId) {
+        return warehouseService.getWarehouse(actor, warehouseId);
+    }
+
+    @Override
     public Warehouse updateWarehouse(User actor, String warehouseId, String name,
                                      Address location, String responsibleUserId) {
         return warehouseService.updateWarehouse(actor, warehouseId, name, location, responsibleUserId);
@@ -87,6 +97,11 @@ public class TellerEmployeeUseCase implements TellerEmployeePort {
     @Override
     public List<User> listUsers(User actor) {
         return userService.listUsers(actor);
+    }
+
+    @Override
+    public User getUser(User actor, String userId) {
+        return userService.getUser(actor, userId);
     }
 
     @Override
