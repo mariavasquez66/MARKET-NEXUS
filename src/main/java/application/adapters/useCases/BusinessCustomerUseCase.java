@@ -43,6 +43,11 @@ public class BusinessCustomerUseCase implements BusinessCustomerPort {
     }
 
     @Override
+    public Product getProduct(User actor, String productId) {
+        return catalogService.getProductForSeller(actor, productId);
+    }
+
+    @Override
     public Product updateProduct(User actor, String productId, String name,
                                  String description, Money price) {
         return catalogService.updateProduct(actor, productId, name, description, price);

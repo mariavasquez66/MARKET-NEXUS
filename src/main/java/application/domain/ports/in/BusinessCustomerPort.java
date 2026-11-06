@@ -16,6 +16,8 @@ public interface BusinessCustomerPort {
 
     List<Product> listProducts(User actor);
 
+    Product getProduct(User actor, String productId);
+
     Product updateProduct(User actor, String productId, String name,
                           String description, Money price);
 
