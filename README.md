@@ -166,10 +166,12 @@ Base: `/api/v1`. Todas las rutas, excepto `/public/**`, requieren JWT y rol auto
 | GET | `/buyer/orders/{id}` | Consultar pedido propio |
 | POST | `/buyer/orders/{id}/pay` | Confirmar pago |
 | POST | `/buyer/orders/{id}/cancel` | Cancelar pedido antes del pago |
+| POST | `/buyer/orders/{id}/finalize` | Finalizar pedido entregado |
 | GET | `/buyer/orders/{id}/invoice` | Consultar factura |
 | POST | `/buyer/orders/{id}/returns` | Solicitar devolución |
 | GET | `/buyer/returns` | Listar devoluciones propias |
 | GET | `/buyer/refunds` | Listar reembolsos propios |
+| GET | `/buyer/addresses` | Listar direcciones propias |
 | POST | `/buyer/addresses` | Agregar dirección |
 | PUT | `/buyer/addresses/main` | Cambiar dirección principal |
 
@@ -179,6 +181,7 @@ Base: `/api/v1`. Todas las rutas, excepto `/public/**`, requieren JWT y rol auto
 |---|---|---|
 | POST | `/seller/products` | Crear producto |
 | GET | `/seller/products` | Listar productos propios |
+| GET | `/seller/products/{id}` | Consultar producto propio |
 | PUT | `/seller/products/{id}` | Actualizar producto |
 | POST | `/seller/products/{id}/variants` | Agregar variante |
 | POST | `/seller/products/{id}/publish` | Publicar producto |
@@ -193,6 +196,8 @@ Base: `/api/v1`. Todas las rutas, excepto `/public/**`, requieren JWT y rol auto
 | Método | Ruta | Descripción |
 |---|---|---|
 | GET | `/logistics/orders` | Consultar pedidos para despacho |
+| GET | `/logistics/orders/{id}/shipments` | Listar envíos del pedido |
+| GET | `/logistics/shipments/{id}` | Consultar envío |
 | POST | `/logistics/shipments` | Crear envío |
 | POST | `/logistics/shipments/{id}/start` | Marcar envío en tránsito |
 | POST | `/logistics/shipments/{id}/deliver` | Confirmar entrega |
@@ -209,12 +214,15 @@ Base: `/api/v1`. Todas las rutas, excepto `/public/**`, requieren JWT y rol auto
 |---|---|---|
 | POST | `/admin/sellers` | Registrar vendedor |
 | GET | `/admin/sellers` | Listar vendedores |
+| GET | `/admin/sellers/{id}` | Consultar vendedor |
 | PUT | `/admin/sellers/{id}` | Actualizar vendedor |
 | POST | `/admin/warehouses` | Crear bodega |
 | GET | `/admin/warehouses` | Listar bodegas |
+| GET | `/admin/warehouses/{id}` | Consultar bodega |
 | PUT | `/admin/warehouses/{id}` | Actualizar bodega |
 | POST | `/admin/sellers/{id}/warehouses/{warehouseId}` | Asignar bodega a vendedor |
 | GET | `/admin/users` | Listar usuarios |
+| GET | `/admin/users/{id}` | Consultar usuario |
 | POST | `/admin/users` | Crear usuario |
 | POST | `/admin/users/{id}/block` | Bloquear usuario |
 | POST | `/admin/users/{id}/activate` | Activar usuario |
