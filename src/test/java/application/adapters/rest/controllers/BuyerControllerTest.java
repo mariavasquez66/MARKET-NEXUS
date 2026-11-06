@@ -273,6 +273,39 @@ class BuyerControllerTest {
     }
 
     @Test
+    void finalizeOrderReturnsFinalizedOrder() throws Exception {
+        Order order = deliveredOrder();
+        order.finalizeOrder();
+        when(naturalCustomerPort.finalizeOrder(actor, order.getId())).thenReturn(order);
+
+        mockMvc.perform(post("/api/v1/buyer/orders/{id}/finalize", order.getId())
+                        .with(RestControllerTestSupport.actor(actor)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(order.getId()))
+                .andExpect(jsonPath("$.status").value("FINALIZED"));
+
+        verify(naturalCustomerPort).finalizeOrder(actor, order.getId());
+    }
+
+    @Test
+    void listAddressesReturnsMainAndAdditionalAddresses() throws Exception {
+        Buyer buyerWithAddresses = Buyer.create(actor, DomainFixtures.address());
+        buyerWithAddresses.addAdditionalAddress(
+                Address.of("Calle 9", "Medellin", "Antioquia", null, "Colombia"));
+        when(naturalCustomerPort.listAddresses(actor))
+                .thenReturn(List.of(buyerWithAddresses.getMainAddress(),
+                        buyerWithAddresses.getAdditionalAddresses().get(0)));
+
+        mockMvc.perform(get("/api/v1/buyer/addresses")
+                        .with(RestControllerTestSupport.actor(actor)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].city").value("Bogota"))
+                .andExpect(jsonPath("$[1].city").value("Medellin"));
+
+        verify(naturalCustomerPort).listAddresses(actor);
+    }
+
+    @Test
     void getInvoiceReturnsInvoice() throws Exception {
         Order order = deliveredOrder();
         when(naturalCustomerPort.getInvoice(actor, order.getId()))

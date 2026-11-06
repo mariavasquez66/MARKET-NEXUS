@@ -101,6 +101,11 @@ public class NaturalCustomerUseCase implements NaturalCustomerPort {
     }
 
     @Override
+    public Order finalizeOrder(User actor, String orderId) {
+        return orderService.finalize(actor, orderId);
+    }
+
+    @Override
     public Invoice getInvoice(User actor, String orderId) {
         return invoiceService.getByOrder(actor, orderId);
     }
@@ -118,6 +123,11 @@ public class NaturalCustomerUseCase implements NaturalCustomerPort {
     @Override
     public List<Refund> listRefunds(User actor) {
         return refundService.listMyRefunds(actor);
+    }
+
+    @Override
+    public List<Address> listAddresses(User actor) {
+        return buyerService.listAddresses(actor);
     }
 
     @Override

@@ -35,6 +35,8 @@ public interface NaturalCustomerPort {
 
     Order cancelOrder(User actor, String orderId);
 
+    Order finalizeOrder(User actor, String orderId);
+
     Invoice getInvoice(User actor, String orderId);
 
     Return requestReturn(User actor, String orderId, String reason);
@@ -42,6 +44,8 @@ public interface NaturalCustomerPort {
     List<Return> listReturns(User actor);
 
     List<Refund> listRefunds(User actor);
+
+    List<Address> listAddresses(User actor);
 
     Buyer addAddress(User actor, Address address);
 
