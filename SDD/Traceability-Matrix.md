@@ -214,11 +214,11 @@ Detalle en `SDD/Adapters/Api-rest-endpoints.md`.
 - [x] 21 modelos: 14 agregados/entidades + `CartItem` + 6 modelos de resultado
   (`AuthResult`, `SalesReport`, `OrderSummary`, `InventorySummary`,
   `ReturnSummary`, `UserSummary`).
-- [x] 14 servicios de dominio con documento propio.
+- [x] 22 clases de servicio (14 documentos ancla y servicios internos por responsabilidad).
 - [x] 6 puertos de entrada (sin los 2 bancarios descartados).
 - [x] 18 puertos de salida.
 - [x] 51 excepciones concretas + `DomainException` e `InvalidDataException` abstractas.
-- [x] 6 prefijos REST con 64 endpoints.
+- [x] 6 prefijos REST con 72 endpoints.
 - [x] Reglas R-01…R-12 y RG-01…RG-03 con evidencia y prueba.
 
 ## 12. Riesgos residuales y supuestos vigentes
