@@ -72,6 +72,20 @@ public class LogisticsController {
                 .toList();
     }
 
+    @GetMapping("/orders/{id}/shipments")
+    public List<ShipmentResponse> listShipments(@PathVariable String id,
+                                                @AuthenticationPrincipal(expression = "user") User actor) {
+        return operatorPort.listShipments(actor, id).stream()
+                .map(shipmentRestMapper::toResponse)
+                .toList();
+    }
+
+    @GetMapping("/shipments/{id}")
+    public ShipmentResponse getShipment(@PathVariable String id,
+                                        @AuthenticationPrincipal(expression = "user") User actor) {
+        return shipmentRestMapper.toResponse(operatorPort.getShipment(actor, id));
+    }
+
     @PostMapping("/shipments")
     public ResponseEntity<ShipmentResponse> createShipment(
             @Valid @RequestBody CreateShipmentRequest request,

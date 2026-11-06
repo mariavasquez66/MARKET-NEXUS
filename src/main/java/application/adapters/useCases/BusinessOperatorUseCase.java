@@ -46,6 +46,16 @@ public class BusinessOperatorUseCase implements BusinessOperatorPort {
     }
 
     @Override
+    public Shipment getShipment(User actor, String shipmentId) {
+        return logisticsService.getShipment(actor, shipmentId);
+    }
+
+    @Override
+    public List<Shipment> listShipments(User actor, String orderId) {
+        return logisticsService.listByOrder(actor, orderId);
+    }
+
+    @Override
     public Shipment startShipping(User actor, String shipmentId, String trackingNumber) {
         return logisticsService.startShipping(actor, shipmentId, trackingNumber);
     }
