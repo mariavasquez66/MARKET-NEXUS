@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: misión RVI en `feat/spec-coverage`, 364 pruebas en verde; Fase 8 histórica en `develop`.
+> Última actualización: misión RVI en `feat/spec-coverage`, 393 pruebas en verde; Fase 8 histórica en `develop`.
 
 ## Entorno verificado
 
@@ -41,7 +41,8 @@
 - `src/main/java/application/domain/ports/in/` — 6 puertos de entrada por rol:
   `PublicAccessPort`, `NaturalCustomerPort`, `BusinessCustomerPort`,
   `BusinessOperatorPort`, `BusinessSupervisorPort`, `TellerEmployeePort`.
-- `src/main/java/application/domain/services/` — 14 servicios de dominio y
+- `src/main/java/application/domain/services/` — 14 beans de dominio (22 clases:
+  fachadas y servicios internos de pedido, inventario, catálogo y elegibilidad) y
   `ServiceSupport` (roles, auditoría). Desviaciones del SDD justificadas:
   `OrderService` recibe `InventoryMovementRepositoryPort`, `RefundService` recibe
   `OrderRepositoryPort`; `InventoryService.addStock`/`adjust` devuelven
@@ -78,7 +79,8 @@
   `.env.example`. MongoDB se fija en 4.4 (D-17) porque el host de verificación
   no soporta AVX y las imágenes 5.0+ terminan con exit code 132.
 - `src/test/java/application/domain/` — 133 pruebas: VOs, agregados, validaciones
-  críticas, inmutabilidad de colecciones y los 14 servicios de dominio.
+  críticas, inmutabilidad de colecciones y los servicios de dominio (fachadas e
+  internos).
 - `src/test/java/application/adapters/persistence/` — 71 pruebas de persistencia:
   round-trip de los 13 mappers JPA, los 17 converters de catálogo, restricciones
   de mapeo/unicidad, mapper y adaptador Mongo, y delegación de los 13 adaptadores
@@ -149,7 +151,7 @@
 - `SDD/Self-check-rubric.md` — autoevaluación contra los 5 criterios, con
   rutas y clases como evidencia.
 - `README.md` — descripción, arquitectura, variables de entorno, puesta en
-  marcha, pruebas, roles y tabla de los 64 endpoints.
+  marcha, pruebas, roles y tabla de los 72 endpoints.
 
 ### Verificaciones de la Fase 0
 
@@ -173,7 +175,7 @@
 | 0 — Diagnóstico y línea base | COMPLETA | `SDD/Diagnosis.md`, compilación OK |
 | 1 — SDD completo | COMPLETA | `SDD/**`, `SDD/Traceability-Matrix.md` |
 | 2 — Dominio core | COMPLETA | enums, excepciones, VOs, modelos, 18 puertos y pruebas de dominio |
-| 3 — Servicios y casos de uso | COMPLETA | 14 servicios, 6 puertos de entrada y 6 casos de uso |
+| 3 — Servicios y casos de uso | COMPLETA | 14 beans (22 clases), 6 puertos de entrada y 6 casos de uso |
 | 4 — Persistencia JPA/Mongo | COMPLETA | JPA entidades/converters/repos/mappers/adaptadores, Mongo audit, 71 pruebas de persistencia y JJWT/validation en `pom.xml` |
 | 5 — REST | COMPLETA | DTOs, mappers, 6 controladores, `GlobalExceptionHandler` y 118 pruebas REST |
 | 6 — Seguridad e infraestructura | COMPLETA | JWT/filtro, `SecurityFilterChain`, CORS + `X-Request-Id`, `BootstrapAdminRunner`, docker-compose, properties y 37 pruebas; 353 pruebas totales y arranque local verificado |
@@ -285,4 +287,4 @@ El commit de cierre de esta fase se identifica con `git log -1`.
   checkout, transiciones completas de despacho/entrega y autorización total de
   inventario. Tests nuevos: `UseCaseTransactionTest` y casos de fallo en
   `OrderServiceTest`/`InventoryServiceTest`.
-- Verificación actual: **364 pruebas, 0 fallos, 0 errores, 0 omitidas** (50 suites).
+- Verificación actual: **393 pruebas, 0 fallos, 0 errores, 0 omitidas** (59 suites).
