@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import lombok.Getter;
@@ -16,7 +17,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "refunds")
+@Table(name = "refunds", indexes = {
+        @Index(name = "idx_refunds_return", columnList = "return_id")
+})
 public class RefundJpaEntity {
 
     @Id

@@ -31,7 +31,10 @@ public class OrderJpaAdapter implements OrderRepositoryPort {
     @Override
     @Transactional
     public Order save(Order order) {
-        OrderJpaEntity saved = repository.save(mapper.toEntity(order));
+        OrderJpaEntity entity = repository.findById(order.getId())
+                .map(existing -> mapper.updateEntity(existing, order))
+                .orElseGet(() -> mapper.toEntity(order));
+        OrderJpaEntity saved = repository.save(entity);
         itemRepository.deleteAll(itemRepository.findByOrderId(saved.getId()));
         allocationRepository.deleteAll(allocationRepository.findByOrderId(saved.getId()));
         List<OrderItemJpaEntity> itemEntities = order.getItems().stream()

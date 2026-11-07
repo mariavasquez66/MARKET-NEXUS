@@ -12,6 +12,10 @@ public class InventoryJpaMapper {
     public InventoryJpaEntity toEntity(Inventory inventory) {
         InventoryJpaEntity entity = new InventoryJpaEntity();
         entity.setId(inventory.getId());
+        return updateEntity(entity, inventory);
+    }
+
+    public InventoryJpaEntity updateEntity(InventoryJpaEntity entity, Inventory inventory) {
         entity.setProductId(inventory.getProduct().getId());
         entity.setWarehouseId(inventory.getWarehouse().getId());
         entity.setAvailableQuantity(inventory.getAvailableQuantity());

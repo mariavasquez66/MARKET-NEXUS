@@ -11,7 +11,9 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.Getter;
@@ -22,7 +24,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "orders")
+@Table(name = "orders", indexes = {
+        @Index(name = "idx_orders_buyer", columnList = "buyer_id"),
+        @Index(name = "idx_orders_status", columnList = "status"),
+        @Index(name = "idx_orders_payment_created", columnList = "payment_status,created_at")
+})
 public class OrderJpaEntity {
 
     @Id
@@ -61,4 +67,8 @@ public class OrderJpaEntity {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
 }

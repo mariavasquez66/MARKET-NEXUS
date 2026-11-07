@@ -23,6 +23,10 @@ public class OrderJpaMapper {
     public OrderJpaEntity toEntity(Order order) {
         OrderJpaEntity entity = new OrderJpaEntity();
         entity.setId(order.getId());
+        return updateEntity(entity, order);
+    }
+
+    public OrderJpaEntity updateEntity(OrderJpaEntity entity, Order order) {
         entity.setBuyerId(order.getBuyer().getId());
         entity.setStatusCode(order.getStatus());
         entity.setTotalAmount(order.getTotalAmount().getAmount());

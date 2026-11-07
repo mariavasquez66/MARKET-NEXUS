@@ -3,6 +3,7 @@ package application.adapters.persistence.jpa.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "order_allocations")
+@Table(name = "order_allocations", indexes = {
+        @Index(name = "idx_order_allocations_order", columnList = "order_id"),
+        @Index(name = "idx_order_allocations_warehouse", columnList = "warehouse_id")
+})
 public class OrderAllocationJpaEntity {
 
     @Id

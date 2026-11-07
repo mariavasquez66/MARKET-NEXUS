@@ -6,8 +6,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,7 +20,11 @@ import lombok.Setter;
 @Entity
 @Table(
         name = "inventories",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "warehouse_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "warehouse_id"}),
+        indexes = {
+                @Index(name = "idx_inventories_product", columnList = "product_id"),
+                @Index(name = "idx_inventories_warehouse", columnList = "warehouse_id")
+        }
 )
 public class InventoryJpaEntity {
 
@@ -41,4 +47,8 @@ public class InventoryJpaEntity {
     @Convert(converter = InventoryConditionConverter.class)
     @Column(name = "condition_code", length = 40, nullable = false)
     private InventoryCondition conditionCode;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
 }

@@ -23,8 +23,10 @@ import application.domain.enums.DomainCatalog;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
@@ -84,6 +86,24 @@ class JpaMappingConstraintsTest {
     }
 
     @Test
+    void orderAndInventoryExposeOptimisticLockVersion() {
+        assertVersionColumn(OrderJpaEntity.class);
+        assertVersionColumn(InventoryJpaEntity.class);
+    }
+
+    @Test
+    void highTrafficTablesDeclareQueryIndexes() {
+        assertIndex(OrderJpaEntity.class, "idx_orders_buyer", "buyer_id");
+        assertIndex(OrderJpaEntity.class, "idx_orders_payment_created",
+                "payment_status,created_at");
+        assertIndex(InventoryJpaEntity.class, "idx_inventories_product", "product_id");
+        assertIndex(ShipmentJpaEntity.class, "idx_shipments_order_origin",
+                "order_id,origin_warehouse_id");
+        assertIndex(ReturnJpaEntity.class, "idx_returns_order", "order_id");
+        assertIndex(RefundJpaEntity.class, "idx_refunds_return", "return_id");
+    }
+
+    @Test
     void inventoryConditionColumnAvoidsMysqlReservedWord() {
         Column column = field(InventoryJpaEntity.class, "conditionCode")
                 .getAnnotation(Column.class);
@@ -137,6 +157,26 @@ class JpaMappingConstraintsTest {
             }
         }
         assertThat(catalogFields).isPositive();
+    }
+
+    private static void assertVersionColumn(Class<?> entityType) {
+        long versionFields = Arrays.stream(entityType.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(Version.class))
+                .count();
+
+        assertThat(versionFields)
+                .as("%s must expose exactly one @Version field", entityType.getSimpleName())
+                .isEqualTo(1);
+    }
+
+    private static void assertIndex(Class<?> entityType, String name, String columnList) {
+        Table table = entityType.getAnnotation(Table.class);
+
+        assertThat(table).isNotNull();
+        assertThat(Arrays.stream(table.indexes()))
+                .as("%s index %s", entityType.getSimpleName(), name)
+                .anyMatch(index -> index.name().equals(name)
+                        && index.columnList().equals(columnList));
     }
 
     private static void assertUniqueColumn(Class<?> entityType,
