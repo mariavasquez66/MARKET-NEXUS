@@ -9,7 +9,6 @@ import static application.domain.DomainFixtures.seller;
 import static application.domain.DomainFixtures.sellerWarehouse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
 
 import application.domain.enums.AuditAction;
 import application.domain.enums.OrderStatus;
@@ -35,6 +34,7 @@ import application.domain.ports.out.CartRepositoryPort;
 import application.domain.ports.out.ClockPort;
 import application.domain.ports.out.InventoryMovementRepositoryPort;
 import application.domain.ports.out.InventoryRepositoryPort;
+import application.domain.ports.out.InvoiceRepositoryPort;
 import application.domain.ports.out.OrderRepositoryPort;
 import application.domain.ports.out.ProductRepositoryPort;
 import application.domain.ports.out.ShipmentRepositoryPort;
@@ -61,8 +61,9 @@ class OrderServiceCopyingFakeTest {
     @Mock BuyerRepositoryPort buyerRepository;
     @Mock CartRepositoryPort cartRepository;
     @Mock ProductRepositoryPort productRepository;
-    @Mock InvoiceService invoiceService;
 
+    private InvoiceService invoiceService;
+    private CopyingInvoiceRepository invoiceRepository;
     private CopyingOrderRepository orderRepository;
     private CopyingInventoryRepository inventoryRepository;
     private CopyingShipmentRepository shipmentRepository;
@@ -77,6 +78,9 @@ class OrderServiceCopyingFakeTest {
         shipmentRepository = new CopyingShipmentRepository();
         movementRepository = new RecordingMovementRepository();
         clock = new FixedClock(NOW);
+        invoiceRepository = new CopyingInvoiceRepository();
+        invoiceService = new InvoiceService(invoiceRepository, orderRepository,
+                () -> new BigDecimal("0.19"), new NoopAuditPort(), clock);
         service = new OrderService(cartRepository, buyerRepository, orderRepository,
                 productRepository, inventoryRepository, movementRepository, shipmentRepository,
                 invoiceService, new NoopAuditPort(), clock);
@@ -92,17 +96,17 @@ class OrderServiceCopyingFakeTest {
         inventory.reserve(1);
         orderRepository.seed(order);
         inventoryRepository.seed(inventory);
-        Invoice invoice = Invoice.create(paidSnapshot(order), "INV-1", new BigDecimal("0.19"), NOW);
-        when(invoiceService.generateInvoice(buyer.getUser(), order.getId())).thenReturn(invoice);
 
         Order result = service.confirmPayment(buyer.getUser(), order.getId());
 
         Order persisted = orderRepository.stored(order.getId());
         Inventory persistedInventory = inventoryRepository.stored(inventory.getId());
+        Invoice invoice = invoiceRepository.findByOrderId(order.getId()).orElseThrow();
         assertThat(result.getStatus()).isEqualTo(OrderStatus.PAID);
         assertThat(persisted.getStatus()).isEqualTo(OrderStatus.PAID);
         assertThat(persisted.getPaymentStatus()).isEqualTo(PaymentStatus.CONFIRMED);
-        assertThat(persisted.getInvoice()).isSameAs(invoice);
+        assertThat(persisted.getInvoice().getId()).isEqualTo(invoice.getId());
+        assertThat(invoice.getOrder().getStatus()).isEqualTo(OrderStatus.PAID);
         assertThat(persistedInventory.getReservedQuantity()).isZero();
         assertThat(movementRepository.saved).hasSize(1);
         assertThat(movementRepository.saved.get(0).getType().getCode()).isEqualTo("SALE");
@@ -170,15 +174,6 @@ class OrderServiceCopyingFakeTest {
         return order;
     }
 
-    private static Order paidSnapshot(Order order) {
-        Order snapshot = Order.fromCart(
-                Cart.reconstitute("snapshot", order.getBuyer(), order.getItems()),
-                order.getDeliveryAddress(), NOW);
-        snapshot.assignAllocations(order.getAllocations());
-        snapshot.confirmPayment(NOW);
-        return snapshot;
-    }
-
     private static Order copyOf(Order order) {
         return Order.reconstitute(order.getId(), order.getBuyer(), order.getItems(),
                 order.getStatus(), order.getTotalAmount(), order.getPaymentStatus(),
@@ -190,6 +185,12 @@ class OrderServiceCopyingFakeTest {
         return Inventory.reconstitute(inventory.getId(), inventory.getProduct(),
                 inventory.getWarehouse(), inventory.getAvailableQuantity(),
                 inventory.getReservedQuantity(), inventory.getCondition());
+    }
+
+    private static Invoice copyOf(Invoice invoice) {
+        return Invoice.reconstitute(invoice.getId(), copyOf(invoice.getOrder()), invoice.getNumber(),
+                invoice.getSubtotal(), invoice.getTaxes(), invoice.getTotal(), invoice.getStatus(),
+                invoice.getIssuedAt());
     }
 
     private static Shipment copyOf(Shipment shipment) {
@@ -253,6 +254,43 @@ class OrderServiceCopyingFakeTest {
         public List<Order> findByPaymentStatusAndCreatedAtBetween(
                 PaymentStatus paymentStatus, Instant from, Instant to) {
             return findAll();
+        }
+    }
+
+    private static final class CopyingInvoiceRepository implements InvoiceRepositoryPort {
+        private final Map<String, Invoice> store = new HashMap<>();
+
+        @Override
+        public Invoice save(Invoice invoice) {
+            store.put(invoice.getId(), copyOf(invoice));
+            return copyOf(store.get(invoice.getId()));
+        }
+
+        @Override
+        public Optional<Invoice> findById(String id) {
+            return Optional.ofNullable(store.get(id)).map(OrderServiceCopyingFakeTest::copyOf);
+        }
+
+        @Override
+        public Optional<Invoice> findByOrderId(String orderId) {
+            return store.values().stream()
+                    .filter(invoice -> invoice.getOrder().getId().equals(orderId))
+                    .findFirst()
+                    .map(OrderServiceCopyingFakeTest::copyOf);
+        }
+
+        @Override
+        public List<Invoice> findByBuyerId(String buyerId) {
+            return store.values().stream()
+                    .filter(invoice -> invoice.getOrder().getBuyer().getId().equals(buyerId))
+                    .map(OrderServiceCopyingFakeTest::copyOf)
+                    .toList();
+        }
+
+        @Override
+        public boolean existsByOrderId(String orderId) {
+            return store.values().stream()
+                    .anyMatch(invoice -> invoice.getOrder().getId().equals(orderId));
         }
     }
 

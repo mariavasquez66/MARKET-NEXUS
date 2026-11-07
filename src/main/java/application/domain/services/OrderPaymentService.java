@@ -45,6 +45,7 @@ public class OrderPaymentService {
         Order order = requireOrder(orderId);
         requireBuyerOwner(actor, order);
         order.confirmPayment(clockPort.now());
+        Order saved = orderRepository.save(order);
         for (StockAllocation allocation : order.getAllocations()) {
             Inventory inventory = inventoryRepository
                     .findByProductIdAndWarehouseId(allocation.getProductId(), allocation.getWarehouseId())
@@ -55,17 +56,17 @@ public class OrderPaymentService {
             movementRepository.save(InventoryMovement.create(inventory, MovementType.SALE,
                     allocation.getQuantity(), actor, clockPort.now()));
         }
-        Invoice invoice = invoiceService.generateInvoice(actor, order.getId());
-        order.attachInvoice(invoice);
+        Invoice invoice = invoiceService.generateInvoice(actor, saved.getId());
+        saved.attachInvoice(invoice);
         String details = "PENDING_PAYMENT -> PAID";
-        if (order.isDigitalOnly()) {
-            order.markDelivered();
+        if (saved.isDigitalOnly()) {
+            saved.markDelivered();
             details = "PENDING_PAYMENT -> PAID -> DELIVERED";
         }
-        Order saved = orderRepository.save(order);
+        Order result = orderRepository.save(saved);
         ServiceSupport.audit(auditPort, clockPort, AuditAction.ORDER_STATUS_CHANGED,
-                AuditEntityType.ORDER, saved.getId(), actor, details);
-        return saved;
+                AuditEntityType.ORDER, result.getId(), actor, details);
+        return result;
     }
 
     private void requireBuyerOwner(User actor, Order order) {
