@@ -27,6 +27,7 @@ public class Order {
     private final Address deliveryAddress;
     private Invoice invoice;
     private final Instant createdAt;
+    private Instant paidAt;
 
     private Order(String id,
                   Buyer buyer,
@@ -37,7 +38,8 @@ public class Order {
                   List<StockAllocation> allocations,
                   Address deliveryAddress,
                   Invoice invoice,
-                  Instant createdAt) {
+                  Instant createdAt,
+                  Instant paidAt) {
         this.id = Objects.requireNonNull(id, "id cannot be null");
         this.buyer = Objects.requireNonNull(buyer, "buyer cannot be null");
         this.items = new ArrayList<>(Objects.requireNonNull(items));
@@ -48,6 +50,7 @@ public class Order {
         this.deliveryAddress = Objects.requireNonNull(deliveryAddress, "deliveryAddress cannot be null");
         this.invoice = invoice;
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt cannot be null");
+        this.paidAt = paidAt;
     }
 
     public static Order fromCart(Cart cart, Address deliveryAddress, Instant createdAt) {
@@ -56,7 +59,7 @@ public class Order {
         cart.getBuyer().assertCanPurchase();
         return new Order(UUID.randomUUID().toString(), cart.getBuyer(),
                 cart.getItems(), OrderStatus.PENDING_PAYMENT, cart.total(),
-                PaymentStatus.PENDING, List.of(), deliveryAddress, null, createdAt);
+                PaymentStatus.PENDING, List.of(), deliveryAddress, null, createdAt, null);
     }
 
     public static Order reconstitute(String id,
@@ -69,8 +72,23 @@ public class Order {
                                      Address deliveryAddress,
                                      Invoice invoice,
                                      Instant createdAt) {
+        return reconstitute(id, buyer, items, status, totalAmount, paymentStatus,
+                allocations, deliveryAddress, invoice, createdAt, null);
+    }
+
+    public static Order reconstitute(String id,
+                                     Buyer buyer,
+                                     List<CartItem> items,
+                                     OrderStatus status,
+                                     Money totalAmount,
+                                     PaymentStatus paymentStatus,
+                                     List<StockAllocation> allocations,
+                                     Address deliveryAddress,
+                                     Invoice invoice,
+                                     Instant createdAt,
+                                     Instant paidAt) {
         return new Order(id, buyer, items, status, totalAmount, paymentStatus,
-                allocations, deliveryAddress, invoice, createdAt);
+                allocations, deliveryAddress, invoice, createdAt, paidAt);
     }
 
     public void assignAllocations(List<StockAllocation> allocations) {
@@ -89,6 +107,7 @@ public class Order {
         Objects.requireNonNull(paidAt, "paidAt cannot be null");
         status = OrderStatus.PAID;
         paymentStatus = PaymentStatus.CONFIRMED;
+        this.paidAt = paidAt;
     }
 
     public void markDispatched() {
@@ -192,5 +211,9 @@ public class Order {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public Instant getPaidAt() {
+        return paidAt;
     }
 }

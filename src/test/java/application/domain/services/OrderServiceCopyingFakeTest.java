@@ -178,7 +178,7 @@ class OrderServiceCopyingFakeTest {
         return Order.reconstitute(order.getId(), order.getBuyer(), order.getItems(),
                 order.getStatus(), order.getTotalAmount(), order.getPaymentStatus(),
                 order.getAllocations(), order.getDeliveryAddress(), order.getInvoice(),
-                order.getCreatedAt());
+                order.getCreatedAt(), order.getPaidAt());
     }
 
     private static Inventory copyOf(Inventory inventory) {

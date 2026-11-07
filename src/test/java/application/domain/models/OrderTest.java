@@ -112,4 +112,15 @@ class OrderTest {
         assertThatThrownBy(() -> order.confirmPayment(NOW))
                 .isInstanceOf(InvalidStateTransitionException.class);
     }
+
+    @Test
+    void confirmPaymentRecordsPaidInstant() {
+        Product product = publishedPhysicalProduct(seller(admin()), operator());
+        Order order = Order.fromCart(cartWith(buyer(), product, 1), address(), NOW);
+        Instant paidAt = NOW.plusSeconds(90);
+
+        order.confirmPayment(paidAt);
+
+        assertThat(order.getPaidAt()).isEqualTo(paidAt);
+    }
 }

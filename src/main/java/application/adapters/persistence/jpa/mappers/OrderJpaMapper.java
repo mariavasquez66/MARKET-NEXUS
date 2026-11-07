@@ -35,6 +35,7 @@ public class OrderJpaMapper {
         entity.setDeliveryAddress(toEmbeddable(order.getDeliveryAddress()));
         entity.setInvoiceId(order.getInvoice() == null ? null : order.getInvoice().getId());
         entity.setCreatedAt(order.getCreatedAt());
+        entity.setPaidAt(order.getPaidAt());
         return entity;
     }
 
@@ -53,7 +54,8 @@ public class OrderJpaMapper {
                 allocations,
                 toAddress(entity.getDeliveryAddress()),
                 invoice,
-                entity.getCreatedAt());
+                entity.getCreatedAt(),
+                entity.getPaidAt());
     }
 
     public OrderItemJpaEntity toEntity(CartItem item, String orderId) {

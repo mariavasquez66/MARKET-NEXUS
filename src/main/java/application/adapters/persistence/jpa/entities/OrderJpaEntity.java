@@ -68,6 +68,9 @@ public class OrderJpaEntity {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @Column(name = "paid_at")
+    private Instant paidAt;
+
     @Version
     @Column(name = "version", nullable = false)
     private Long version;
