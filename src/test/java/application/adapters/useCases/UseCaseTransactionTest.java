@@ -11,6 +11,7 @@ class UseCaseTransactionTest {
     @Test
     void allUseCasesHaveTransactionBoundary() {
         List<Class<?>> useCases = List.of(
+                AccountUseCase.class,
                 BusinessCustomerUseCase.class,
                 BusinessOperatorUseCase.class,
                 BusinessSupervisorUseCase.class,

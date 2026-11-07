@@ -9,6 +9,9 @@ public class AuditAction extends DomainCatalog {
     public static final AuditAction USER_BLOCKED = new AuditAction("USER_BLOCKED", "User Blocked");
     public static final AuditAction USER_ACTIVATED = new AuditAction("USER_ACTIVATED", "User Activated");
     public static final AuditAction USER_DEACTIVATED = new AuditAction("USER_DEACTIVATED", "User Deactivated");
+    public static final AuditAction USER_LOGGED_IN = new AuditAction("USER_LOGGED_IN", "User Logged In");
+    public static final AuditAction USER_LOGGED_OUT = new AuditAction("USER_LOGGED_OUT", "User Logged Out");
+    public static final AuditAction PASSWORD_CHANGED = new AuditAction("PASSWORD_CHANGED", "Password Changed");
     public static final AuditAction SELLER_REGISTERED = new AuditAction("SELLER_REGISTERED", "Seller Registered");
     public static final AuditAction SELLER_TAX_ID_UPDATED =
             new AuditAction("SELLER_TAX_ID_UPDATED", "Seller Tax Id Updated");
@@ -54,6 +57,9 @@ public class AuditAction extends DomainCatalog {
         VALUES.put("USER_BLOCKED", USER_BLOCKED);
         VALUES.put("USER_ACTIVATED", USER_ACTIVATED);
         VALUES.put("USER_DEACTIVATED", USER_DEACTIVATED);
+        VALUES.put("USER_LOGGED_IN", USER_LOGGED_IN);
+        VALUES.put("USER_LOGGED_OUT", USER_LOGGED_OUT);
+        VALUES.put("PASSWORD_CHANGED", PASSWORD_CHANGED);
         VALUES.put("SELLER_REGISTERED", SELLER_REGISTERED);
         VALUES.put("SELLER_TAX_ID_UPDATED", SELLER_TAX_ID_UPDATED);
         VALUES.put("WAREHOUSE_CREATED", WAREHOUSE_CREATED);
@@ -97,6 +103,7 @@ public class AuditAction extends DomainCatalog {
 
     public static AuditAction[] values() {
         return new AuditAction[]{USER_CREATED, USER_BLOCKED, USER_ACTIVATED, USER_DEACTIVATED,
+                USER_LOGGED_IN, USER_LOGGED_OUT, PASSWORD_CHANGED,
                 SELLER_REGISTERED, SELLER_TAX_ID_UPDATED, WAREHOUSE_CREATED, WAREHOUSE_UPDATED,
                 WAREHOUSE_ASSIGNED, PRODUCT_REGISTERED, PRODUCT_UPDATED, PRODUCT_PUBLISHED,
                 PRODUCT_SUSPENDED, PRODUCT_DISCONTINUED, INVENTORY_MOVEMENT, ORDER_CREATED,

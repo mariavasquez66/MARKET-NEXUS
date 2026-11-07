@@ -42,9 +42,7 @@ public class UserService {
                            UserRole role,
                            String rawPassword) {
         ServiceSupport.requireRole(actor, UserRole.ADMIN);
-        if (rawPassword == null || rawPassword.isBlank()) {
-            throw new application.domain.exceptions.common.InvalidDataException("Password is required");
-        }
+        PasswordPolicy.validate(rawPassword);
         if (userRepository.existsByEmail(email)) {
             throw new DuplicateEmailException("Email is already registered");
         }
@@ -69,9 +67,7 @@ public class UserService {
         if (userRepository.existsByRole(UserRole.ADMIN)) {
             throw new InvalidDataException("An administrator already exists");
         }
-        if (rawPassword == null || rawPassword.isBlank()) {
-            throw new InvalidDataException("Password is required");
-        }
+        PasswordPolicy.validate(rawPassword);
         if (userRepository.existsByEmail(email)) {
             throw new DuplicateEmailException("Email is already registered");
         }

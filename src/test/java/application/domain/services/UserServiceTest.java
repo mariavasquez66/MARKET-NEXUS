@@ -66,13 +66,13 @@ class UserServiceTest {
         IdentityDocument document = IdentityDocument.of("DOC12345");
         when(userRepository.existsByEmail(email)).thenReturn(true);
         assertThatThrownBy(() -> service.createUser(actor, FullName.of("New User"), email,
-                document, UserRole.LOGISTIC_OPERATOR, "secret"))
+                document, UserRole.LOGISTIC_OPERATOR, "secret123"))
                 .isInstanceOf(DuplicateEmailException.class);
 
         when(userRepository.existsByEmail(email)).thenReturn(false);
         when(userRepository.existsByIdentityDocument(document)).thenReturn(true);
         assertThatThrownBy(() -> service.createUser(actor, FullName.of("New User"), email,
-                document, UserRole.LOGISTIC_OPERATOR, "secret"))
+                document, UserRole.LOGISTIC_OPERATOR, "secret123"))
                 .isInstanceOf(application.domain.exceptions.user.DuplicateIdentificationException.class);
         verify(userRepository, never()).save(any());
     }
@@ -82,9 +82,9 @@ class UserServiceTest {
         User actor = admin();
         Email email = Email.of("new@test.com");
         IdentityDocument document = IdentityDocument.of("DOC12345");
-        when(passwordService.encode("secret")).thenReturn(PasswordHash.of("hash"));
+        when(passwordService.encode("secret123")).thenReturn(PasswordHash.of("hash"));
         User created = service.createUser(actor, FullName.of("New User"), email,
-                document, UserRole.LOGISTIC_OPERATOR, "secret");
+                document, UserRole.LOGISTIC_OPERATOR, "secret123");
         assertThat(created.getRole()).isEqualTo(UserRole.LOGISTIC_OPERATOR);
         verify(auditPort).record(any());
     }
