@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -72,6 +73,14 @@ public class GlobalExceptionHandler {
             DomainException ex, HttpServletRequest request) {
         ErrorSpec spec = classify(ex);
         return build(spec.status(), spec.code(), ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex, HttpServletRequest request) {
+        log.warn("Data integrity violation", ex);
+        return build(HttpStatus.CONFLICT, "DUPLICATE_RESOURCE",
+                "Resource conflicts with existing data", request);
     }
 
     @ExceptionHandler(Exception.class)

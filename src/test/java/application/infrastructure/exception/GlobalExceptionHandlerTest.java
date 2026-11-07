@@ -7,6 +7,7 @@ import application.domain.exceptions.order.InvalidStateTransitionException;
 import application.domain.exceptions.order.OrderNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.test.web.servlet.MockMvc;
@@ -84,6 +85,17 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void mapsDataIntegrityViolationToConflict() throws Exception {
+        mockMvc.perform(get("/test/integrity").requestAttr("requestId", "req-integrity"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.code").value("DUPLICATE_RESOURCE"))
+                .andExpect(jsonPath("$.message").value("Resource conflicts with existing data"))
+                .andExpect(jsonPath("$.path").value("/test/integrity"))
+                .andExpect(jsonPath("$.requestId").value("req-integrity"));
+    }
+
+    @Test
     void mapsUnexpectedErrorWithoutLeakingDetails() throws Exception {
         mockMvc.perform(get("/test/500").requestAttr("requestId", "req-500"))
                 .andExpect(status().isInternalServerError())
@@ -130,6 +142,11 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/test/409")
         String conflict() {
             throw new InvalidStateTransitionException("cannot transition");
+        }
+
+        @GetMapping("/test/integrity")
+        String integrity() {
+            throw new DataIntegrityViolationException("duplicate key");
         }
 
         @GetMapping("/test/500")
