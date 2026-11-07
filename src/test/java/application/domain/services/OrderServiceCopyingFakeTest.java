@@ -38,6 +38,7 @@ import application.domain.ports.out.InvoiceRepositoryPort;
 import application.domain.ports.out.OrderRepositoryPort;
 import application.domain.ports.out.ProductRepositoryPort;
 import application.domain.ports.out.ShipmentRepositoryPort;
+import application.domain.ports.out.WarehouseRepositoryPort;
 import application.domain.valueobjects.Money;
 import application.domain.valueobjects.StockAllocation;
 import java.math.BigDecimal;
@@ -61,6 +62,7 @@ class OrderServiceCopyingFakeTest {
     @Mock BuyerRepositoryPort buyerRepository;
     @Mock CartRepositoryPort cartRepository;
     @Mock ProductRepositoryPort productRepository;
+    @Mock WarehouseRepositoryPort warehouseRepository;
 
     private InvoiceService invoiceService;
     private CopyingInvoiceRepository invoiceRepository;
@@ -156,6 +158,40 @@ class OrderServiceCopyingFakeTest {
         assertThat(shipmentRepository.findByOrderIdAndOriginWarehouseId(order.getId(), second.getId()))
                 .extracting(Shipment::getStatus)
                 .containsExactly(ShipmentStatus.IN_TRANSIT);
+    }
+
+    @Test
+    void startShippingDispatchesOnlyAfterEveryWarehouseShipmentIsInTransit() {
+        Buyer buyer = buyer();
+        Seller seller = seller(admin());
+        Warehouse first = sellerWarehouse(seller, operator());
+        Warehouse second = Warehouse.createSellerWarehouse(
+                "Second warehouse", address(), seller, operator());
+        seller.assignWarehouse(second);
+        Product product = Product.create(seller, "Laptop", "Laptop description",
+                ProductType.PHYSICAL, Money.cop(new BigDecimal("119.00")));
+        product.publish();
+        Order order = Order.fromCart(cartWith(buyer, product, 2), address(), NOW);
+        order.confirmPayment(NOW);
+        order.assignAllocations(List.of(
+                StockAllocation.of(product.getId(), first.getId(), 1),
+                StockAllocation.of(product.getId(), second.getId(), 1)));
+        orderRepository.seed(order);
+        Shipment firstShipment = Shipment.create(order, first);
+        Shipment secondShipment = Shipment.create(order, second);
+        shipmentRepository.seed(firstShipment);
+        shipmentRepository.seed(secondShipment);
+        LogisticsService logistics = new LogisticsService(shipmentRepository, orderRepository,
+                warehouseRepository, service, new NoopAuditPort(), clock);
+
+        logistics.startShipping(operator(), firstShipment.getId(), "TRACK-1");
+
+        assertThat(orderRepository.stored(order.getId()).getStatus()).isEqualTo(OrderStatus.PAID);
+
+        logistics.startShipping(operator(), secondShipment.getId(), "TRACK-2");
+
+        assertThat(orderRepository.stored(order.getId()).getStatus())
+                .isEqualTo(OrderStatus.DISPATCHED);
     }
 
     private static Product publishedPhysicalProduct() {
