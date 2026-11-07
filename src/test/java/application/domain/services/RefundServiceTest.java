@@ -71,7 +71,7 @@ class RefundServiceTest {
     void accumulatedRefundsCannotExceedOrderTotal() {
         Return returnRequest = approvedReturn();
         when(returnRepository.findById(returnRequest.getId())).thenReturn(Optional.of(returnRequest));
-        when(refundRepository.findByReturnId(returnRequest.getId()))
+        when(refundRepository.findByOrderId(returnRequest.getOrder().getId()))
                 .thenReturn(List.of(Refund.create(returnRequest,
                         Money.cop(new BigDecimal("100.00")),
                         returnRequest.getOrder().getTotalAmount())));
@@ -81,10 +81,31 @@ class RefundServiceTest {
     }
 
     @Test
+    void accumulatedRefundsAcrossReturnsCannotExceedOrderTotal() {
+        Product product = publishedPhysicalProduct(seller(admin()), operator());
+        Order order = Order.fromCart(cartWith(buyer(), product, 1), address(), NOW);
+        order.confirmPayment(NOW);
+        order.markDispatched();
+        order.markDelivered();
+        Return first = Return.request(order, "Broken", NOW);
+        first.approve();
+        Return second = Return.request(order, "Wrong item", NOW);
+        second.approve();
+        when(returnRepository.findById(second.getId())).thenReturn(Optional.of(second));
+        when(refundRepository.findByOrderId(order.getId()))
+                .thenReturn(List.of(Refund.create(first, Money.cop(new BigDecimal("100.00")),
+                        order.getTotalAmount())));
+
+        assertThatThrownBy(() -> service.generateRefund(admin(), second.getId(),
+                Money.cop(new BigDecimal("20.00"))))
+                .isInstanceOf(InvalidRefundAmountException.class);
+    }
+
+    @Test
     void refundIsCreatedAndProcessedOnce() {
         Return returnRequest = approvedReturn();
         when(returnRepository.findById(returnRequest.getId())).thenReturn(Optional.of(returnRequest));
-        when(refundRepository.findByReturnId(returnRequest.getId())).thenReturn(List.of());
+        when(refundRepository.findByOrderId(returnRequest.getOrder().getId())).thenReturn(List.of());
         Refund refund = service.generateRefund(admin(), returnRequest.getId(),
                 Money.cop(new BigDecimal("10.00")));
         when(refundRepository.findById(refund.getId())).thenReturn(Optional.of(refund));

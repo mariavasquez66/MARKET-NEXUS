@@ -10,6 +10,10 @@ public interface RefundJpaRepository extends JpaRepository<RefundJpaEntity, Stri
 
     List<RefundJpaEntity> findByReturnId(String returnId);
 
+    @Query("select r from RefundJpaEntity r, ReturnJpaEntity ret "
+            + "where r.returnId = ret.id and ret.orderId = :orderId")
+    List<RefundJpaEntity> findByOrderId(@Param("orderId") String orderId);
+
     @Query("select r from RefundJpaEntity r, ReturnJpaEntity ret, OrderJpaEntity o "
             + "where r.returnId = ret.id and ret.orderId = o.id and o.buyerId = :buyerId")
     List<RefundJpaEntity> findByBuyerId(@Param("buyerId") String buyerId);
