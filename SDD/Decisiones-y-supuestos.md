@@ -46,6 +46,7 @@
 | A-14 | `InventoryMovement.quantity` es positivo para `INFLOW`, `RESERVATION`, `SALE` y `RETURN`; para `ADJUSTMENT` puede ser negativo (nunca cero). | D-07 y `adjust(delta)`. |
 | A-15 | Los reportes son modelos inmutables en `domain.models.reports` (`SalesReport`, `OrderSummary`, `InventorySummary`, `ReturnSummary`, `UserSummary`). | OBJ-12 y D-01; no se exponen entidades crudas en reportes. |
 | A-16 | Los mensajes de excepción se escriben en inglés; los nombres de tests también. | §1 del prompt maestro y criterio 4 de la rúbrica. |
+| A-17 | La liberación de una reserva al cancelar se registra como movimiento `RESERVATION` positivo. | El PDF solo define cinco movimientos y no incluye uno de liberación; se conserva el catálogo exigido y se documenta el mapeo. |
 
 ## Ambigüedades resueltas por precedencia (§2)
 

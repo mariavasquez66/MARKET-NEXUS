@@ -10,12 +10,15 @@ import static application.domain.DomainFixtures.seller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import application.domain.enums.MovementType;
 import application.domain.enums.OrderStatus;
 import application.domain.exceptions.common.UnauthorizedOperationException;
 import application.domain.models.Buyer;
 import application.domain.models.Inventory;
+import application.domain.models.InventoryMovement;
 import application.domain.models.Order;
 import application.domain.models.Product;
 import application.domain.models.Warehouse;
@@ -31,6 +34,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -79,6 +83,10 @@ class OrderLifecycleServiceTest {
         assertThat(cancelled.getStatus()).isEqualTo(OrderStatus.CANCELLED);
         assertThat(inventory.getAvailableQuantity()).isEqualTo(5);
         assertThat(inventory.getReservedQuantity()).isZero();
+        ArgumentCaptor<InventoryMovement> movement = ArgumentCaptor.forClass(InventoryMovement.class);
+        verify(movementRepository).save(movement.capture());
+        assertThat(movement.getValue().getType()).isEqualTo(MovementType.RESERVATION);
+        assertThat(movement.getValue().getQuantity()).isEqualTo(2);
     }
 
     @Test

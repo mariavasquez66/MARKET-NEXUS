@@ -11,8 +11,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import application.domain.enums.PaymentStatus;
 import application.domain.enums.RefundStatus;
 import application.domain.exceptions.common.InsufficientPermissionException;
 import application.domain.exceptions.refund.InvalidRefundAmountException;
@@ -99,6 +101,22 @@ class RefundServiceTest {
         assertThatThrownBy(() -> service.generateRefund(admin(), second.getId(),
                 Money.cop(new BigDecimal("20.00"))))
                 .isInstanceOf(InvalidRefundAmountException.class);
+    }
+
+    @Test
+    void processingRefundDoesNotChangeOrderPaymentStatus() {
+        Return returnRequest = approvedReturn();
+        Order order = returnRequest.getOrder();
+        Instant paidAt = order.getPaidAt();
+        Refund refund = Refund.create(returnRequest, Money.cop(new BigDecimal("10.00")),
+                order.getTotalAmount());
+        when(refundRepository.findById(refund.getId())).thenReturn(Optional.of(refund));
+
+        service.process(admin(), refund.getId());
+
+        assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.CONFIRMED);
+        assertThat(order.getPaidAt()).isEqualTo(paidAt);
+        verifyNoInteractions(orderRepository);
     }
 
     @Test

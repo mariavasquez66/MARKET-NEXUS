@@ -24,10 +24,11 @@ y marca entrega inmediata para pedidos solo digitales. Es invocado por
   `UnauthorizedOperationException`.
 - Cada asignación ejecuta `Inventory.confirmSale` y un movimiento `SALE`.
 - Se genera y adjunta la factura mediante `InvoiceService`.
+- El pago registra `PaymentStatus.CONFIRMED` y `paidAt` con la hora del `ClockPort`.
 - Si el pedido es solo digital, pasa a `DELIVERED` sin envío.
 - Auditoría: `ORDER_STATUS_CHANGED` sobre `ORDER`.
 
 ## Pruebas
 
-`OrderPaymentServiceTest`: pago con factura y movimiento, entrega digital
-inmediata y rechazo de comprador no dueño.
+`OrderPaymentServiceTest`: pago con factura, `paidAt` y movimiento; entrega
+digital inmediata y rechazo de comprador no dueño.

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import application.domain.enums.OrderStatus;
+import application.domain.enums.PaymentStatus;
 import application.domain.exceptions.common.UnauthorizedOperationException;
 import application.domain.models.Buyer;
 import application.domain.models.Cart;
@@ -83,6 +84,8 @@ class OrderPaymentServiceTest {
         Order paid = service.confirmPayment(buyer.getUser(), order.getId());
 
         assertThat(paid.getStatus()).isEqualTo(OrderStatus.PAID);
+        assertThat(paid.getPaymentStatus()).isEqualTo(PaymentStatus.CONFIRMED);
+        assertThat(paid.getPaidAt()).isEqualTo(NOW);
         assertThat(paid.getInvoice()).isSameAs(invoice);
         assertThat(inventory.getReservedQuantity()).isZero();
         verify(movementRepository).save(any());
