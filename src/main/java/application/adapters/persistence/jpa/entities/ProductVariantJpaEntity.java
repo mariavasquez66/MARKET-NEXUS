@@ -25,6 +25,6 @@ public class ProductVariantJpaEntity {
     @Column(name = "type_code", length = 40, nullable = false)
     private String typeCode;
 
-    @Column(name = "value", length = 50, nullable = false)
+    @Column(name = "variant_value", length = 50, nullable = false)
     private String value;
 }
