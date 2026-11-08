@@ -97,16 +97,16 @@ class H2QueryCountRegressionTest {
         String buyerId = seedBuyer();
         String productId = seedProduct();
 
-        addOrders(buyerId, productId, 2);
+        addOrders(buyerId, productId, 5);
         flushAndClear();
-        long twoOrders = countQueries(() -> orderRepository.findByStatus(OrderStatus.PAID));
+        long fiveOrders = countQueries(() -> orderRepository.findByStatus(OrderStatus.PAID));
 
-        addOrders(buyerId, productId, 4);
+        addOrders(buyerId, productId, 45);
         flushAndClear();
-        long sixOrders = countQueries(() -> orderRepository.findByStatus(OrderStatus.PAID));
+        long fiftyOrders = countQueries(() -> orderRepository.findByStatus(OrderStatus.PAID));
 
-        assertThat(twoOrders).isPositive();
-        assertThat(sixOrders).isEqualTo(twoOrders);
+        assertThat(fiveOrders).isPositive();
+        assertThat(fiftyOrders).isEqualTo(fiveOrders);
     }
 
     private long countQueries(Runnable runnable) {
