@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -81,6 +82,14 @@ public class GlobalExceptionHandler {
         log.warn("Data integrity violation", ex);
         return build(HttpStatus.CONFLICT, "DUPLICATE_RESOURCE",
                 "Resource conflicts with existing data", request);
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLockingFailure(
+            OptimisticLockingFailureException ex, HttpServletRequest request) {
+        log.warn("Concurrent modification detected", ex);
+        return build(HttpStatus.CONFLICT, "CONCURRENT_MODIFICATION",
+                "Resource was modified concurrently; retry the operation", request);
     }
 
     @ExceptionHandler(Exception.class)

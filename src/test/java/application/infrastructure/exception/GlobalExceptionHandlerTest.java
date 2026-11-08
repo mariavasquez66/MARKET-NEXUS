@@ -5,9 +5,11 @@ import application.domain.exceptions.common.InvalidDataException;
 import application.domain.exceptions.common.UnauthenticatedUserException;
 import application.domain.exceptions.order.InvalidStateTransitionException;
 import application.domain.exceptions.order.OrderNotFoundException;
+import application.adapters.persistence.jpa.entities.InventoryJpaEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.test.web.servlet.MockMvc;
@@ -96,6 +98,17 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void mapsConcurrentModificationToConflict() throws Exception {
+        mockMvc.perform(get("/test/optimistic-lock").requestAttr("requestId", "req-lock"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.code").value("CONCURRENT_MODIFICATION"))
+                .andExpect(jsonPath("$.message").value("Resource was modified concurrently; retry the operation"))
+                .andExpect(jsonPath("$.path").value("/test/optimistic-lock"))
+                .andExpect(jsonPath("$.requestId").value("req-lock"));
+    }
+
+    @Test
     void mapsUnexpectedErrorWithoutLeakingDetails() throws Exception {
         mockMvc.perform(get("/test/500").requestAttr("requestId", "req-500"))
                 .andExpect(status().isInternalServerError())
@@ -147,6 +160,11 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/test/integrity")
         String integrity() {
             throw new DataIntegrityViolationException("duplicate key");
+        }
+
+        @GetMapping("/test/optimistic-lock")
+        String optimisticLock() {
+            throw new ObjectOptimisticLockingFailureException(InventoryJpaEntity.class, "inventory-1");
         }
 
         @GetMapping("/test/500")
