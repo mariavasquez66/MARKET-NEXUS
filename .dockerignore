@@ -1,0 +1,11 @@
+.git
+.github
+.idea
+.vscode
+target
+logs
+*.log
+.env
+SDD
+PROGRESS.md
+README.md
