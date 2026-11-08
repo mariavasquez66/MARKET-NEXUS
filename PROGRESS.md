@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: misión RVI en `feat/spec-coverage`, 393 pruebas en verde; Fase 8 histórica en `develop`.
+> Última actualización: misión D8 en `feat/spec-coverage`, 413 pruebas en verde; D8 N+1 resuelto, paginación diferida.
 
 ## Entorno verificado
 
@@ -288,3 +288,23 @@ El commit de cierre de esta fase se identifica con `git log -1`.
   inventario. Tests nuevos: `UseCaseTransactionTest` y casos de fallo en
   `OrderServiceTest`/`InventoryServiceTest`.
 - Verificación actual: **393 pruebas, 0 fallos, 0 errores, 0 omitidas** (59 suites).
+## Misión D8 — N+1 en rutas de listado (2026-11-07)
+
+- D8 (N+1): **RESUELTO**. `JpaDependencyResolver` resuelve en lote compradores,
+  vendedores, productos, variantes, ítems, asignaciones, facturas, bodegas y
+  devoluciones; `findAll`/`findByStatus` de pedidos, inventarios y devoluciones
+  usan esas rutas. Commit `84d5b3d`.
+- Regresión: `H2QueryCountRegressionTest` compara sentencias SQL con 2 y 6
+  pedidos y exige el mismo número; falló antes del arreglo (15 → 31) y pasa
+  después. Commit `9c6f376`.
+- Corrección de compilación: se eliminó el BOM introducido al editar dos
+  adaptadores; commit `7aa6618`.
+- Índices agregados: `product_variants.product_id`,
+  `order_allocations.product_id`, `returns.status` y
+  `buyer_additional_addresses.buyer_id`.
+- Paginación: **PENDIENTE Y DIFERIDA**. No se cambiaron puertos de dominio ni
+  contratos REST.
+- Suite completa: `.\mvnw.cmd clean test` → **413 pruebas, 0 fallos, 0 errores,
+  0 omitidas; BUILD SUCCESS** en 03:50 min (2026-11-07).
+- Últimos commits: `15159ae` (flujo de compra H2), `84d5b3d` (N+1),
+  `9c6f376` (regresión), `7aa6618` (BOM).
