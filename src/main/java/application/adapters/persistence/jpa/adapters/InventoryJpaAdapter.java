@@ -1,4 +1,4 @@
-﻿package application.adapters.persistence.jpa.adapters;
+package application.adapters.persistence.jpa.adapters;
 
 import application.adapters.persistence.jpa.entities.InventoryJpaEntity;
 import application.adapters.persistence.jpa.mappers.InventoryJpaMapper;
