@@ -15,6 +15,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "order_allocations", indexes = {
         @Index(name = "idx_order_allocations_order", columnList = "order_id"),
+        @Index(name = "idx_order_allocations_product", columnList = "product_id"),
         @Index(name = "idx_order_allocations_warehouse", columnList = "warehouse_id")
 })
 public class OrderAllocationJpaEntity {

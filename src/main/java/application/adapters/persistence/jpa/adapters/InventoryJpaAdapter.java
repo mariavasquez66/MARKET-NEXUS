@@ -1,4 +1,4 @@
-package application.adapters.persistence.jpa.adapters;
+﻿package application.adapters.persistence.jpa.adapters;
 
 import application.adapters.persistence.jpa.entities.InventoryJpaEntity;
 import application.adapters.persistence.jpa.mappers.InventoryJpaMapper;
@@ -42,24 +42,22 @@ public class InventoryJpaAdapter implements InventoryRepositoryPort {
 
     @Override
     public List<Inventory> findByProductId(String productId) {
-        return repository.findByProductId(productId).stream().map(resolver::inventory).toList();
+        return resolver.inventories(repository.findByProductId(productId));
     }
 
     @Override
     public List<Inventory> findByWarehouseId(String warehouseId) {
-        return repository.findByWarehouseId(warehouseId).stream().map(resolver::inventory).toList();
+        return resolver.inventories(repository.findByWarehouseId(warehouseId));
     }
 
     @Override
     public List<Inventory> findBySellerId(String sellerId) {
-        return repository.findByWarehouseOwnerSellerId(sellerId).stream()
-                .map(resolver::inventory)
-                .toList();
+        return resolver.inventories(repository.findByWarehouseOwnerSellerId(sellerId));
     }
 
     @Override
     public List<Inventory> findAll() {
-        return repository.findAll().stream().map(resolver::inventory).toList();
+        return resolver.inventories(repository.findAll());
     }
 
     @Override
@@ -67,3 +65,4 @@ public class InventoryJpaAdapter implements InventoryRepositoryPort {
         return repository.existsByProductId(productId);
     }
 }
+

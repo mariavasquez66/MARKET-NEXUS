@@ -1,4 +1,4 @@
-package application.adapters.persistence.jpa.adapters;
+﻿package application.adapters.persistence.jpa.adapters;
 
 import application.adapters.persistence.jpa.entities.ReturnJpaEntity;
 import application.adapters.persistence.jpa.mappers.ReturnJpaMapper;
@@ -34,23 +34,22 @@ public class ReturnJpaAdapter implements ReturnRepositoryPort {
 
     @Override
     public List<Return> findByOrderId(String orderId) {
-        return repository.findByOrderId(orderId).stream().map(resolver::returnRequest).toList();
+        return resolver.returns(repository.findByOrderId(orderId));
     }
 
     @Override
     public List<Return> findByBuyerId(String buyerId) {
-        return repository.findByBuyerId(buyerId).stream().map(resolver::returnRequest).toList();
+        return resolver.returns(repository.findByBuyerId(buyerId));
     }
 
     @Override
     public List<Return> findAll() {
-        return repository.findAll().stream().map(resolver::returnRequest).toList();
+        return resolver.returns(repository.findAll());
     }
 
     @Override
     public List<Return> findByStatus(ReturnStatus status) {
-        return repository.findByStatusCode(status.getCode()).stream()
-                .map(resolver::returnRequest)
-                .toList();
+        return resolver.returns(repository.findByStatusCode(status));
     }
 }
+

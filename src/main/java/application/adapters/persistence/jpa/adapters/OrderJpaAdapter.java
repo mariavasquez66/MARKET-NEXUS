@@ -60,37 +60,33 @@ public class OrderJpaAdapter implements OrderRepositoryPort {
 
     @Override
     public List<Order> findAll() {
-        return repository.findAll().stream().map(resolver::order).toList();
+        return resolver.orders(repository.findAll());
     }
 
     @Override
     public List<Order> findByBuyerId(String buyerId) {
-        return repository.findByBuyerId(buyerId).stream().map(resolver::order).toList();
+        return resolver.orders(repository.findByBuyerId(buyerId));
     }
 
     @Override
     public List<Order> findBySellerId(String sellerId) {
-        return repository.findDistinctBySellerId(sellerId).stream().map(resolver::order).toList();
+        return resolver.orders(repository.findDistinctBySellerId(sellerId));
     }
 
     @Override
     public List<Order> findByStatus(OrderStatus status) {
-        return repository.findByStatusCode(status.getCode()).stream().map(resolver::order).toList();
+        return resolver.orders(repository.findByStatusCode(status));
     }
 
     @Override
     public List<Order> findByBuyerIdAndStatus(String buyerId, OrderStatus status) {
-        return repository.findByBuyerIdAndStatusCode(buyerId, status.getCode()).stream()
-                .map(resolver::order)
-                .toList();
+        return resolver.orders(repository.findByBuyerIdAndStatusCode(buyerId, status));
     }
 
     @Override
     public List<Order> findByPaymentStatusAndCreatedAtBetween(
             PaymentStatus paymentStatus, Instant from, Instant to) {
-        return repository.findByPaymentStatusCodeAndCreatedAtBetween(
-                        paymentStatus.getCode(), from, to).stream()
-                .map(resolver::order)
-                .toList();
+        return resolver.orders(repository.findByPaymentStatusCodeAndCreatedAtBetween(
+                paymentStatus, from, to));
     }
 }

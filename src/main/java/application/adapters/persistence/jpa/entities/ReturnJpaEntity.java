@@ -18,7 +18,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "returns", indexes = {
-        @Index(name = "idx_returns_order", columnList = "order_id")
+        @Index(name = "idx_returns_order", columnList = "order_id"),
+        @Index(name = "idx_returns_status", columnList = "status")
 })
 public class ReturnJpaEntity {
 

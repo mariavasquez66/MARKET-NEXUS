@@ -1,6 +1,7 @@
 package application.adapters.persistence.jpa.repositories;
 
 import application.adapters.persistence.jpa.entities.ReturnJpaEntity;
+import application.domain.enums.ReturnStatus;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +11,7 @@ public interface ReturnJpaRepository extends JpaRepository<ReturnJpaEntity, Stri
 
     List<ReturnJpaEntity> findByOrderId(String orderId);
 
-    List<ReturnJpaEntity> findByStatusCode(String statusCode);
+    List<ReturnJpaEntity> findByStatusCode(ReturnStatus statusCode);
 
     @Query("select r from ReturnJpaEntity r, OrderJpaEntity o "
             + "where r.orderId = o.id and o.buyerId = :buyerId")
