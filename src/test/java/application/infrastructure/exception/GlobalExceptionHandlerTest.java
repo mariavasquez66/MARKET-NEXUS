@@ -9,6 +9,7 @@ import application.adapters.persistence.jpa.entities.InventoryJpaEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -98,6 +99,17 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void mapsUniquenessRaceToConflict() throws Exception {
+        mockMvc.perform(get("/test/duplicate-key").requestAttr("requestId", "req-duplicate"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.code").value("DUPLICATE_RESOURCE"))
+                .andExpect(jsonPath("$.message").value("Resource conflicts with existing data"))
+                .andExpect(jsonPath("$.path").value("/test/duplicate-key"))
+                .andExpect(jsonPath("$.requestId").value("req-duplicate"));
+    }
+
+    @Test
     void mapsConcurrentModificationToConflict() throws Exception {
         mockMvc.perform(get("/test/optimistic-lock").requestAttr("requestId", "req-lock"))
                 .andExpect(status().isConflict())
@@ -160,6 +172,11 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/test/integrity")
         String integrity() {
             throw new DataIntegrityViolationException("duplicate key");
+        }
+
+        @GetMapping("/test/duplicate-key")
+        String duplicateKey() {
+            throw new DuplicateKeyException("duplicate key");
         }
 
         @GetMapping("/test/optimistic-lock")
