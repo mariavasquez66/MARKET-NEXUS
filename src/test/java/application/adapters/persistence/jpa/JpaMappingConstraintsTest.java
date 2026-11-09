@@ -94,12 +94,20 @@ class JpaMappingConstraintsTest {
     @Test
     void highTrafficTablesDeclareQueryIndexes() {
         assertIndex(OrderJpaEntity.class, "idx_orders_buyer", "buyer_id");
+        assertIndex(OrderJpaEntity.class, "idx_orders_status", "status");
         assertIndex(OrderJpaEntity.class, "idx_orders_payment_created",
                 "payment_status,created_at");
         assertIndex(InventoryJpaEntity.class, "idx_inventories_product", "product_id");
+        assertIndex(InventoryJpaEntity.class, "idx_inventories_warehouse", "warehouse_id");
+        assertIndex(OrderAllocationJpaEntity.class, "idx_order_allocations_order", "order_id");
+        assertIndex(OrderAllocationJpaEntity.class, "idx_order_allocations_product", "product_id");
+        assertIndex(OrderAllocationJpaEntity.class, "idx_order_allocations_warehouse",
+                "warehouse_id");
+        assertIndex(ProductJpaEntity.class, "idx_products_status", "status");
         assertIndex(ShipmentJpaEntity.class, "idx_shipments_order_origin",
                 "order_id,origin_warehouse_id");
         assertIndex(ReturnJpaEntity.class, "idx_returns_order", "order_id");
+        assertIndex(ReturnJpaEntity.class, "idx_returns_status", "status");
         assertIndex(RefundJpaEntity.class, "idx_refunds_return", "return_id");
     }
 

@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: misión D8 en `feat/spec-coverage`, 413 pruebas en verde; D8 N+1 resuelto, paginación diferida.
+> Última actualización: misión D9 en `feat/spec-coverage`, 420 pruebas en verde; F6 verificado, paginación diferida.
 
 ## Entorno verificado
 
@@ -308,3 +308,26 @@ El commit de cierre de esta fase se identifica con `git log -1`.
   0 omitidas; BUILD SUCCESS** en 03:50 min (2026-11-07).
 - Últimos commits: `15159ae` (flujo de compra H2), `84d5b3d` (N+1),
   `9c6f376` (regresión), `7aa6618` (BOM).
+
+## Misión D9 — cierre de verificación F6 (2026-11-08)
+
+- DEF-04/DEF-05: `H2UseCaseRollbackTest` demuestra rollback de envío y de
+  recepción de devolución ante fallos; commit `86c5258`.
+- Arquitectura: `HexagonalArchitectureTest` exige que los controladores dependan
+  de puertos de entrada y que el dominio no importe Spring/JPA/Jackson; commit
+  `015c91d`.
+- Auditoría: A-18 documenta que MongoDB queda fuera de la transacción JPA y que
+  un fallo de auditoría revierte el trabajo de negocio; commit `0f72944`.
+- F6 verificado: `@Version` en pedidos e inventarios; índices de consulta en
+  pedidos, inventarios, asignaciones, productos, envíos, devoluciones y
+  reembolsos; `SETUP.md` y `SECURITY.md` presentes; `.env`, `logs/` y `*.log`
+  ignorados. `JpaMappingConstraintsTest` ahora cubre también `orders.status`,
+  `inventories.warehouse_id`, `order_allocations.{order_id,product_id,warehouse_id}`,
+  `products.status` y `returns.status`.
+- Paginación: **PENDIENTE Y DIFERIDA**; no se cambiaron puertos ni contratos REST.
+- Suite completa: `.\mvnw.cmd clean test` → **420 pruebas, 0 fallos, 0 errores,
+  0 omitidas; BUILD SUCCESS** en 04:22 min (2026-11-08, 66 suites).
+- Contextos Spring: 5 en total (4 `@DataJpaTest` + 1 `@WebMvcTest`), sin
+  `@SpringBootTest`; `H2OrderPersistenceTest` reutiliza el contexto de
+  `H2OptimisticLockingTest`. La suma de tiempos de suites es 136.0 s; el resto
+  del tiempo corresponde a arranque de JVM/contextos y compilación.
