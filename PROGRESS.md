@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: Fase 8 cerrada, 359 pruebas en verde y documentación completa (rama `develop`).
+> Última actualización: misión D8 en `feat/spec-coverage`, 413 pruebas en verde; D8 N+1 resuelto, paginación diferida.
 
 ## Entorno verificado
 
@@ -41,7 +41,8 @@
 - `src/main/java/application/domain/ports/in/` — 6 puertos de entrada por rol:
   `PublicAccessPort`, `NaturalCustomerPort`, `BusinessCustomerPort`,
   `BusinessOperatorPort`, `BusinessSupervisorPort`, `TellerEmployeePort`.
-- `src/main/java/application/domain/services/` — 14 servicios de dominio y
+- `src/main/java/application/domain/services/` — 14 beans de dominio (22 clases:
+  fachadas y servicios internos de pedido, inventario, catálogo y elegibilidad) y
   `ServiceSupport` (roles, auditoría). Desviaciones del SDD justificadas:
   `OrderService` recibe `InventoryMovementRepositoryPort`, `RefundService` recibe
   `OrderRepositoryPort`; `InventoryService.addStock`/`adjust` devuelven
@@ -78,7 +79,8 @@
   `.env.example`. MongoDB se fija en 4.4 (D-17) porque el host de verificación
   no soporta AVX y las imágenes 5.0+ terminan con exit code 132.
 - `src/test/java/application/domain/` — 133 pruebas: VOs, agregados, validaciones
-  críticas, inmutabilidad de colecciones y los 14 servicios de dominio.
+  críticas, inmutabilidad de colecciones y los servicios de dominio (fachadas e
+  internos).
 - `src/test/java/application/adapters/persistence/` — 71 pruebas de persistencia:
   round-trip de los 13 mappers JPA, los 17 converters de catálogo, restricciones
   de mapeo/unicidad, mapper y adaptador Mongo, y delegación de los 13 adaptadores
@@ -149,7 +151,7 @@
 - `SDD/Self-check-rubric.md` — autoevaluación contra los 5 criterios, con
   rutas y clases como evidencia.
 - `README.md` — descripción, arquitectura, variables de entorno, puesta en
-  marcha, pruebas, roles y tabla de los 64 endpoints.
+  marcha, pruebas, roles y tabla de los 72 endpoints.
 
 ### Verificaciones de la Fase 0
 
@@ -173,7 +175,7 @@
 | 0 — Diagnóstico y línea base | COMPLETA | `SDD/Diagnosis.md`, compilación OK |
 | 1 — SDD completo | COMPLETA | `SDD/**`, `SDD/Traceability-Matrix.md` |
 | 2 — Dominio core | COMPLETA | enums, excepciones, VOs, modelos, 18 puertos y pruebas de dominio |
-| 3 — Servicios y casos de uso | COMPLETA | 14 servicios, 6 puertos de entrada y 6 casos de uso |
+| 3 — Servicios y casos de uso | COMPLETA | 14 beans (22 clases), 6 puertos de entrada y 6 casos de uso |
 | 4 — Persistencia JPA/Mongo | COMPLETA | JPA entidades/converters/repos/mappers/adaptadores, Mongo audit, 71 pruebas de persistencia y JJWT/validation en `pom.xml` |
 | 5 — REST | COMPLETA | DTOs, mappers, 6 controladores, `GlobalExceptionHandler` y 118 pruebas REST |
 | 6 — Seguridad e infraestructura | COMPLETA | JWT/filtro, `SecurityFilterChain`, CORS + `X-Request-Id`, `BootstrapAdminRunner`, docker-compose, properties y 37 pruebas; 353 pruebas totales y arranque local verificado |
@@ -270,3 +272,39 @@ $env:Path="$env:JAVA_HOME\bin;$env:Path"
 | Archivo descalificante | `evaluacion1.md` | No existe |
 
 El commit de cierre de esta fase se identifica con `git log -1`.
+
+## Misión RVI — rama `feat/spec-coverage` (2026-11-05)
+
+- Base: `main` `b5e899a`; `origin/develop` `0ea554f`. No hay merge ni push de la rama.
+- PDF funcional extraído con PDFBox 2.0.31: 8 páginas, hash de texto
+  `1C994B68FE6A237F7C67AA1AB98D5A47373E4E24D1690EDE082DB9C1C13109F5`.
+- Ledger atómico: 84 requisitos `REQ-*` en `SDD/Spec-Ledger/ledger.md`;
+  supuestos `SUP-01`…`SUP-15` en `SDD/Supuestos-no-verificados.md`.
+- D-09 corregida y confirmada contra p.8 §12: las 4 columnas existen.
+- `SDD/Gap-Analysis.md` concluye que el PDF no respalda 28 servicios/90 endpoints;
+  F4 y F5 quedan N/A por falta de requisitos, sin inventar servicios.
+- F3 corrige 9 defectos: transacciones en los 6 casos de uso, compensación de
+  checkout, transiciones completas de despacho/entrega y autorización total de
+  inventario. Tests nuevos: `UseCaseTransactionTest` y casos de fallo en
+  `OrderServiceTest`/`InventoryServiceTest`.
+- Verificación actual: **393 pruebas, 0 fallos, 0 errores, 0 omitidas** (59 suites).
+## Misión D8 — N+1 en rutas de listado (2026-11-07)
+
+- D8 (N+1): **RESUELTO**. `JpaDependencyResolver` resuelve en lote compradores,
+  vendedores, productos, variantes, ítems, asignaciones, facturas, bodegas y
+  devoluciones; `findAll`/`findByStatus` de pedidos, inventarios y devoluciones
+  usan esas rutas. Commit `84d5b3d`.
+- Regresión: `H2QueryCountRegressionTest` compara sentencias SQL con 2 y 6
+  pedidos y exige el mismo número; falló antes del arreglo (15 → 31) y pasa
+  después. Commit `9c6f376`.
+- Corrección de compilación: se eliminó el BOM introducido al editar dos
+  adaptadores; commit `7aa6618`.
+- Índices agregados: `product_variants.product_id`,
+  `order_allocations.product_id`, `returns.status` y
+  `buyer_additional_addresses.buyer_id`.
+- Paginación: **PENDIENTE Y DIFERIDA**. No se cambiaron puertos de dominio ni
+  contratos REST.
+- Suite completa: `.\mvnw.cmd clean test` → **413 pruebas, 0 fallos, 0 errores,
+  0 omitidas; BUILD SUCCESS** en 03:50 min (2026-11-07).
+- Últimos commits: `15159ae` (flujo de compra H2), `84d5b3d` (N+1),
+  `9c6f376` (regresión), `7aa6618` (BOM).

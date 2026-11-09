@@ -343,6 +343,25 @@ class JpaMapperRoundTripTest {
     }
 
     @Test
+    void orderMapperRoundTripPreservesPaidInstant() {
+        Seller seller = seller("seller-order-paid");
+        Product product = physicalProduct("product-order-paid", seller, "100.00");
+        Buyer buyer = buyer("buyer-order-paid");
+        Instant paidAt = NOW.plusSeconds(120);
+        List<CartItem> items = List.of(
+                CartItem.reconstitute(product, 1, Money.cop(new BigDecimal("100.00"))));
+        Order order = Order.reconstitute("order-paid", buyer, items,
+                OrderStatus.PAID, Money.cop(new BigDecimal("100.00")), PaymentStatus.CONFIRMED,
+                List.of(), address("Delivery Street"), null, NOW, paidAt);
+
+        OrderJpaEntity entity = orderMapper.toEntity(order);
+        Order roundTrip = orderMapper.toDomain(entity, buyer, order.getItems(), List.of(), null);
+
+        assertThat(entity.getPaidAt()).isEqualTo(paidAt);
+        assertThat(roundTrip.getPaidAt()).isEqualTo(paidAt);
+    }
+
+    @Test
     void invoiceMapperRoundTripPreservesOrderNumberMoneyStatusAndTimestamp() {
         Seller seller = seller("seller-invoice");
         Product product = physicalProduct("product-invoice", seller, "250.00");

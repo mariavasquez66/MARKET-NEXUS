@@ -4,6 +4,7 @@ import application.adapters.rest.dto.response.AddressResponse;
 import application.adapters.rest.dto.response.BuyerResponse;
 import application.domain.models.Buyer;
 import application.domain.models.User;
+import application.domain.valueobjects.Address;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -23,5 +24,11 @@ public class BuyerRestMapper extends RestMapperSupport {
                 toAddressResponse(buyer.getMainAddress()),
                 List.copyOf(additionalAddresses),
                 buyer.getCommercialStatus().getCode());
+    }
+
+    public List<AddressResponse> toAddressResponses(List<Address> addresses) {
+        return addresses.stream()
+                .map(this::toAddressResponse)
+                .toList();
     }
 }

@@ -102,6 +102,33 @@ class LogisticsControllerTest {
     }
 
     @Test
+    void getShipmentReturns200() throws Exception {
+        Shipment shipment = shipment();
+        when(operatorPort.getShipment(actor, shipment.getId())).thenReturn(shipment);
+
+        mockMvc.perform(get("/api/v1/logistics/shipments/{id}", shipment.getId())
+                        .with(actor(actor)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(shipment.getId()))
+                .andExpect(jsonPath("$.orderId").value(shipment.getOrder().getId()))
+                .andExpect(jsonPath("$.status").value("PENDING"));
+    }
+
+    @Test
+    void listShipmentsByOrderReturns200() throws Exception {
+        Shipment shipment = shipment();
+        when(operatorPort.listShipments(actor, shipment.getOrder().getId()))
+                .thenReturn(List.of(shipment));
+
+        mockMvc.perform(get("/api/v1/logistics/orders/{id}/shipments",
+                        shipment.getOrder().getId())
+                        .with(actor(actor)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(shipment.getId()))
+                .andExpect(jsonPath("$[0].orderId").value(shipment.getOrder().getId()));
+    }
+
+    @Test
     void createShipmentReturns201() throws Exception {
         Shipment shipment = shipment();
         when(operatorPort.createShipment(any(), any(), any())).thenReturn(shipment);

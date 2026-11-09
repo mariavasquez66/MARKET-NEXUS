@@ -11,6 +11,8 @@ public interface RefundRepositoryPort {
 
     List<Refund> findByReturnId(String returnId);
 
+    List<Refund> findByOrderId(String orderId);
+
     List<Refund> findByBuyerId(String buyerId);
 
     List<Refund> findAll();

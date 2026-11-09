@@ -16,7 +16,7 @@
 | D-06 | Enums/VOs adicionales obligatorios: `WarehouseType`, `MovementType`, `InventoryCondition`, `InvoiceStatus`, `RefundStatus`, `VariantType`, `AuditAction`, `Money`, `Address`, `Email`, `FullName`, `IdentityDocument`, `TaxId`, `ProductVariant`, `PasswordHash`, `StockAllocation`. | Reemplazan booleanos (`damaged`, `voided`, `processed`) y `String` acotados. |
 | D-07 | Semántica de inventario: `availableQuantity` libres, `reservedQuantity` retenidas; `reserve`, `confirmSale`, `releaseReservation`, `adjust`, `registerReturn`; todo movimiento genera `InventoryMovement`; productos digitales sin inventario. | `Inventory` nunca queda negativo y `DAMAGED` no reserva ni vende. |
 | D-08 | Checkout reserva stock y crea `PENDING_PAYMENT`; pago ⇒ `PAID`, `PaymentStatus.CONFIRMED`, `confirmSale` y factura; digital ⇒ `PAID → DELIVERED`; físico ⇒ `PAID → DISPATCHED` cuando todas las bodegas tienen envío en tránsito/entregado; `DISPATCHED → DELIVERED` con todos los envíos entregados; `DELIVERED → FINALIZED`; cancelación solo desde `PENDING_PAYMENT`. | `InvalidStateTransitionException` ante cualquier transición inválida. |
-| D-09 ⚠ | Matriz de responsabilidades: vendedores → ADMIN; productos → SELLER; inventario → SELLER (alta/consulta propia) + LOGISTIC_OPERATOR (movimientos/daños/reingresos); pedidos → BUYER (carrito/checkout/pago/cancelar), SELLER (consulta), LOGISTIC_OPERATOR (envío/entrega); devoluciones → BUYER solicita, ADMIN aprueba/rechaza, LOGISTIC_OPERATOR recibe; reembolsos → ADMIN genera/procesa, BUYER consulta; reportes → SUPERVISOR (solo lectura). | **Supuesto pendiente de confirmación humana** (columnas perdidas en el PDF). Ver `especificacion_funcional_nexusmarket.md` §A.10. |
+| D-09 | Matriz de responsabilidades **verificada** por extracción posicional del PDF: vendedores → ADMIN; productos → SELLER; inventario → SELLER + LOGISTIC_OPERATOR; pedidos → BUYER + SELLER + LOGISTIC_OPERATOR; reembolsos → BUYER + ADMIN. Las filas de devoluciones, reportes y Supervisor **no aparecen** en la matriz del PDF: devoluciones → BUYER solicita, ADMIN aprueba/rechaza, LOGISTIC_OPERATOR recibe; reportes → SUPERVISOR (solo lectura) son **[SUPUESTO]**. | Corrige la afirmación previa de “columnas perdidas”; ver `SDD/Spec-Ledger/passes/pass-4.md`. Las responsabilidades no verificadas no se implementan como regla obligatoria. |
 | D-10 | Seis puertos de entrada: `PublicAccessPort`, `NaturalCustomerPort` (BUYER), `BusinessCustomerPort` (SELLER), `BusinessOperatorPort` (LOGISTIC_OPERATOR), `BusinessSupervisorPort` (SUPERVISOR), `TellerEmployeePort` (ADMIN). | `CommercialEmployeePort` e `InternalAnalystPort` **no se crean** (plantilla bancaria); se documenta la exclusión. |
 | D-11 | JWT con `sub`, `jti`, `ver`, `iat`, `exp` y `role` informativo; sin PII. El filtro recarga el `User` vigente por `sub`. | `User.authTokenVersion` se incrementa en bloqueo/activación/baja; token obsoleto ⇒ 401. |
 | D-12 | Precios con IVA incluido; tasa por defecto `0.19` configurable (`nexusmarket.tax.rate`) vía `TaxPolicyPort`. Factura: `total = order.total`, `subtotal = total/(1+rate)`, `taxes = total − subtotal`. Una factura por pedido pagado. | `InvoiceService.generateInvoice` usa `TaxPolicyPort`; redondeo `HALF_UP` escala 2. |
@@ -26,7 +26,7 @@
 | D-16 | Administrador inicial vía `CommandLineRunner` si no existe ningún `ADMIN`, usando `NEXUS_BOOTSTRAP_ADMIN_EMAIL` / `NEXUS_BOOTSTRAP_ADMIN_PASSWORD`. | Si faltan variables, no crea nada y registra un aviso. |
 | D-17 | MySQL `nexusmarket_db` (usuario `nexus_app`) con JPA; MongoDB 4.4 `nexus_audit_db` (colección `audit_logs`); perfiles `local` y `docker`. | Los tests unitarios no dependen de bases de datos. MongoDB se fija en 4.4 porque el host de verificación no soporta AVX; las imágenes 5.0+ terminan con exit code 132. |
 
-## Supuestos nuevos (A-01…A-16)
+## Supuestos nuevos (A-01…A-18)
 
 | ID | Supuesto | Motivo |
 |---|---|---|
@@ -46,6 +46,8 @@
 | A-14 | `InventoryMovement.quantity` es positivo para `INFLOW`, `RESERVATION`, `SALE` y `RETURN`; para `ADJUSTMENT` puede ser negativo (nunca cero). | D-07 y `adjust(delta)`. |
 | A-15 | Los reportes son modelos inmutables en `domain.models.reports` (`SalesReport`, `OrderSummary`, `InventorySummary`, `ReturnSummary`, `UserSummary`). | OBJ-12 y D-01; no se exponen entidades crudas en reportes. |
 | A-16 | Los mensajes de excepción se escriben en inglés; los nombres de tests también. | §1 del prompt maestro y criterio 4 de la rúbrica. |
+| A-17 | La liberación de una reserva al cancelar se registra como movimiento `RESERVATION` positivo. | El PDF solo define cinco movimientos y no incluye uno de liberación; se conserva el catálogo exigido y se documenta el mapeo. |
+| A-18 | La auditoría MongoDB está fuera de la transacción JPA: no comparte transacción con MySQL. Si `AuditPort.record` falla, la excepción se propaga y revierte el trabajo de negocio ya ejecutado en la transacción JPA. | D-14 exige auditar; todavía no se usa outbox ni transacción distribuida. Se documenta el comportamiento actual y se revisará si la auditoría debe ser tolerante a fallos. |
 
 ## Ambigüedades resueltas por precedencia (§2)
 

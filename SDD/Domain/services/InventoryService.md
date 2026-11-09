@@ -3,6 +3,9 @@
 **OBJ:** OBJ-06 · **Acceso:** `SELLER` (alta/consulta propia), `LOGISTIC_OPERATOR` (movimientos), `BUYER` (reserva/liberación vía checkout)
 **Paquete:** `application.domain.services.InventoryService`
 
+Las lecturas y su autorización se delegan en `InventoryQueryService`; las
+mutaciones de stock siguen en esta fachada.
+
 ## Dependencias (constructor)
 
 `InventoryRepositoryPort`, `InventoryMovementRepositoryPort`,
@@ -24,24 +27,20 @@
   (`InvalidQuantityException`). Aplica `inventory.adjust(+quantity)`, guarda y
   registra movimiento `INFLOW`.
 
-### `StockAllocation reserve(User actor, String productId, String warehouseId, int quantity)`
+### Operaciones internas de stock: `reserve`, `releaseReservation`, `confirmSale`
 
-- `BUYER` durante checkout (o `ADMIN` por soporte). Carga inventario
-  (`InventoryNotFoundException`), aplica `inventory.reserve(quantity)` y guarda.
-  Registra movimiento `RESERVATION`. Devuelve
-  `StockAllocation(productId, warehouseId, quantity)`.
+- Visibilidad de paquete: no forman parte de la API p��blica del servicio. Solo
+  se usan desde pruebas y desde el flujo interno de pedidos; la mutaci��n
+  p��blica de stock ocurre en `OrderService` (`checkout`, `cancel`,
+  `confirmPayment`) dentro de la transacci��n del caso de uso.
+- `reserve` carga inventario (`InventoryNotFoundException`), aplica
+  `inventory.reserve(quantity)`, guarda y registra `RESERVATION`.
+- `releaseReservation` aplica `inventory.releaseReservation(quantity)`, guarda y
+  registra `RESERVATION`.
+- `confirmSale` aplica `inventory.confirmSale(quantity)`, guarda y registra
+  `SALE`.
 - Errores: `InsufficientStockException`, `DamagedInventoryException`,
   `InvalidReservationException`.
-
-### `void releaseReservation(User actor, String productId, String warehouseId, int quantity)`
-
-- `BUYER` (cancelación) o `ADMIN`. `inventory.releaseReservation(quantity)`,
-  guarda y registra `RESERVATION` (liberación).
-
-### `void confirmSale(User actor, String productId, String warehouseId, int quantity)`
-
-- `BUYER` (pago) o `ADMIN`. `inventory.confirmSale(quantity)`, guarda y registra
-  `SALE`.
 
 ### `Inventory adjust(User actor, String productId, String warehouseId, int delta)`
 
@@ -65,6 +64,10 @@
 ### `List<Inventory> listBySeller(User actor, String sellerId)` / `listByProduct`
 
 - `SELLER` propio o `ADMIN`/`SUPERVISOR` (lectura).
+- Si el actor es `SELLER`, **todos** los inventarios devueltos deben pertenecerle;
+  se valida la colecci��n completa, no solo el primer elemento. Una lista vac��a
+  es v��lida y no concede acceso a inventario ajeno.
+- Violaci��n ��' `UnauthorizedOperationException`.
 
 ## Reglas
 
@@ -72,3 +75,4 @@
 - `DAMAGED` no permite reservar, vender ni devolver stock.
 - Todo movimiento genera un `InventoryMovement` con actor y `occurredAt`.
 - Los productos digitales no tienen inventario.
+- La transacci��n se delimita en el caso de uso (`@Transactional`).

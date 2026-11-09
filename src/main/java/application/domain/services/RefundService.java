@@ -43,7 +43,7 @@ public class RefundService {
         Return returnRequest = returnRepository.findById(returnId)
                 .orElseThrow(() -> new ReturnNotFoundException("Return not found: " + returnId));
         Money orderTotal = returnRequest.getOrder().getTotalAmount();
-        Money accumulated = refundRepository.findByReturnId(returnId).stream()
+        Money accumulated = refundRepository.findByOrderId(returnRequest.getOrder().getId()).stream()
                 .map(Refund::getAmount)
                 .reduce(Money.cop(java.math.BigDecimal.ZERO), Money::add);
         if (accumulated.add(amount).isGreaterThan(orderTotal)) {

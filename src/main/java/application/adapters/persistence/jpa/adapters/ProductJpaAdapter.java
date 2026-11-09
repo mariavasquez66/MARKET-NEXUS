@@ -49,7 +49,7 @@ public class ProductJpaAdapter implements ProductRepositoryPort {
 
     @Override
     public List<Product> findPublished() {
-        return repository.findByStatusCode(ProductStatus.PUBLISHED.getCode()).stream()
+        return repository.findByStatusCode(ProductStatus.PUBLISHED).stream()
                 .map(resolver::product)
                 .toList();
     }

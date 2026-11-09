@@ -38,7 +38,7 @@ class BootstrapAdminRunnerTest {
     @Test
     void doesNothingWhenAnAdministratorAlreadyExists() {
         when(userRepository.existsByRole(UserRole.ADMIN)).thenReturn(true);
-        BootstrapAdminRunner runner = runner("admin@nexusmarket.test", "secret-password");
+        BootstrapAdminRunner runner = runner("admin@nexusmarket.test", "secret-password1");
 
         runner.run();
 
@@ -47,7 +47,7 @@ class BootstrapAdminRunnerTest {
 
     @Test
     void doesNotCreateAdminWhenCredentialsAreMissing() {
-        BootstrapAdminRunner withoutEmail = runner("", "secret-password");
+        BootstrapAdminRunner withoutEmail = runner("", "secret-password1");
         withoutEmail.run();
 
         BootstrapAdminRunner withoutPassword = runner("admin@nexusmarket.test", " ");
@@ -60,8 +60,8 @@ class BootstrapAdminRunnerTest {
     void createsBootstrapAdminWhenCredentialsArePresent() {
         User admin = DomainFixtures.admin();
         when(userService.createBootstrapAdmin(any(FullName.class), any(Email.class),
-                any(IdentityDocument.class), eq("secret-password"))).thenReturn(admin);
-        BootstrapAdminRunner runner = runner("Admin@NexusMarket.test", "secret-password");
+                any(IdentityDocument.class), eq("secret-password1"))).thenReturn(admin);
+        BootstrapAdminRunner runner = runner("Admin@NexusMarket.test", "secret-password1");
 
         runner.run();
 
@@ -69,7 +69,7 @@ class BootstrapAdminRunnerTest {
                 FullName.of("Bootstrap Administrator"),
                 Email.of("Admin@NexusMarket.test"),
                 IdentityDocument.of("BOOTSTRAP-ADMIN"),
-                "secret-password");
+                "secret-password1");
     }
 
     private BootstrapAdminRunner runner(String email, String password) {

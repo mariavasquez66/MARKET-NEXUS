@@ -88,6 +88,13 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/sellers/{id}")
+    public ResponseEntity<SellerResponse> getSeller(
+            @PathVariable("id") String id,
+            @AuthenticationPrincipal(expression = "user") User actor) {
+        return ResponseEntity.ok(sellerRestMapper.toResponse(tellerEmployeePort.getSeller(actor, id)));
+    }
+
     @PutMapping("/sellers/{id}")
     public ResponseEntity<SellerResponse> updateSeller(
             @PathVariable("id") String id,
@@ -127,6 +134,14 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/warehouses/{id}")
+    public ResponseEntity<WarehouseResponse> getWarehouse(
+            @PathVariable("id") String id,
+            @AuthenticationPrincipal(expression = "user") User actor) {
+        return ResponseEntity.ok(warehouseRestMapper.toResponse(
+                tellerEmployeePort.getWarehouse(actor, id)));
+    }
+
     @PutMapping("/warehouses/{id}")
     public ResponseEntity<WarehouseResponse> updateWarehouse(
             @PathVariable("id") String id,
@@ -159,6 +174,13 @@ public class AdminController {
                 .map(userRestMapper::toResponse)
                 .toList();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserResponse> getUser(
+            @PathVariable("id") String id,
+            @AuthenticationPrincipal(expression = "user") User actor) {
+        return ResponseEntity.ok(userRestMapper.toResponse(tellerEmployeePort.getUser(actor, id)));
     }
 
     @PostMapping("/users")

@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.Getter;
@@ -16,7 +17,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "inventory_movements")
+@Table(name = "inventory_movements", indexes = {
+        @Index(name = "idx_inventory_movements_inventory", columnList = "inventory_id")
+})
 public class InventoryMovementJpaEntity {
 
     @Id

@@ -23,6 +23,10 @@ public class OrderJpaMapper {
     public OrderJpaEntity toEntity(Order order) {
         OrderJpaEntity entity = new OrderJpaEntity();
         entity.setId(order.getId());
+        return updateEntity(entity, order);
+    }
+
+    public OrderJpaEntity updateEntity(OrderJpaEntity entity, Order order) {
         entity.setBuyerId(order.getBuyer().getId());
         entity.setStatusCode(order.getStatus());
         entity.setTotalAmount(order.getTotalAmount().getAmount());
@@ -31,6 +35,7 @@ public class OrderJpaMapper {
         entity.setDeliveryAddress(toEmbeddable(order.getDeliveryAddress()));
         entity.setInvoiceId(order.getInvoice() == null ? null : order.getInvoice().getId());
         entity.setCreatedAt(order.getCreatedAt());
+        entity.setPaidAt(order.getPaidAt());
         return entity;
     }
 
@@ -49,7 +54,8 @@ public class OrderJpaMapper {
                 allocations,
                 toAddress(entity.getDeliveryAddress()),
                 invoice,
-                entity.getCreatedAt());
+                entity.getCreatedAt(),
+                entity.getPaidAt());
     }
 
     public OrderItemJpaEntity toEntity(CartItem item, String orderId) {

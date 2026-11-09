@@ -25,7 +25,9 @@
   `InvalidDataException`. Guarda.
 - Tras iniciar, invoca `orderService.markDispatched(actor, orderId)`; el
   servicio de pedido solo cambia a `DISPATCHED` cuando **todas** las
-  asignaciones tienen envío en tránsito/entregado (D-08).
+  asignaciones tienen todos sus envíos en tránsito/entregado (D-08). La
+  escritura del envío y la transición del pedido comparten la transacción del
+  caso de uso.
 - **Auditoría:** `SHIPMENT_STARTED` sobre `SHIPMENT`; `ORDER_STATUS_CHANGED` lo
   registra `OrderService` si aplica.
 
@@ -34,6 +36,8 @@
 - Solo `LOGISTIC_OPERATOR`. `shipment.confirmDelivery()` (`IN_TRANSIT` ⇒
   `DELIVERED`; si no ⇒ `InvalidStateTransitionException`). Guarda. Si todos los
   envíos del pedido están `DELIVERED`, invoca `orderService.markDelivered`.
+  Ambas escrituras comparten la transacción del caso de uso; un fallo revierte
+  el envío y el pedido.
 - **Auditoría:** `SHIPMENT_DELIVERED` sobre `SHIPMENT`.
 
 ### `List<Shipment> listByOrder(User actor, String orderId)`

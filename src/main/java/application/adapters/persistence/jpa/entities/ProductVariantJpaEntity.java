@@ -3,6 +3,7 @@ package application.adapters.persistence.jpa.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "product_variants")
+@Table(name = "product_variants", indexes = {
+        @Index(name = "idx_product_variants_product", columnList = "product_id")
+})
 public class ProductVariantJpaEntity {
 
     @Id
@@ -25,6 +28,6 @@ public class ProductVariantJpaEntity {
     @Column(name = "type_code", length = 40, nullable = false)
     private String typeCode;
 
-    @Column(name = "value", length = 50, nullable = false)
+    @Column(name = "variant_value", length = 50, nullable = false)
     private String value;
 }

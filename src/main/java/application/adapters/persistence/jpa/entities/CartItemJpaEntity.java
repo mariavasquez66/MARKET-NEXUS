@@ -3,6 +3,7 @@ package application.adapters.persistence.jpa.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
@@ -16,7 +17,8 @@ import lombok.Setter;
 @Entity
 @Table(
         name = "cart_items",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"cart_id", "product_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"cart_id", "product_id"}),
+        indexes = @Index(name = "idx_cart_items_cart", columnList = "cart_id")
 )
 public class CartItemJpaEntity {
 

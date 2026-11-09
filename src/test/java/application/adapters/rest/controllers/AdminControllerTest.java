@@ -130,6 +130,17 @@ class AdminControllerTest {
     }
 
     @Test
+    void getSellerReturnsOk() throws Exception {
+        when(tellerEmployeePort.getSeller(admin, seller.getId())).thenReturn(seller);
+
+        mockMvc.perform(get("/api/v1/admin/sellers/{id}", seller.getId())
+                        .with(RestControllerTestSupport.actor(admin)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(seller.getId()))
+                .andExpect(jsonPath("$.taxId").value("900123456-7"));
+    }
+
+    @Test
     void updateSellerReturnsOk() throws Exception {
         Seller updated = Seller.reconstitute(seller.getId(), seller.getUser(),
                 TaxId.of("900987654-3"), seller.getWarehouses());
@@ -177,6 +188,18 @@ class AdminControllerTest {
     }
 
     @Test
+    void getWarehouseReturnsOk() throws Exception {
+        when(tellerEmployeePort.getWarehouse(admin, warehouse.getId())).thenReturn(warehouse);
+
+        mockMvc.perform(get("/api/v1/admin/warehouses/{id}", warehouse.getId())
+                        .with(RestControllerTestSupport.actor(admin)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(warehouse.getId()))
+                .andExpect(jsonPath("$.name").value(warehouse.getName()))
+                .andExpect(jsonPath("$.location.country").value("Colombia"));
+    }
+
+    @Test
     void updateWarehouseReturnsOk() throws Exception {
         User responsible = warehouse.getResponsible();
         Warehouse updated = Warehouse.reconstitute(warehouse.getId(), "Updated warehouse",
@@ -218,6 +241,19 @@ class AdminControllerTest {
                 .andExpect(jsonPath("$[0].id").value(user.getId()))
                 .andExpect(jsonPath("$[0].role").value("BUYER"))
                 .andExpect(jsonPath("$[0].status").value("ACTIVE"));
+    }
+
+    @Test
+    void getUserReturnsOk() throws Exception {
+        User user = DomainFixtures.user(UserRole.BUYER);
+        when(tellerEmployeePort.getUser(admin, user.getId())).thenReturn(user);
+
+        mockMvc.perform(get("/api/v1/admin/users/{id}", user.getId())
+                        .with(RestControllerTestSupport.actor(admin)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(user.getId()))
+                .andExpect(jsonPath("$.role").value("BUYER"))
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
     }
 
     @Test

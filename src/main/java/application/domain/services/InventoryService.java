@@ -34,6 +34,7 @@ public class InventoryService {
     private final WarehouseRepositoryPort warehouseRepository;
     private final AuditPort auditPort;
     private final ClockPort clockPort;
+    private final InventoryQueryService queryService;
 
     public InventoryService(InventoryRepositoryPort inventoryRepository,
                             InventoryMovementRepositoryPort movementRepository,
@@ -47,6 +48,7 @@ public class InventoryService {
         this.warehouseRepository = Objects.requireNonNull(warehouseRepository);
         this.auditPort = Objects.requireNonNull(auditPort);
         this.clockPort = Objects.requireNonNull(clockPort);
+        this.queryService = new InventoryQueryService(inventoryRepository);
     }
 
     public Inventory registerInitialStock(User actor,
@@ -89,7 +91,7 @@ public class InventoryService {
         return recordMovement(saved, MovementType.INFLOW, quantity, actor);
     }
 
-    public StockAllocation reserve(User actor, String productId, String warehouseId, int quantity) {
+    StockAllocation reserve(User actor, String productId, String warehouseId, int quantity) {
         ServiceSupport.requireAnyRole(actor, UserRole.BUYER, UserRole.ADMIN);
         Inventory inventory = requireInventory(productId, warehouseId);
         inventory.reserve(quantity);
@@ -98,7 +100,7 @@ public class InventoryService {
         return StockAllocation.of(productId, warehouseId, quantity);
     }
 
-    public void releaseReservation(User actor, String productId, String warehouseId, int quantity) {
+    void releaseReservation(User actor, String productId, String warehouseId, int quantity) {
         ServiceSupport.requireAnyRole(actor, UserRole.BUYER, UserRole.ADMIN);
         Inventory inventory = requireInventory(productId, warehouseId);
         inventory.releaseReservation(quantity);
@@ -106,7 +108,7 @@ public class InventoryService {
         recordMovement(inventory, MovementType.RESERVATION, quantity, actor);
     }
 
-    public void confirmSale(User actor, String productId, String warehouseId, int quantity) {
+    void confirmSale(User actor, String productId, String warehouseId, int quantity) {
         ServiceSupport.requireAnyRole(actor, UserRole.BUYER, UserRole.ADMIN);
         Inventory inventory = requireInventory(productId, warehouseId);
         inventory.confirmSale(quantity);
@@ -145,39 +147,19 @@ public class InventoryService {
     }
 
     public Inventory getAvailable(User actor, String productId, String warehouseId) {
-        ServiceSupport.requireAnyRole(actor, UserRole.SELLER, UserRole.LOGISTIC_OPERATOR,
-                UserRole.ADMIN, UserRole.SUPERVISOR);
-        Inventory inventory = requireInventory(productId, warehouseId);
-        if (actor.hasRole(UserRole.SELLER)) {
-            requireSellerOwns(actor, inventory.getProduct());
-        }
-        return inventory;
+        return queryService.getAvailable(actor, productId, warehouseId);
     }
 
     public List<Inventory> listBySeller(User actor, String sellerId) {
-        ServiceSupport.requireAnyRole(actor, UserRole.SELLER, UserRole.ADMIN, UserRole.SUPERVISOR);
-        if (actor.hasRole(UserRole.SELLER)) {
-            productRepository.findBySellerId(sellerId).stream().findFirst()
-                    .ifPresent(product -> requireSellerOwns(actor, product));
-        }
-        return inventoryRepository.findBySellerId(sellerId);
+        return queryService.listBySeller(actor, sellerId);
     }
 
     public List<Inventory> listByProduct(User actor, String productId) {
-        ServiceSupport.requireAnyRole(actor, UserRole.SELLER, UserRole.ADMIN, UserRole.SUPERVISOR);
-        List<Inventory> inventories = inventoryRepository.findByProductId(productId);
-        if (actor.hasRole(UserRole.SELLER) && !inventories.isEmpty()) {
-            requireSellerOwns(actor, inventories.get(0).getProduct());
-        }
-        return inventories;
+        return queryService.listByProduct(actor, productId);
     }
 
     public List<Inventory> listMyInventory(User actor) {
-        ServiceSupport.requireRole(actor, UserRole.SELLER);
-        return inventoryRepository.findAll().stream()
-                .filter(inventory -> inventory.getProduct().getSeller().getUser().getId()
-                        .equals(actor.getId()))
-                .toList();
+        return queryService.listMyInventory(actor);
     }
 
     private InventoryMovement recordMovement(Inventory inventory, MovementType type, int quantity, User actor) {
@@ -209,4 +191,5 @@ public class InventoryService {
             throw new UnauthorizedOperationException("Seller does not own this product");
         }
     }
+
 }

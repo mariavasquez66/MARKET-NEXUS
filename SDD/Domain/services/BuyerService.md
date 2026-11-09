@@ -3,6 +3,9 @@
 **OBJ:** OBJ-03 · **Acceso:** `BUYER` (lo propio) y `ADMIN` (gestión de estado)
 **Paquete:** `application.domain.services.BuyerService`
 
+La elegibilidad del comprador (`ELIGIBLE`/`RESTRICTED`/`SUSPENDED`) se delega en
+`BuyerEligibilityService`.
+
 ## Dependencias (constructor)
 
 `BuyerRepositoryPort`, `AuditPort`, `ClockPort`.

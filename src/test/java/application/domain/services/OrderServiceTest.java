@@ -102,6 +102,26 @@ class OrderServiceTest {
     }
 
     @Test
+    void checkoutReleasesReservationsWhenOrderSaveFails() {
+        Buyer buyer = buyer();
+        Product product = publishedPhysicalProduct(seller(admin()), operator());
+        Cart cart = cartWith(buyer, product, 2);
+        Inventory inventory = Inventory.create(product, product.getSeller().getWarehouses().get(0), 5);
+        when(buyerRepository.findByUserId(buyer.getUser().getId())).thenReturn(Optional.of(buyer));
+        when(cartRepository.findByBuyerId(buyer.getId())).thenReturn(Optional.of(cart));
+        when(inventoryRepository.findByProductId(product.getId())).thenReturn(List.of(inventory));
+        when(inventoryRepository.findById(inventory.getId())).thenReturn(Optional.of(inventory));
+        when(orderRepository.save(any(Order.class)))
+                .thenThrow(new IllegalStateException("database unavailable"));
+
+        assertThatThrownBy(() -> service.checkout(buyer.getUser(), address()))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(inventory.getAvailableQuantity()).isEqualTo(5);
+        assertThat(inventory.getReservedQuantity()).isZero();
+        assertThat(cart.getItems()).hasSize(1);
+    }
+
+    @Test
     void checkoutReleasesReservationsWhenStockIsInsufficient() {
         Buyer buyer = buyer();
         Product product = publishedPhysicalProduct(seller(admin()), operator());
@@ -202,12 +222,45 @@ class OrderServiceTest {
         assertThatThrownBy(() -> service.markDispatched(operator(), order.getId()))
                 .isInstanceOf(InvalidStateTransitionException.class);
 
-        Shipment shipment = Shipment.create(order, warehouse);
-        shipment.startShipping("TRACK");
+        Shipment started = Shipment.create(order, warehouse);
+        started.startShipping("TRACK-1");
+        Shipment pending = Shipment.create(order, warehouse);
         when(shipmentRepository.findByOrderIdAndOriginWarehouseId(order.getId(), warehouse.getId()))
-                .thenReturn(List.of(shipment));
+                .thenReturn(List.of(started, pending));
+        assertThatThrownBy(() -> service.markDispatched(operator(), order.getId()))
+                .isInstanceOf(InvalidStateTransitionException.class);
+
+        when(shipmentRepository.findByOrderIdAndOriginWarehouseId(order.getId(), warehouse.getId()))
+                .thenReturn(List.of(started));
         assertThat(service.markDispatched(operator(), order.getId()).getStatus())
                 .isEqualTo(application.domain.enums.OrderStatus.DISPATCHED);
+    }
+
+    @Test
+    void deliveryRequiresEveryShipmentForAllocationToBeDelivered() {
+        Buyer buyer = buyer();
+        Product product = publishedPhysicalProduct(seller(admin()), operator());
+        Order order = Order.fromCart(cartWith(buyer, product, 1), address(), NOW);
+        Warehouse warehouse = product.getSeller().getWarehouses().get(0);
+        order.assignAllocations(List.of(StockAllocation.of(product.getId(), warehouse.getId(), 1)));
+        order.confirmPayment(NOW);
+        order.markDispatched();
+        Shipment delivered = Shipment.create(order, warehouse);
+        delivered.startShipping("TRACK-1");
+        delivered.confirmDelivery();
+        Shipment inTransit = Shipment.create(order, warehouse);
+        inTransit.startShipping("TRACK-2");
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(shipmentRepository.findByOrderIdAndOriginWarehouseId(order.getId(), warehouse.getId()))
+                .thenReturn(List.of(delivered, inTransit));
+
+        assertThatThrownBy(() -> service.markDelivered(operator(), order.getId()))
+                .isInstanceOf(InvalidStateTransitionException.class);
+
+        when(shipmentRepository.findByOrderIdAndOriginWarehouseId(order.getId(), warehouse.getId()))
+                .thenReturn(List.of(delivered));
+        assertThat(service.markDelivered(operator(), order.getId()).getStatus())
+                .isEqualTo(application.domain.enums.OrderStatus.DELIVERED);
     }
 
     private Order paidCopy(Order order) {

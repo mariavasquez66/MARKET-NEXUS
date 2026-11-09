@@ -20,6 +20,7 @@
 
 ```java
 @Component
+@Transactional
 public class NaturalCustomerUseCase implements NaturalCustomerPort {
 
     private final CartService cartService;
@@ -48,9 +49,11 @@ Reglas:
    (reconstruido por el filtro JWT); el caso de uso no lo fabrica ni lo busca.
 3. **Sin DTOs.** Los casos de uso trabajan con tipos de dominio; los DTOs y su
    mapeo viven en `adapters/rest`.
-4. **Transacciones.** Las anotaciones `@Transactional` (si se requieren) se
-   colocan en el caso de uso o en el controlador, nunca en el dominio. Las
-   operaciones de solo lectura pueden usar `@Transactional(readOnly = true)`.
+4. **Transacciones.** Los seis casos de uso llevan `@Transactional` a nivel de
+   clase; cada método del puerto abre una transacción que cubre todas las
+   escrituras de los servicios de dominio invocados. Las anotaciones se colocan
+   en el caso de uso, nunca en el dominio. Las operaciones de solo lectura
+   pueden especializarse con `@Transactional(readOnly = true)` si se requiere.
 5. **Composición.** Si un caso de uso necesita varios servicios, los recibe por
    constructor; no crea instancias con `new`.
 6. **Errores.** No captura excepciones de dominio: se propagan al
@@ -67,8 +70,10 @@ Reglas:
 | `BusinessSupervisorPort` | `BusinessSupervisorUseCase` | `SupervisorController` | `/api/v1/supervisor` |
 | `TellerEmployeePort` | `TellerEmployeeUseCase` | `AdminController` | `/api/v1/admin` |
 
-## 4. Pruebas previstas (Fase 7)
+## 4. Pruebas
 
-- Un test por caso de uso con los servicios mockeados
-  (`PublicAccessUseCaseTest`, `NaturalCustomerUseCaseTest`, …), verificando que
-  cada método delega con los argumentos correctos y no añade lógica.
+- `UseCaseTransactionTest` verifica que los seis casos de uso tengan
+  `@Transactional` a nivel de clase.
+- La delegación 1:1 se cubre indirectamente por las pruebas de controladores y
+  servicios. Los escenarios de rollback/compensación se prueban en
+  `OrderServiceTest` e `InventoryServiceTest`.

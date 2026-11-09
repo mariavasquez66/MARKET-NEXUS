@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.Getter;
@@ -16,7 +17,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "returns")
+@Table(name = "returns", indexes = {
+        @Index(name = "idx_returns_order", columnList = "order_id"),
+        @Index(name = "idx_returns_status", columnList = "status")
+})
 public class ReturnJpaEntity {
 
     @Id

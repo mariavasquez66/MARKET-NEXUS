@@ -55,7 +55,7 @@ class UserServiceBootstrapTest {
         when(userRepository.existsByRole(UserRole.ADMIN)).thenReturn(false);
         when(userRepository.existsByEmail(any(Email.class))).thenReturn(false);
         when(userRepository.existsByIdentityDocument(any(IdentityDocument.class))).thenReturn(false);
-        when(passwordService.encode("secret-password")).thenReturn(PasswordHash.of("$2a$10$hash"));
+        when(passwordService.encode("secret-password1")).thenReturn(PasswordHash.of("$2a$10$hash"));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(clockPort.now()).thenReturn(Instant.parse("2026-01-01T00:00:00Z"));
 
@@ -63,7 +63,7 @@ class UserServiceBootstrapTest {
                 FullName.of("Bootstrap Administrator"),
                 Email.of("admin@nexusmarket.test"),
                 IdentityDocument.of("BOOTSTRAP-ADMIN"),
-                "secret-password");
+                "secret-password1");
 
         assertThat(admin.getRole()).isEqualTo(UserRole.ADMIN);
         assertThat(admin.getStatus().getCode()).isEqualTo("ACTIVE");
@@ -81,7 +81,7 @@ class UserServiceBootstrapTest {
                 FullName.of("Bootstrap Administrator"),
                 Email.of("admin@nexusmarket.test"),
                 IdentityDocument.of("BOOTSTRAP-ADMIN"),
-                "secret-password"))
+                "secret-password1"))
                 .isInstanceOf(InvalidDataException.class);
 
         verify(passwordService, never()).encode(any());

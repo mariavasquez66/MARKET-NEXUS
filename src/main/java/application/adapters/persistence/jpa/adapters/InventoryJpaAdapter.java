@@ -22,7 +22,10 @@ public class InventoryJpaAdapter implements InventoryRepositoryPort {
     @Override
     @Transactional
     public Inventory save(Inventory inventory) {
-        InventoryJpaEntity saved = repository.save(mapper.toEntity(inventory));
+        InventoryJpaEntity entity = repository.findById(inventory.getId())
+                .map(existing -> mapper.updateEntity(existing, inventory))
+                .orElseGet(() -> mapper.toEntity(inventory));
+        InventoryJpaEntity saved = repository.save(entity);
         return mapper.toDomain(saved, inventory.getProduct(), inventory.getWarehouse());
     }
 
@@ -39,24 +42,22 @@ public class InventoryJpaAdapter implements InventoryRepositoryPort {
 
     @Override
     public List<Inventory> findByProductId(String productId) {
-        return repository.findByProductId(productId).stream().map(resolver::inventory).toList();
+        return resolver.inventories(repository.findByProductId(productId));
     }
 
     @Override
     public List<Inventory> findByWarehouseId(String warehouseId) {
-        return repository.findByWarehouseId(warehouseId).stream().map(resolver::inventory).toList();
+        return resolver.inventories(repository.findByWarehouseId(warehouseId));
     }
 
     @Override
     public List<Inventory> findBySellerId(String sellerId) {
-        return repository.findByWarehouseOwnerSellerId(sellerId).stream()
-                .map(resolver::inventory)
-                .toList();
+        return resolver.inventories(repository.findByWarehouseOwnerSellerId(sellerId));
     }
 
     @Override
     public List<Inventory> findAll() {
-        return repository.findAll().stream().map(resolver::inventory).toList();
+        return resolver.inventories(repository.findAll());
     }
 
     @Override
@@ -64,3 +65,4 @@ public class InventoryJpaAdapter implements InventoryRepositoryPort {
         return repository.existsByProductId(productId);
     }
 }
+

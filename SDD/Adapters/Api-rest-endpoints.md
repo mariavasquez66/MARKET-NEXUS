@@ -30,10 +30,12 @@
 | GET | `/orders/{id}` | — | `OrderResponse` | 200 / 404 |
 | POST | `/orders/{id}/pay` | — | `OrderResponse` | 200 / 404 / 409 |
 | POST | `/orders/{id}/cancel` | — | `OrderResponse` | 200 / 404 / 409 |
+| POST | `/orders/{id}/finalize` | — | `OrderResponse` | 200 / 404 / 409 |
 | GET | `/orders/{id}/invoice` | — | `InvoiceResponse` | 200 / 404 |
 | POST | `/orders/{id}/returns` | `RequestReturnRequest` | `ReturnResponse` | 201 / 400 / 409 |
 | GET | `/returns` | — | `List<ReturnResponse>` | 200 |
 | GET | `/refunds` | — | `List<RefundResponse>` | 200 |
+| GET | `/addresses` | — | `List<AddressResponse>` | 200 |
 | POST | `/addresses` | `AddAddressRequest` | `BuyerResponse` | 200 / 400 |
 | PUT | `/addresses/main` | `ChangeMainAddressRequest` | `BuyerResponse` | 200 / 400 |
 
@@ -43,6 +45,7 @@
 |---|---|---|---|---|
 | POST | `/products` | `CreateProductRequest` | `ProductResponse` | 201 / 400 / 409 |
 | GET | `/products` | — | `List<ProductResponse>` | 200 |
+| GET | `/products/{id}` | — | `ProductResponse` | 200 / 404 |
 | PUT | `/products/{id}` | `UpdateProductRequest` | `ProductResponse` | 200 / 400 / 404 / 409 |
 | POST | `/products/{id}/variants` | `AddVariantRequest` | `ProductResponse` | 200 / 400 / 404 |
 | POST | `/products/{id}/publish` | — | `ProductResponse` | 200 / 404 / 409 |
@@ -57,6 +60,8 @@
 | Método | Ruta | Request | Response | HTTP |
 |---|---|---|---|---|
 | GET | `/orders?status=` | `status` opcional | `List<OrderResponse>` | 200 / 400 |
+| GET | `/orders/{id}/shipments` | — | `List<ShipmentResponse>` | 200 / 404 |
+| GET | `/shipments/{id}` | — | `ShipmentResponse` | 200 / 404 |
 | POST | `/shipments` | `CreateShipmentRequest` | `ShipmentResponse` | 201 / 400 / 404 / 409 |
 | POST | `/shipments/{id}/start` | `StartShipmentRequest` | `ShipmentResponse` | 200 / 400 / 404 / 409 |
 | POST | `/shipments/{id}/deliver` | — | `ShipmentResponse` | 200 / 404 / 409 |
@@ -73,12 +78,15 @@
 |---|---|---|---|---|
 | POST | `/sellers` | `RegisterSellerRequest` | `SellerResponse` | 201 / 400 / 403 / 409 |
 | GET | `/sellers` | — | `List<SellerResponse>` | 200 |
+| GET | `/sellers/{id}` | — | `SellerResponse` | 200 / 404 |
 | PUT | `/sellers/{id}` | `UpdateSellerRequest` | `SellerResponse` | 200 / 400 / 404 / 409 |
 | POST | `/warehouses` | `CreateWarehouseRequest` | `WarehouseResponse` | 201 / 400 / 404 |
 | GET | `/warehouses` | — | `List<WarehouseResponse>` | 200 |
+| GET | `/warehouses/{id}` | — | `WarehouseResponse` | 200 / 404 |
 | PUT | `/warehouses/{id}` | `UpdateWarehouseRequest` | `WarehouseResponse` | 200 / 400 / 404 |
 | POST | `/sellers/{id}/warehouses/{warehouseId}` | — | `SellerResponse` | 200 / 404 / 409 |
 | GET | `/users` | — | `List<UserResponse>` | 200 |
+| GET | `/users/{id}` | — | `UserResponse` | 200 / 404 |
 | POST | `/users` | `CreateUserRequest` | `UserResponse` | 201 / 400 / 409 |
 | POST | `/users/{id}/block` | — | `UserResponse` | 200 / 404 / 409 |
 | POST | `/users/{id}/activate` | — | `UserResponse` | 200 / 404 / 409 |

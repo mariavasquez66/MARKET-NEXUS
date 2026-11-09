@@ -11,6 +11,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
@@ -46,7 +47,8 @@ public class BuyerJpaEntity {
     @ElementCollection
     @CollectionTable(
             name = "buyer_additional_addresses",
-            joinColumns = @JoinColumn(name = "buyer_id")
+            joinColumns = @JoinColumn(name = "buyer_id"),
+            indexes = @Index(name = "idx_buyer_additional_addresses_buyer", columnList = "buyer_id")
     )
     private List<AddressEmbeddable> additionalAddresses = new ArrayList<>();
 

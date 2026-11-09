@@ -15,8 +15,10 @@ import application.domain.services.ReportService;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class BusinessSupervisorUseCase implements BusinessSupervisorPort {
 
     private final ReportService reportService;

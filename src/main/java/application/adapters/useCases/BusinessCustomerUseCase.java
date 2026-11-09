@@ -13,8 +13,10 @@ import application.domain.services.OrderService;
 import application.domain.valueobjects.Money;
 import java.util.List;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class BusinessCustomerUseCase implements BusinessCustomerPort {
 
     private final CatalogService catalogService;
@@ -38,6 +40,11 @@ public class BusinessCustomerUseCase implements BusinessCustomerPort {
     @Override
     public List<Product> listProducts(User actor) {
         return catalogService.listMyProducts(actor);
+    }
+
+    @Override
+    public Product getProduct(User actor, String productId) {
+        return catalogService.getProductForSeller(actor, productId);
     }
 
     @Override

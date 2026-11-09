@@ -12,8 +12,10 @@ import application.domain.valueobjects.FullName;
 import application.domain.valueobjects.IdentityDocument;
 import java.util.List;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class PublicAccessUseCase implements PublicAccessPort {
 
     private final AuthService authService;

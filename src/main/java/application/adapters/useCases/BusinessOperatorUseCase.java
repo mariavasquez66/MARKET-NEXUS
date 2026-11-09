@@ -14,8 +14,10 @@ import application.domain.services.OrderService;
 import application.domain.services.ReturnService;
 import java.util.List;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class BusinessOperatorUseCase implements BusinessOperatorPort {
 
     private final InventoryService inventoryService;
@@ -41,6 +43,16 @@ public class BusinessOperatorUseCase implements BusinessOperatorPort {
     @Override
     public Shipment createShipment(User actor, String orderId, String warehouseId) {
         return logisticsService.createShipment(actor, orderId, warehouseId);
+    }
+
+    @Override
+    public Shipment getShipment(User actor, String shipmentId) {
+        return logisticsService.getShipment(actor, shipmentId);
+    }
+
+    @Override
+    public List<Shipment> listShipments(User actor, String orderId) {
+        return logisticsService.listByOrder(actor, orderId);
     }
 
     @Override

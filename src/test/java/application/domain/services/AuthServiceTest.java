@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import application.domain.enums.UserRole;
+import application.domain.exceptions.common.InvalidDataException;
 import application.domain.exceptions.common.UnauthenticatedUserException;
 import application.domain.exceptions.user.DuplicateEmailException;
 import application.domain.exceptions.user.DuplicateIdentificationException;
@@ -59,14 +60,14 @@ class AuthServiceTest {
     @Test
     void loginRejectsUnknownEmailAndWrongPasswordWithSameMessage() {
         when(userRepository.findByEmail(any(Email.class))).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.login("nobody@test.com", "secret"))
+        assertThatThrownBy(() -> service.login("nobody@test.com", "secret123"))
                 .isInstanceOf(UnauthenticatedUserException.class)
                 .hasMessage("Invalid credentials");
 
         User user = user(UserRole.BUYER);
         when(userRepository.findByEmail(any(Email.class))).thenReturn(Optional.of(user));
-        when(passwordService.matches("secret", user.getPasswordHash())).thenReturn(false);
-        assertThatThrownBy(() -> service.login(user.getEmail().getValue(), "secret"))
+        when(passwordService.matches("secret123", user.getPasswordHash())).thenReturn(false);
+        assertThatThrownBy(() -> service.login(user.getEmail().getValue(), "secret123"))
                 .isInstanceOf(UnauthenticatedUserException.class)
                 .hasMessage("Invalid credentials");
     }
@@ -75,9 +76,9 @@ class AuthServiceTest {
     void loginReturnsTokenForActiveUser() {
         User user = user(UserRole.BUYER);
         when(userRepository.findByEmail(any(Email.class))).thenReturn(Optional.of(user));
-        when(passwordService.matches("secret", user.getPasswordHash())).thenReturn(true);
+        when(passwordService.matches("secret123", user.getPasswordHash())).thenReturn(true);
         when(jwtService.issueToken(user)).thenReturn("jwt-token");
-        AuthResult result = service.login(user.getEmail().getValue(), "secret");
+        AuthResult result = service.login(user.getEmail().getValue(), "secret123");
         assertThat(result.token()).isEqualTo("jwt-token");
         assertThat(result.user()).isSameAs(user);
     }
@@ -101,7 +102,7 @@ class AuthServiceTest {
     void registerBuyerCreatesUserAndBuyerAndAudits() {
         Email email = Email.of("new@test.com");
         IdentityDocument document = IdentityDocument.of("DOC12345");
-        when(passwordService.encode("secret")).thenReturn(PasswordHash.of("hash"));
+        when(passwordService.encode("secret123")).thenReturn(PasswordHash.of("hash"));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(buyerRepository.save(any(Buyer.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -112,8 +113,67 @@ class AuthServiceTest {
         verify(auditPort).record(any());
     }
 
+    @Test
+    void registerBuyerRejectsWeakPasswords() {
+        assertThatThrownBy(() -> service.registerBuyer(FullName.of("New Buyer"),
+                Email.of("new@test.com"), IdentityDocument.of("DOC12345"),
+                "short1", address()))
+                .isInstanceOf(InvalidDataException.class);
+        assertThatThrownBy(() -> service.registerBuyer(FullName.of("New Buyer"),
+                Email.of("new@test.com"), IdentityDocument.of("DOC12345"),
+                "onlyletters", address()))
+                .isInstanceOf(InvalidDataException.class);
+        assertThatThrownBy(() -> service.registerBuyer(FullName.of("New Buyer"),
+                Email.of("new@test.com"), IdentityDocument.of("DOC12345"),
+                "12345678", address()))
+                .isInstanceOf(InvalidDataException.class);
+    }
+
+    @Test
+    void logoutInvalidatesTokens() {
+        User user = user(UserRole.BUYER);
+        long version = user.getAuthTokenVersion();
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        service.logout(user);
+
+        assertThat(user.getAuthTokenVersion()).isEqualTo(version + 1);
+        verify(userRepository).save(user);
+        verify(auditPort).record(any());
+    }
+
+    @Test
+    void changePasswordRevalidatesAndInvalidatesTokens() {
+        User user = user(UserRole.BUYER);
+        long version = user.getAuthTokenVersion();
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(passwordService.matches("current123", user.getPasswordHash())).thenReturn(true);
+        when(passwordService.matches("newpass123", user.getPasswordHash())).thenReturn(false);
+        when(passwordService.encode("newpass123")).thenReturn(PasswordHash.of("new-hash"));
+        when(userRepository.save(user)).thenReturn(user);
+
+        service.changePassword(user, "current123", "newpass123");
+
+        assertThat(user.getPasswordHash()).isEqualTo(PasswordHash.of("new-hash"));
+        assertThat(user.getAuthTokenVersion()).isEqualTo(version + 1);
+        verify(auditPort).record(any());
+    }
+
+    @Test
+    void changePasswordRejectsWrongCurrentPasswordAndWeakNewPassword() {
+        User user = user(UserRole.BUYER);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(passwordService.matches("wrong123", user.getPasswordHash())).thenReturn(false);
+
+        assertThatThrownBy(() -> service.changePassword(user, "wrong123", "newpass123"))
+                .isInstanceOf(UnauthenticatedUserException.class);
+        assertThatThrownBy(() -> service.changePassword(user, "current123", "weak"))
+                .isInstanceOf(InvalidDataException.class);
+    }
+
     private User register(Email email, IdentityDocument document) {
         return service.registerBuyer(FullName.of("New Buyer"), email, document,
-                "secret", address());
+                "secret123", address());
     }
 }

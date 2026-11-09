@@ -115,6 +115,19 @@ class SellerControllerTest {
     }
 
     @Test
+    void getProductReturns200() throws Exception {
+        Product product = product();
+        when(customerPort.getProduct(actor, product.getId())).thenReturn(product);
+
+        mockMvc.perform(get("/api/v1/seller/products/{id}", product.getId())
+                        .with(actor(actor)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(product.getId()))
+                .andExpect(jsonPath("$.name").value("Laptop"))
+                .andExpect(jsonPath("$.type").value("PHYSICAL"));
+    }
+
+    @Test
     void updateProductReturns200() throws Exception {
         Product product = product();
         when(customerPort.updateProduct(any(), any(), any(), any(), any())).thenReturn(product);

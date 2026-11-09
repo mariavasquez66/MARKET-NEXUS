@@ -37,6 +37,11 @@ public class RefundJpaAdapter implements RefundRepositoryPort {
     }
 
     @Override
+    public List<Refund> findByOrderId(String orderId) {
+        return repository.findByOrderId(orderId).stream().map(this::toDomain).toList();
+    }
+
+    @Override
     public List<Refund> findByBuyerId(String buyerId) {
         return repository.findByBuyerId(buyerId).stream().map(this::toDomain).toList();
     }

@@ -100,6 +100,8 @@ public class GlobalExceptionHandler {
 }
 ```
 
+- La clasificación de excepciones de dominio se hace por tipo (`instanceof`),
+  nunca comparando el nombre de la clase.
 - `requestId` se obtiene de `request.getAttribute("requestId")` (lo fija el
   filtro `X-Request-Id`); si falta, se genera uno.
 - Se puede usar un `Map<Class<? extends DomainException>, HttpStatus>` para no

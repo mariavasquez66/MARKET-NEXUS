@@ -72,6 +72,12 @@ public class SellerController {
                 .toList();
     }
 
+    @GetMapping("/products/{id}")
+    public ProductResponse getProduct(@PathVariable String id,
+                                      @AuthenticationPrincipal(expression = "user") User actor) {
+        return productRestMapper.toResponse(customerPort.getProduct(actor, id));
+    }
+
     @PutMapping("/products/{id}")
     public ProductResponse updateProduct(@PathVariable String id,
                                          @Valid @RequestBody UpdateProductRequest request,

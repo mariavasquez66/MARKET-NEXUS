@@ -12,12 +12,20 @@
 | `AuthService` | OBJ-01/03 | `UserRepositoryPort`, `BuyerRepositoryPort`, `PasswordServicePort`, `JwtServicePort`, `AuditPort`, `ClockPort` | `services/AuthService.md` |
 | `UserService` | OBJ-01 | `UserRepositoryPort`, `PasswordServicePort`, `AuditPort`, `ClockPort` | `services/UserService.md` |
 | `BuyerService` | OBJ-03 | `BuyerRepositoryPort`, `AuditPort`, `ClockPort` | `services/BuyerService.md` |
+| `BuyerEligibilityService` | OBJ-03 | `BuyerRepositoryPort` | `services/BuyerEligibilityService.md` |
 | `SellerService` | OBJ-02 | `SellerRepositoryPort`, `UserRepositoryPort`, `WarehouseRepositoryPort`, `AuditPort`, `ClockPort` | `services/SellerService.md` |
 | `WarehouseService` | OBJ-04 | `WarehouseRepositoryPort`, `SellerRepositoryPort`, `UserRepositoryPort`, `AuditPort`, `ClockPort` | `services/WarehouseService.md` |
 | `CatalogService` | OBJ-05 | `ProductRepositoryPort`, `SellerRepositoryPort`, `InventoryRepositoryPort`, `AuditPort`, `ClockPort` | `services/CatalogService.md` |
+| `CatalogQueryService` | OBJ-05 | `ProductRepositoryPort`, `SellerRepositoryPort` | `services/CatalogQueryService.md` |
 | `InventoryService` | OBJ-06 | `InventoryRepositoryPort`, `InventoryMovementRepositoryPort`, `ProductRepositoryPort`, `WarehouseRepositoryPort`, `AuditPort`, `ClockPort` | `services/InventoryService.md` |
+| `InventoryQueryService` | OBJ-06 | `InventoryRepositoryPort` | `services/InventoryQueryService.md` |
 | `CartService` | OBJ-07 | `CartRepositoryPort`, `BuyerRepositoryPort`, `ProductRepositoryPort` | `services/CartService.md` |
-| `OrderService` | OBJ-08 | `CartRepositoryPort`, `BuyerRepositoryPort`, `OrderRepositoryPort`, `ProductRepositoryPort`, `InventoryRepositoryPort`, `ShipmentRepositoryPort`, `InvoiceService`, `AuditPort`, `ClockPort` | `services/OrderService.md` |
+| `OrderService` | OBJ-08 | Fachada de los cinco servicios de pedido | `services/OrderService.md` |
+| `CheckoutService` | OBJ-08 | `CartRepositoryPort`, `BuyerRepositoryPort`, `OrderRepositoryPort`, `ProductRepositoryPort`, `InventoryRepositoryPort`, `InventoryMovementRepositoryPort`, `AuditPort`, `ClockPort` | `services/CheckoutService.md` |
+| `OrderPaymentService` | OBJ-08 | `OrderRepositoryPort`, `InventoryRepositoryPort`, `InventoryMovementRepositoryPort`, `InvoiceService`, `AuditPort`, `ClockPort` | `services/OrderPaymentService.md` |
+| `OrderFulfillmentService` | OBJ-08 | `OrderRepositoryPort`, `ShipmentRepositoryPort`, `AuditPort`, `ClockPort` | `services/OrderFulfillmentService.md` |
+| `OrderLifecycleService` | OBJ-08 | `OrderRepositoryPort`, `InventoryRepositoryPort`, `InventoryMovementRepositoryPort`, `AuditPort`, `ClockPort` | `services/OrderLifecycleService.md` |
+| `OrderQueryService` | OBJ-08 | `BuyerRepositoryPort`, `OrderRepositoryPort` | `services/OrderQueryService.md` |
 | `InvoiceService` | OBJ-09 | `InvoiceRepositoryPort`, `OrderRepositoryPort`, `TaxPolicyPort`, `AuditPort`, `ClockPort` | `services/InvoiceService.md` |
 | `LogisticsService` | OBJ-10 | `ShipmentRepositoryPort`, `OrderRepositoryPort`, `WarehouseRepositoryPort`, `OrderService`, `AuditPort`, `ClockPort` | `services/LogisticsService.md` |
 | `ReturnService` | OBJ-11 | `ReturnRepositoryPort`, `OrderRepositoryPort`, `InventoryService`, `AuditPort`, `ClockPort` | `services/ReturnService.md` |

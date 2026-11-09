@@ -43,8 +43,8 @@
 | H-06 | Inconsistencias entre fuentes | **Confirmado** a nivel documental; se resolverán con las decisiones D-01…D-17 al escribir el SDD (Fase 1). |
 | H-07 | Catálogos tipo clase, no `enum` | **Confirmado**. Solo `UserRole` implementa `values()`; el resto no. `CommercialStatus` sigue con `ACTIVE/RESTRICTED` (falta renombrar a `ELIGIBLE` y añadir `SUSPENDED`, D-04). |
 | H-08 | `pom.xml` incompleto | **Parcialmente corregido**. `name=nexusmarket`, `description` y eliminación de bloques vacíos. Faltan `spring-boot-starter-validation` y la librería JWT (Fase 4). |
-| H-09 | PDF no legible por el agente | **Confirmado**. El PDF está en `SDD/`; el Anexo A del prompt se transcribirá a Markdown en Fase 1. |
-| H-10 | Matriz de responsabilidades desalineada | **Pendiente de confirmación humana** (decisión D-09, marcada ⚠). Se asumirá la propuesta del prompt y se documentará como supuesto. |
+| H-09 | PDF no legible por el agente | **Resuelto**. Extraído con PDFBox 2.0.31; 8 páginas verificadas por texto y coordenadas. |
+| H-10 | Matriz de responsabilidades desalineada | **Resuelto**. D-09 confirmada contra PDF p.8 §12: las 4 columnas existen; solo filas/roles ausentes quedan como supuesto. |
 
 ## 4. Otras observaciones
 

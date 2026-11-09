@@ -7,6 +7,7 @@ import application.adapters.rest.dto.request.ChangeMainAddressRequest;
 import application.adapters.rest.dto.request.CheckoutRequest;
 import application.adapters.rest.dto.request.RequestReturnRequest;
 import application.adapters.rest.dto.request.UpdateCartItemRequest;
+import application.adapters.rest.dto.response.AddressResponse;
 import application.adapters.rest.dto.response.BuyerResponse;
 import application.adapters.rest.dto.response.CartResponse;
 import application.adapters.rest.dto.response.InvoiceResponse;
@@ -147,6 +148,12 @@ public class BuyerController {
         return orderRestMapper.toResponse(naturalCustomerPort.cancelOrder(actor, id));
     }
 
+    @PostMapping("/orders/{id}/finalize")
+    public OrderResponse finalizeOrder(@PathVariable String id,
+                                       @AuthenticationPrincipal(expression = "user") User actor) {
+        return orderRestMapper.toResponse(naturalCustomerPort.finalizeOrder(actor, id));
+    }
+
     @GetMapping("/orders/{id}/invoice")
     public InvoiceResponse getInvoice(@PathVariable String id,
                                       @AuthenticationPrincipal(expression = "user") User actor) {
@@ -176,6 +183,12 @@ public class BuyerController {
         return naturalCustomerPort.listRefunds(actor).stream()
                 .map(refundRestMapper::toResponse)
                 .toList();
+    }
+
+    @GetMapping("/addresses")
+    public List<AddressResponse> listAddresses(
+            @AuthenticationPrincipal(expression = "user") User actor) {
+        return buyerRestMapper.toAddressResponses(naturalCustomerPort.listAddresses(actor));
     }
 
     @PostMapping("/addresses")

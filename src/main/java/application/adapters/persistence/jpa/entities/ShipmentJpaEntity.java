@@ -9,6 +9,7 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "shipments")
+@Table(name = "shipments", indexes = {
+        @Index(name = "idx_shipments_order", columnList = "order_id"),
+        @Index(name = "idx_shipments_origin", columnList = "origin_warehouse_id"),
+        @Index(name = "idx_shipments_order_origin", columnList = "order_id,origin_warehouse_id")
+})
 public class ShipmentJpaEntity {
 
     @Id

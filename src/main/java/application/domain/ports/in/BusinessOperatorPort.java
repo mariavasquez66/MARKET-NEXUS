@@ -15,6 +15,10 @@ public interface BusinessOperatorPort {
 
     Shipment createShipment(User actor, String orderId, String warehouseId);
 
+    Shipment getShipment(User actor, String shipmentId);
+
+    List<Shipment> listShipments(User actor, String orderId);
+
     Shipment startShipping(User actor, String shipmentId, String trackingNumber);
 
     Shipment confirmDelivery(User actor, String shipmentId);
