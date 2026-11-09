@@ -26,7 +26,7 @@
 | D-16 | Administrador inicial vía `CommandLineRunner` si no existe ningún `ADMIN`, usando `NEXUS_BOOTSTRAP_ADMIN_EMAIL` / `NEXUS_BOOTSTRAP_ADMIN_PASSWORD`. | Si faltan variables, no crea nada y registra un aviso. |
 | D-17 | MySQL `nexusmarket_db` (usuario `nexus_app`) con JPA; MongoDB 4.4 `nexus_audit_db` (colección `audit_logs`); perfiles `local` y `docker`. | Los tests unitarios no dependen de bases de datos. MongoDB se fija en 4.4 porque el host de verificación no soporta AVX; las imágenes 5.0+ terminan con exit code 132. |
 
-## Supuestos nuevos (A-01…A-16)
+## Supuestos nuevos (A-01…A-18)
 
 | ID | Supuesto | Motivo |
 |---|---|---|
@@ -47,6 +47,7 @@
 | A-15 | Los reportes son modelos inmutables en `domain.models.reports` (`SalesReport`, `OrderSummary`, `InventorySummary`, `ReturnSummary`, `UserSummary`). | OBJ-12 y D-01; no se exponen entidades crudas en reportes. |
 | A-16 | Los mensajes de excepción se escriben en inglés; los nombres de tests también. | §1 del prompt maestro y criterio 4 de la rúbrica. |
 | A-17 | La liberación de una reserva al cancelar se registra como movimiento `RESERVATION` positivo. | El PDF solo define cinco movimientos y no incluye uno de liberación; se conserva el catálogo exigido y se documenta el mapeo. |
+| A-18 | La auditoría MongoDB está fuera de la transacción JPA: no comparte transacción con MySQL. Si `AuditPort.record` falla, la excepción se propaga y revierte el trabajo de negocio ya ejecutado en la transacción JPA. | D-14 exige auditar; todavía no se usa outbox ni transacción distribuida. Se documenta el comportamiento actual y se revisará si la auditoría debe ser tolerante a fallos. |
 
 ## Ambigüedades resueltas por precedencia (§2)
 
