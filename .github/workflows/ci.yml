@@ -19,6 +19,8 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: maven
+      - name: Make Maven wrapper executable
+        run: chmod +x mvnw
       - name: Verify
         env:
           JWT_SECRET: ci-secret-with-at-least-thirty-two-bytes-0123456789
