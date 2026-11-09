@@ -19,6 +19,11 @@
 | SUP-13 | Una factura por pedido pagado y reglas de redondeo. | `InvoiceService`, D-12. | ¿Se emite una factura por pedido? ¿Qué reglas fiscales aplican? |
 | SUP-14 | Reglas de reembolso parcial y tope acumulado por devolución. | `RefundService`, D-15. | ¿Se permiten reembolsos parciales? |
 | SUP-15 | Contenido de reportes (ventas, pedidos, inventario, devoluciones, usuarios). | `ReportService`. | ¿Qué reportes y métricas requiere el negocio? |
+| SUP-16 | La liberación de una reserva al cancelar un pedido o fallar el checkout no tiene un movimiento propio en el PDF; debe elegirse una semántica única para `OrderLifecycleService.cancel`, `InventoryService.releaseReservation` y `CheckoutService.releaseReservations`. | A-17 registra `RESERVATION` positivo; `CheckoutService` libera sin movimiento. | ¿Se registra `ADJUSTMENT` con motivo, se revierte sin movimiento o se mantiene `RESERVATION` positivo? ¿Aplica igual a cancelación y rollback de checkout? |
+| SUP-17 | Una sola devolución activa por pedido. | `ReturnService` no lo valida; `ReturnRepositoryPort.findByOrderId` permite consultar. | ¿Se prohíbe más de una devolución activa por pedido? ¿Qué estados cuentan como activos: `REQUESTED`, `APPROVED` o ambos? |
+| SUP-18 | Devoluciones totales del pedido, sin devoluciones parciales por ítem/cantidad. | `Return` no contiene ítems ni cantidades; `ReturnService` procesa todas las asignaciones. | ¿Se permiten devoluciones parciales? Si sí, ¿qué ítems/cantidades y cómo se calcula el reembolso? |
+| SUP-19 | `PaymentStatus.FAILED` y `PaymentStatus.REFUNDED` no están definidos en el PDF; `REFUNDED` está reservado por A-07 y ninguno se usa en flujos. | `PaymentStatus`; sin uso en servicios. | ¿Se eliminan ambos, se conserva solo `REFUNDED` como reservado o se documentan como estados futuros sin uso? |
+| SUP-20 | Tope acumulado de reembolsos por pedido, no por devolución. | `RefundService` usa `findByOrderId`; D-15 y SUP-14 documentan tope por devolución. | ¿Se confirma el tope por pedido y se corrigen D-15/SUP-14? |
 
 ## Estado
 
