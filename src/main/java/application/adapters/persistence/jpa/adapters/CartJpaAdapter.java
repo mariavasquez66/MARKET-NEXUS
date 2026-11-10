@@ -27,6 +27,7 @@ public class CartJpaAdapter implements CartRepositoryPort {
     public Cart save(Cart cart) {
         CartJpaEntity saved = repository.save(mapper.toEntity(cart));
         itemRepository.deleteByCartId(saved.getId());
+        itemRepository.flush();
         List<CartItemJpaEntity> itemEntities = cart.getItems().stream()
                 .map(item -> mapper.toEntity(item, saved.getId()))
                 .toList();

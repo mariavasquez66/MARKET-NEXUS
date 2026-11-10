@@ -153,6 +153,10 @@ public class JpaDependencyResolver {
         return productMapper.toDomain(entity, sellerShallow(entity.getSellerId()), variants(entity.getId()));
     }
 
+    public Product productWithWarehouses(ProductJpaEntity entity) {
+        return productMapper.toDomain(entity, seller(entity.getSellerId()), variants(entity.getId()));
+    }
+
     public List<ProductVariant> variants(String productId) {
         return productVariantRepository.findByProductId(productId).stream()
                 .map(productMapper::toDomain)

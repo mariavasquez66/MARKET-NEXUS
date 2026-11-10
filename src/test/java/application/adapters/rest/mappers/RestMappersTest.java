@@ -295,12 +295,15 @@ class RestMappersTest {
         Seller seller = DomainFixtures.seller(DomainFixtures.admin());
         Product product = DomainFixtures.publishedPhysicalProduct(seller, DomainFixtures.operator());
         Order order = deliveredOrder(product, seller.getWarehouses().get(0).getId());
-        Return returnRequest = Return.request(order, "Broken item", REQUESTED_AT);
+        Return returnRequest = Return.request(order, "Broken item", REQUESTED_AT,
+                product.getId(), 1);
 
         ReturnResponse returnResponse = returnMapper.toResponse(returnRequest);
         assertThat(returnResponse.id()).isEqualTo(returnRequest.getId());
         assertThat(returnResponse.orderId()).isEqualTo(order.getId());
         assertThat(returnResponse.reason()).isEqualTo("Broken item");
+        assertThat(returnResponse.productId()).isEqualTo(product.getId());
+        assertThat(returnResponse.quantity()).isEqualTo(1);
         assertThat(returnResponse.status()).isEqualTo("REQUESTED");
         assertThat(returnResponse.requestedAt()).isEqualTo(REQUESTED_AT);
 

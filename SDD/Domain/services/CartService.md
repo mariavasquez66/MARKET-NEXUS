@@ -5,7 +5,8 @@
 
 ## Dependencias (constructor)
 
-`CartRepositoryPort`, `BuyerRepositoryPort`, `ProductRepositoryPort`.
+`CartRepositoryPort`, `BuyerRepositoryPort`, `ProductRepositoryPort`, `AuditPort`,
+`ClockPort`.
 
 ## Métodos
 
@@ -20,20 +21,23 @@
   (`ProductNotFoundException`) y exige `isPurchasable()`
   (`ProductNotAvailableException`). `buyer.assertCanPurchase()`.
   `cart.addItem(product, quantity)` agrupa duplicados sumando cantidades y toma
-  el precio actual como `unitPrice`. Guarda.
+  el precio actual como `unitPrice`. Guarda. **Auditoría:** `CART_ITEM_ADDED`
+  sobre `CART`, con `productId xQuantity`.
 
 ### `Cart updateQuantity(User actor, String productId, int quantity)`
 
 - `BUYER`; `quantity > 0`; `cart.updateQuantity(...)`. Si el producto no está en
-  el carrito ⇒ `InvalidDataException`. Guarda.
+  el carrito ⇒ `InvalidDataException`. Guarda. **Auditoría:**
+  `CART_ITEM_UPDATED` sobre `CART`, con `productId xQuantity`.
 
 ### `Cart removeItem(User actor, String productId)`
 
 - `BUYER`; `cart.removeItem(...)`; si no existe ⇒ `InvalidDataException`. Guarda.
+  **Auditoría:** `CART_ITEM_REMOVED` sobre `CART`, con `productId`.
 
 ### `void clearCart(User actor)`
 
-- `BUYER`; `cart.clear()` y guarda.
+- `BUYER`; `cart.clear()` y guarda. **Auditoría:** `CART_CLEARED` sobre `CART`.
 
 ## Reglas
 

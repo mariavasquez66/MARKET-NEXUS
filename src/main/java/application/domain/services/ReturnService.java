@@ -38,6 +38,14 @@ public class ReturnService {
     }
 
     public Return requestReturn(User actor, String orderId, String reason) {
+        return requestReturn(actor, orderId, reason, null, null);
+    }
+
+    public Return requestReturn(User actor,
+                                String orderId,
+                                String reason,
+                                String productId,
+                                Integer quantity) {
         ServiceSupport.requireRole(actor, UserRole.BUYER);
         if (reason == null || reason.isBlank()) {
             throw new InvalidDataException("Return reason is required");
@@ -46,7 +54,8 @@ public class ReturnService {
         if (!order.getBuyer().getUser().getId().equals(actor.getId())) {
             throw new UnauthorizedOperationException("Order does not belong to current buyer");
         }
-        Return returnRequest = returnRepository.save(Return.request(order, reason, clockPort.now()));
+        Return returnRequest = returnRepository.save(
+                Return.request(order, reason, clockPort.now(), productId, quantity));
         ServiceSupport.audit(auditPort, clockPort, AuditAction.RETURN_REQUESTED,
                 AuditEntityType.RETURN, returnRequest.getId(), actor, "Return requested");
         return returnRequest;
@@ -77,14 +86,37 @@ public class ReturnService {
         Return returnRequest = requireReturn(returnId);
         returnRequest.complete();
         Order order = returnRequest.getOrder();
-        for (StockAllocation allocation : order.getAllocations()) {
-            inventoryService.registerReturn(actor, allocation.getProductId(),
-                    allocation.getWarehouseId(), allocation.getQuantity());
+        if (returnRequest.getProductId() == null) {
+            for (StockAllocation allocation : order.getAllocations()) {
+                inventoryService.registerReturn(actor, allocation.getProductId(),
+                        allocation.getWarehouseId(), allocation.getQuantity());
+            }
+        } else {
+            registerSelectedProductReturn(actor, order, returnRequest);
         }
         Return saved = returnRepository.save(returnRequest);
         ServiceSupport.audit(auditPort, clockPort, AuditAction.RETURN_COMPLETED,
                 AuditEntityType.RETURN, saved.getId(), actor, "Return completed");
         return saved;
+    }
+
+    private void registerSelectedProductReturn(User actor, Order order, Return returnRequest) {
+        int remaining = returnRequest.getQuantity();
+        for (StockAllocation allocation : order.getAllocations()) {
+            if (remaining == 0) {
+                break;
+            }
+            if (!allocation.getProductId().equals(returnRequest.getProductId())) {
+                continue;
+            }
+            int quantity = Math.min(remaining, allocation.getQuantity());
+            inventoryService.registerReturn(actor, allocation.getProductId(),
+                    allocation.getWarehouseId(), quantity);
+            remaining -= quantity;
+        }
+        if (remaining > 0) {
+            throw new InvalidDataException("Return quantity exceeds shipped quantity");
+        }
     }
 
     public List<Return> listReturns(User actor) {

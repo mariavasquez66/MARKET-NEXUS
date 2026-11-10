@@ -12,6 +12,8 @@ public class ReturnRestMapper extends RestMapperSupport {
                 returnRequest.getId(),
                 returnRequest.getOrder().getId(),
                 returnRequest.getReason(),
+                returnRequest.getProductId(),
+                returnRequest.getQuantity(),
                 returnRequest.getStatus().getCode(),
                 returnRequest.getRequestedAt());
     }

@@ -30,6 +30,12 @@ public class ReturnJpaEntity {
     @Column(name = "order_id", length = 36, nullable = false)
     private String orderId;
 
+    @Column(name = "product_id", length = 36)
+    private String productId;
+
+    @Column(name = "quantity")
+    private Integer quantity;
+
     @Column(name = "reason", length = 1000, nullable = false)
     private String reason;
 

@@ -41,6 +41,8 @@ public interface NaturalCustomerPort {
 
     Return requestReturn(User actor, String orderId, String reason);
 
+    Return requestReturn(User actor, String orderId, String reason, String productId, Integer quantity);
+
     List<Return> listReturns(User actor);
 
     List<Refund> listRefunds(User actor);

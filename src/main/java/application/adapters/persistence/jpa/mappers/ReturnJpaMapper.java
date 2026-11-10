@@ -12,6 +12,8 @@ public class ReturnJpaMapper {
         ReturnJpaEntity entity = new ReturnJpaEntity();
         entity.setId(returnRequest.getId());
         entity.setOrderId(returnRequest.getOrder().getId());
+        entity.setProductId(returnRequest.getProductId());
+        entity.setQuantity(returnRequest.getQuantity());
         entity.setReason(returnRequest.getReason());
         entity.setStatusCode(returnRequest.getStatus());
         entity.setRequestedAt(returnRequest.getRequestedAt());
@@ -23,6 +25,8 @@ public class ReturnJpaMapper {
                 entity.getId(),
                 order,
                 entity.getReason(),
+                entity.getProductId(),
+                entity.getQuantity(),
                 entity.getStatusCode(),
                 entity.getRequestedAt());
     }

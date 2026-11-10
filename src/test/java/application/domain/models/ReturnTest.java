@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import application.domain.enums.ReturnStatus;
+import application.domain.exceptions.common.InvalidDataException;
 import application.domain.exceptions.returns.ReturnAlreadyProcessedException;
 import application.domain.exceptions.returns.ReturnNotAllowedException;
 import java.time.Instant;
@@ -37,6 +38,26 @@ class ReturnTest {
                 .isInstanceOf(ReturnNotAllowedException.class);
         assertThat(Return.request(deliveredOrder(), "Broken", NOW).getStatus())
                 .isEqualTo(ReturnStatus.REQUESTED);
+    }
+
+    @Test
+    void partialReturnRequiresPurchasedProductAndValidQuantity() {
+        Order order = deliveredOrder();
+        String productId = order.getItems().get(0).getProduct().getId();
+
+        Return partial = Return.request(order, "Broken", NOW, productId, 1);
+
+        assertThat(partial.getProductId()).isEqualTo(productId);
+        assertThat(partial.getQuantity()).isEqualTo(1);
+        assertThatThrownBy(() -> Return.request(order, "Broken", NOW, "unknown", 1))
+                .isInstanceOf(InvalidDataException.class)
+                .hasMessageContaining("not part of the order");
+        assertThatThrownBy(() -> Return.request(order, "Broken", NOW, productId, 2))
+                .isInstanceOf(InvalidDataException.class)
+                .hasMessageContaining("exceeds purchased quantity");
+        assertThatThrownBy(() -> Return.request(order, "Broken", NOW, null, 1))
+                .isInstanceOf(InvalidDataException.class)
+                .hasMessageContaining("requires a product");
     }
 
     @Test

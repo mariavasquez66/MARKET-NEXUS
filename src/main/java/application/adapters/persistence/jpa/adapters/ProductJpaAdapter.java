@@ -39,7 +39,7 @@ public class ProductJpaAdapter implements ProductRepositoryPort {
 
     @Override
     public Optional<Product> findById(String id) {
-        return repository.findById(id).map(resolver::product);
+        return repository.findById(id).map(resolver::productWithWarehouses);
     }
 
     @Override
