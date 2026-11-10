@@ -321,6 +321,51 @@ class BuyerControllerTest {
     }
 
     @Test
+    void requestPartialReturnReturnsProductAndQuantity() throws Exception {
+        Order order = deliveredOrder();
+        String productId = order.getItems().get(0).getProduct().getId();
+        Return returnRequest = Return.request(order, "Broken item",
+                CREATED_AT.plusSeconds(1200), productId, 1);
+        when(naturalCustomerPort.requestReturn(actor, order.getId(), "Broken item", productId, 1))
+                .thenReturn(returnRequest);
+
+        String body = """
+                {
+                  "reason": "Broken item",
+                  "productId": "%s",
+                  "quantity": 1
+                }
+                """.formatted(productId);
+
+        mockMvc.perform(post("/api/v1/buyer/orders/{id}/returns", order.getId())
+                        .with(RestControllerTestSupport.actor(actor))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(returnRequest.getId()))
+                .andExpect(jsonPath("$.productId").value(productId))
+                .andExpect(jsonPath("$.quantity").value(1));
+    }
+
+    @Test
+    void requestReturnRejectsNonPositiveQuantity() throws Exception {
+        Order order = deliveredOrder();
+        String body = """
+                {
+                  "reason": "Broken item",
+                  "productId": "product-1",
+                  "quantity": 0
+                }
+                """;
+
+        mockMvc.perform(post("/api/v1/buyer/orders/{id}/returns", order.getId())
+                        .with(RestControllerTestSupport.actor(actor))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void requestReturnReturnsCreatedReturn() throws Exception {
         Order order = deliveredOrder();
         Return returnRequest = Return.request(order, "Broken item", CREATED_AT.plusSeconds(1200));

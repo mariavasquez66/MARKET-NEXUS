@@ -166,7 +166,13 @@ public class BuyerController {
             @PathVariable String id,
             @Valid @RequestBody RequestReturnRequest request,
             @AuthenticationPrincipal(expression = "user") User actor) {
-        Return returnRequest = naturalCustomerPort.requestReturn(actor, id, request.reason());
+        Return returnRequest;
+        if (request.productId() == null && request.quantity() == null) {
+            returnRequest = naturalCustomerPort.requestReturn(actor, id, request.reason());
+        } else {
+            returnRequest = naturalCustomerPort.requestReturn(actor, id, request.reason(),
+                    request.productId(), request.quantity());
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(returnRestMapper.toResponse(returnRequest));
     }

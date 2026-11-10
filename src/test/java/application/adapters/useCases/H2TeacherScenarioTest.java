@@ -185,7 +185,7 @@ class H2TeacherScenarioTest {
     private TaxPolicyPort taxPolicy;
 
     @Test
-    void buyerPurchasesFromThreeSellersAndReturnsTheWholeOrder() {
+    void buyerPurchasesFromThreeSellersAndReturnsOneProduct() {
         when(clockPort.now()).thenReturn(NOW);
         when(taxPolicy.currentTaxRate()).thenReturn(new BigDecimal("0.19"));
 
@@ -250,9 +250,12 @@ class H2TeacherScenarioTest {
         assertThat(orderRepository.findById(paid.getId()).orElseThrow().getStatus())
                 .isEqualTo(OrderStatus.DELIVERED);
 
+        ScenarioProduct returnedProduct = scenario.get(2);
         Return requested = returnService.requestReturn(buyerUser, paid.getId(),
-                "Producto defectuoso");
+                "Producto defectuoso", returnedProduct.product().getId(), 1);
         assertThat(requested.getStatus()).isEqualTo(ReturnStatus.REQUESTED);
+        assertThat(requested.getProductId()).isEqualTo(returnedProduct.product().getId());
+        assertThat(requested.getQuantity()).isEqualTo(1);
 
         Return approved = returnService.approve(admin, requested.getId());
         assertThat(approved.getStatus()).isEqualTo(ReturnStatus.APPROVED);
@@ -262,7 +265,10 @@ class H2TeacherScenarioTest {
 
         for (ScenarioProduct current : scenario) {
             Inventory stored = inventoryRepository.findById(current.inventory().getId()).orElseThrow();
-            assertThat(stored.getAvailableQuantity()).isEqualTo(10);
+            int expectedAvailable = current == returnedProduct
+                    ? 10
+                    : 10 - current.quantity();
+            assertThat(stored.getAvailableQuantity()).isEqualTo(expectedAvailable);
             assertThat(stored.getReservedQuantity()).isZero();
         }
     }

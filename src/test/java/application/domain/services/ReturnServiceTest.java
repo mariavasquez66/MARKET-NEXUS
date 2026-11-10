@@ -10,14 +10,17 @@ import static application.domain.DomainFixtures.seller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import application.domain.enums.ReturnStatus;
 import application.domain.exceptions.common.UnauthorizedOperationException;
+import application.domain.models.Cart;
 import application.domain.models.Order;
 import application.domain.models.Product;
 import application.domain.models.Return;
+import application.domain.models.User;
 import application.domain.ports.out.AuditPort;
 import application.domain.ports.out.ClockPort;
 import application.domain.ports.out.OrderRepositoryPort;
@@ -89,6 +92,37 @@ class ReturnServiceTest {
                 order.getAllocations().get(0).getProductId(),
                 order.getAllocations().get(0).getWarehouseId(),
                 order.getAllocations().get(0).getQuantity());
+    }
+
+    @Test
+    void completingPartialReturnRegistersOnlyRequestedProduct() {
+        User admin = admin();
+        User logisticsActor = operator();
+        Product returned = publishedPhysicalProduct(seller(admin), logisticsActor);
+        Product untouched = publishedPhysicalProduct(seller(admin), logisticsActor);
+        Cart cart = Cart.create(buyer());
+        cart.addItem(returned, 1);
+        cart.addItem(untouched, 1);
+        Order order = Order.fromCart(cart, address(), NOW);
+        String returnedWarehouse = returned.getSeller().getWarehouses().get(0).getId();
+        String untouchedWarehouse = untouched.getSeller().getWarehouses().get(0).getId();
+        order.assignAllocations(List.of(
+                StockAllocation.of(returned.getId(), returnedWarehouse, 1),
+                StockAllocation.of(untouched.getId(), untouchedWarehouse, 1)));
+        order.confirmPayment(NOW);
+        order.markDispatched();
+        order.markDelivered();
+
+        Return returnRequest = Return.request(order, "Broken", NOW, returned.getId(), 1);
+        returnRequest.approve();
+        when(returnRepository.findById(returnRequest.getId())).thenReturn(Optional.of(returnRequest));
+
+        Return completed = service.complete(logisticsActor, returnRequest.getId());
+
+        assertThat(completed.getStatus()).isEqualTo(ReturnStatus.COMPLETED);
+        verify(inventoryService).registerReturn(logisticsActor, returned.getId(), returnedWarehouse, 1);
+        verify(inventoryService, never()).registerReturn(logisticsActor, untouched.getId(),
+                untouchedWarehouse, 1);
     }
 
     @Test

@@ -116,6 +116,15 @@ public class NaturalCustomerUseCase implements NaturalCustomerPort {
     }
 
     @Override
+    public Return requestReturn(User actor,
+                                String orderId,
+                                String reason,
+                                String productId,
+                                Integer quantity) {
+        return returnService.requestReturn(actor, orderId, reason, productId, quantity);
+    }
+
+    @Override
     public List<Return> listReturns(User actor) {
         return returnService.listReturns(actor);
     }

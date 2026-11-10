@@ -463,6 +463,26 @@ class JpaMapperRoundTripTest {
     }
 
     @Test
+    void returnMapperRoundTripPreservesPartialProductAndQuantity() {
+        Seller seller = seller("seller-return-partial");
+        Product product = physicalProduct("product-return-partial", seller, "60.00");
+        Buyer buyer = buyer("buyer-return-partial");
+        Order order = order("order-return-partial", buyer,
+                List.of(CartItem.reconstitute(product, 2, Money.cop(new BigDecimal("60.00")))),
+                Money.cop(new BigDecimal("120.00")), OrderStatus.DELIVERED,
+                PaymentStatus.CONFIRMED, List.of(), null, NOW);
+        Return returnRequest = Return.request(order, "One damaged", NOW, product.getId(), 1);
+
+        ReturnJpaEntity entity = returnMapper.toEntity(returnRequest);
+        Return roundTrip = returnMapper.toDomain(entity, order);
+
+        assertThat(entity.getProductId()).isEqualTo(product.getId());
+        assertThat(entity.getQuantity()).isEqualTo(1);
+        assertThat(roundTrip.getProductId()).isEqualTo(product.getId());
+        assertThat(roundTrip.getQuantity()).isEqualTo(1);
+    }
+
+    @Test
     void refundMapperRoundTripPreservesReturnAmountAndStatus() {
         Seller seller = seller("seller-refund");
         Product product = physicalProduct("product-refund", seller, "90.00");
