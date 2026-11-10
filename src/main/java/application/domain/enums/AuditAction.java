@@ -32,6 +32,13 @@ public class AuditAction extends DomainCatalog {
             new AuditAction("PRODUCT_DISCONTINUED", "Product Discontinued");
     public static final AuditAction INVENTORY_MOVEMENT =
             new AuditAction("INVENTORY_MOVEMENT", "Inventory Movement");
+    public static final AuditAction CART_ITEM_ADDED =
+            new AuditAction("CART_ITEM_ADDED", "Cart Item Added");
+    public static final AuditAction CART_ITEM_UPDATED =
+            new AuditAction("CART_ITEM_UPDATED", "Cart Item Updated");
+    public static final AuditAction CART_ITEM_REMOVED =
+            new AuditAction("CART_ITEM_REMOVED", "Cart Item Removed");
+    public static final AuditAction CART_CLEARED = new AuditAction("CART_CLEARED", "Cart Cleared");
     public static final AuditAction ORDER_CREATED = new AuditAction("ORDER_CREATED", "Order Created");
     public static final AuditAction ORDER_STATUS_CHANGED =
             new AuditAction("ORDER_STATUS_CHANGED", "Order Status Changed");
@@ -71,6 +78,10 @@ public class AuditAction extends DomainCatalog {
         VALUES.put("PRODUCT_SUSPENDED", PRODUCT_SUSPENDED);
         VALUES.put("PRODUCT_DISCONTINUED", PRODUCT_DISCONTINUED);
         VALUES.put("INVENTORY_MOVEMENT", INVENTORY_MOVEMENT);
+        VALUES.put("CART_ITEM_ADDED", CART_ITEM_ADDED);
+        VALUES.put("CART_ITEM_UPDATED", CART_ITEM_UPDATED);
+        VALUES.put("CART_ITEM_REMOVED", CART_ITEM_REMOVED);
+        VALUES.put("CART_CLEARED", CART_CLEARED);
         VALUES.put("ORDER_CREATED", ORDER_CREATED);
         VALUES.put("ORDER_STATUS_CHANGED", ORDER_STATUS_CHANGED);
         VALUES.put("INVOICE_ISSUED", INVOICE_ISSUED);
@@ -107,6 +118,7 @@ public class AuditAction extends DomainCatalog {
                 SELLER_REGISTERED, SELLER_TAX_ID_UPDATED, WAREHOUSE_CREATED, WAREHOUSE_UPDATED,
                 WAREHOUSE_ASSIGNED, PRODUCT_REGISTERED, PRODUCT_UPDATED, PRODUCT_PUBLISHED,
                 PRODUCT_SUSPENDED, PRODUCT_DISCONTINUED, INVENTORY_MOVEMENT, ORDER_CREATED,
+                CART_ITEM_ADDED, CART_ITEM_UPDATED, CART_ITEM_REMOVED, CART_CLEARED,
                 ORDER_STATUS_CHANGED, INVOICE_ISSUED, INVOICE_VOIDED, SHIPMENT_CREATED,
                 SHIPMENT_STARTED, SHIPMENT_DELIVERED, RETURN_REQUESTED, RETURN_APPROVED,
                 RETURN_REJECTED, RETURN_COMPLETED, REFUND_CREATED, REFUND_PROCESSED};

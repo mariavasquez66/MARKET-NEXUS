@@ -59,8 +59,11 @@ public class DomainServicesConfig {
     @Bean
     public CartService cartService(CartRepositoryPort cartRepository,
                                    BuyerRepositoryPort buyerRepository,
-                                   ProductRepositoryPort productRepository) {
-        return new CartService(cartRepository, buyerRepository, productRepository);
+                                   ProductRepositoryPort productRepository,
+                                   AuditPort auditPort,
+                                   ClockPort clockPort) {
+        return new CartService(cartRepository, buyerRepository, productRepository,
+                auditPort, clockPort);
     }
 
     @Bean
