@@ -143,6 +143,9 @@ class H2TeacherScenarioTest {
     private LogisticsService logisticsService;
 
     @Autowired
+    private CatalogService catalogService;
+
+    @Autowired
     private ReturnService returnService;
 
     @Autowired
@@ -290,11 +293,11 @@ class H2TeacherScenarioTest {
 
         Product product = Product.create(seller, name, "Product " + index,
                 ProductType.PHYSICAL, Money.cop(new BigDecimal(price)));
-        product.publish();
         productRepository.save(product);
 
         Inventory inventory = inventoryRepository.save(Inventory.create(product, warehouse, 10));
-        return new ScenarioProduct(product, warehouse, inventory, quantity);
+        Product published = catalogService.publishProduct(sellerUser, product.getId());
+        return new ScenarioProduct(published, warehouse, inventory, quantity);
     }
 
     private record ScenarioProduct(Product product,

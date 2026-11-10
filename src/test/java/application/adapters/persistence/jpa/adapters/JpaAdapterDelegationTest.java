@@ -362,18 +362,18 @@ class JpaAdapterDelegationTest {
     }
 
     @Test
-    void findProductByIdDelegatesToResolverAndRepository() {
+    void findProductByIdDelegatesToWarehouseAwareResolverAndRepository() {
         Seller seller = seller("seller-product-2");
         Product product = product("product-2", seller, "50.00", List.of());
         ProductJpaEntity entity = productMapper.toEntity(product);
         when(productRepository.findById("product-2")).thenReturn(Optional.of(entity));
-        when(resolver.product(entity)).thenReturn(product);
+        when(resolver.productWithWarehouses(entity)).thenReturn(product);
 
         Optional<Product> result = productAdapter.findById("product-2");
 
         assertThat(result).contains(product);
         verify(productRepository).findById("product-2");
-        verify(resolver).product(entity);
+        verify(resolver).productWithWarehouses(entity);
     }
 
     @Test

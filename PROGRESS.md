@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: misión docente en `fix/demo-docente`, 428 pruebas en verde.
+> Última actualización: misión docente en `fix/demo-docente`, 429 pruebas en verde.
 
 ## Entorno verificado
 
@@ -347,5 +347,11 @@ El commit de cierre de esta fase se identifica con `git log -1`.
 - P6: requisito docente registrado como `[REQUISITO-DOCENTE]` en el ledger,
   supuestos y decisiones; documentación de `CartService` y `ReturnService` en
   este commit.
-- Suite completa: `.\mvnw.cmd test` → **428 pruebas, 0 fallos, 0 errores,
-  0 omitidas; BUILD SUCCESS** en 68 suites (2026-11-10).
+- Corrección post-demo: `ProductJpaAdapter.findById` usa
+  `JpaDependencyResolver.productWithWarehouses`, así `Product.publish()` ve las
+  bodegas del vendedor; los listados conservan el resolvedor shallow. El nuevo
+  `H2PhysicalProductPublishTest` falla sin el arreglo con
+  `SellerWithoutWarehouseException`, y `H2TeacherScenarioTest` ya publica por
+  `CatalogService.publishProduct`.
+- Suite completa: `.\mvnw.cmd test` → **429 pruebas, 0 fallos, 0 errores,
+  0 omitidas; BUILD SUCCESS** en 69 suites (2026-11-10).
