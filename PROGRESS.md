@@ -2,7 +2,7 @@
 
 > Este documento refleja **solo lo comprobado** en el sistema de archivos y en Git.
 > No es fuente de verdad del diseño: el SDD lo es desde la Fase 1.
-> Última actualización: misión D9 en `feat/spec-coverage`, 420 pruebas en verde; F6 verificado, paginación diferida.
+> Última actualización: misión docente en `fix/demo-docente`, 428 pruebas en verde.
 
 ## Entorno verificado
 
@@ -331,3 +331,21 @@ El commit de cierre de esta fase se identifica con `git log -1`.
   `@SpringBootTest`; `H2OrderPersistenceTest` reutiliza el contexto de
   `H2OptimisticLockingTest`. La suma de tiempos de suites es 136.0 s; el resto
   del tiempo corresponde a arranque de JVM/contextos y compilación.
+
+## Misión docente — rama `fix/demo-docente` (2026-11-10)
+
+- P1: `H2CartPersistenceTest` reproduce la violación `CART_ITEMS(CART_ID,
+  PRODUCT_ID)` y confirma el `flush()` de `CartJpaAdapter.save`; commit `2fa19ee`.
+- P2: `H2TeacherScenarioTest` compra de tres vendedores; el orden correcto es
+  crear todos los envíos antes de iniciarlos; commit `b8f514b`.
+- P3: devolución parcial por producto/cantidad, aditiva y retrocompatible;
+  commit `a5b99bb`.
+- P4: `CART_ITEM_ADDED/UPDATED/REMOVED/CLEARED` auditados sobre `CART`;
+  commit `54edd4f`.
+- P5: `scripts/demo-flujo.ps1` ejecuta el flujo completo contra la API y consulta
+  la auditoría en MongoDB; commit `19c5a9a`.
+- P6: requisito docente registrado como `[REQUISITO-DOCENTE]` en el ledger,
+  supuestos y decisiones; documentación de `CartService` y `ReturnService` en
+  este commit.
+- Suite completa: `.\mvnw.cmd test` → **428 pruebas, 0 fallos, 0 errores,
+  0 omitidas; BUILD SUCCESS** en 68 suites (2026-11-10).

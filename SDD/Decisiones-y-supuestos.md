@@ -25,6 +25,7 @@
 | D-15 | Reembolso: monto > 0 y ≤ total del pedido; solo sobre devolución `APPROVED`/`COMPLETED`; suma de reembolsos de una devolución ≤ total del pedido. | `RefundService.generateRefund` valida el acumulado con `RefundRepositoryPort.findByReturnId`. |
 | D-16 | Administrador inicial vía `CommandLineRunner` si no existe ningún `ADMIN`, usando `NEXUS_BOOTSTRAP_ADMIN_EMAIL` / `NEXUS_BOOTSTRAP_ADMIN_PASSWORD`. | Si faltan variables, no crea nada y registra un aviso. |
 | D-17 | MySQL `nexusmarket_db` (usuario `nexus_app`) con JPA; MongoDB 4.4 `nexus_audit_db` (colección `audit_logs`); perfiles `local` y `docker`. | Los tests unitarios no dependen de bases de datos. MongoDB se fija en 4.4 porque el host de verificación no soporta AVX; las imágenes 5.0+ terminan con exit code 132. |
+| D-18 | **Requisito docente**, no requisito del PDF: flujo demostrable de tres vendedores con devolución parcial por producto/cantidad y reporte de auditoría. | `Return` gana `productId`/`quantity` nullable; el overload de `ReturnService` reingresa solo el producto elegido y mantiene la devolución total legacy. `CartService` audita `CART_*` y `scripts/demo-flujo.ps1` ejecuta el flujo completo. |
 
 ## Supuestos nuevos (A-01…A-18)
 

@@ -19,6 +19,7 @@
 | SUP-13 | Una factura por pedido pagado y reglas de redondeo. | `InvoiceService`, D-12. | ¿Se emite una factura por pedido? ¿Qué reglas fiscales aplican? |
 | SUP-14 | Reglas de reembolso parcial y tope acumulado por devolución. | `RefundService`, D-15. | ¿Se permiten reembolsos parciales? |
 | SUP-15 | Contenido de reportes (ventas, pedidos, inventario, devoluciones, usuarios). | `ReportService`. | ¿Qué reportes y métricas requiere el negocio? |
+| SUP-16 | Devolución parcial por producto y cantidad en pedidos con varios vendedores. El PDF no detalla devoluciones parciales. | Implementado como `[REQUISITO-DOCENTE]`, no como supuesto del PDF: `Return.productId/quantity` y overload de `ReturnService`. | ¿La devolución parcial debe reembolsar solo el producto seleccionado y reingresar únicamente esa cantidad? |
 
 ## Estado
 

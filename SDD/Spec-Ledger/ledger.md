@@ -99,6 +99,8 @@
 | REQ-082 | La persistencia JPA/MongoDB, Docker y perfiles no son requisitos del PDF. | p.3 §3.2 | Técnico | Infraestructura | — | [TECH] | CUBIERTO por SDD/prompt |
 | REQ-083 | La auditoría en MongoDB no es un requisito del PDF. | p.3 §3.2 | Técnico | Auditoría | — | [TECH] | CUBIERTO por SDD/prompt |
 | REQ-084 | La forma REST, códigos HTTP y DTOs no son requisitos del PDF. | p.3 §3.2 | Técnico | API | — | [TECH] | CUBIERTO por SDD/prompt |
+| REQ-085 | Flujo demostrable solicitado por el docente: carrito con tres productos de tres vendedores distintos, checkout, pago, envío, devolución de un producto y reporte de auditoría. | — (enunciado del docente) | Requisito docente | Carrito/Pedidos/Posventa/Auditoría | OBJ-07/08/11/12 | [REQUISITO-DOCENTE] | CUBIERTO: `H2TeacherScenarioTest`, `scripts/demo-flujo.ps1`, `GET /api/v1/supervisor/audit-logs` |
+| REQ-086 | La devolución puede limitarse a un producto y cantidad de un pedido con varios vendedores, sin cambiar la devolución total previa. | — (enunciado del docente) | Requisito docente | Posventa | OBJ-11 | [REQUISITO-DOCENTE] | CUBIERTO: `Return.productId/quantity`, `ReturnService`; retrocompatible con la solicitud legacy |
 
 ## Validación explícita solicitada
 
